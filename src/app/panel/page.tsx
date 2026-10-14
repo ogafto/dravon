@@ -15,7 +15,7 @@ export default async function PanelPage() {
   const admin = await isAdmin();
   return (
     <section className="pnl">
-      <div className="container">{admin ? <PanelApp /> : <PanelLogin configured={panelConfigured()} />}</div>
+      <div className="container">{admin ? <PanelApp /> : <PanelLogin configured={await panelConfigured()} />}</div>
     </section>
   );
 }

@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { site } from "@/config/site";
-import { modes } from "@/data/shop";
+import { site as defaults } from "@/config/site";
+import { getSiteInfo } from "@/lib/config";
+import { getModes } from "@/lib/shop-data";
 import { PixelIcon } from "./PixelIcon";
 
-export function Footer() {
+export async function Footer() {
+  const [info, modes] = await Promise.all([getSiteInfo(), getModes()]);
+  const site = { ...info, credits: defaults.credits };
   const shop = modes.find((m) => m.status === "active");
   const links = [
     { href: "/", label: "Start" },

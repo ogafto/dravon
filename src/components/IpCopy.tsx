@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { site } from "@/config/site";
+import { useSite } from "./SiteProvider";
 import { PixelIcon } from "./PixelIcon";
 
 /** Duże pole z adresem serwera i przyciskiem kopiowania. */
 export function IpCopy() {
+  const site = useSite();
   const [copied, setCopied] = useState(false);
   return (
     <button

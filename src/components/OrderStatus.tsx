@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { site } from "@/config/site";
+import { useSite } from "./SiteProvider";
 import { formatPrice } from "@/lib/format";
 import { useCart } from "./CartProvider";
 import { HowToPlay } from "./PlayActions";
@@ -45,6 +45,7 @@ const DELIVERY_POLL_MS = 5000;
 const MAX_DELIVERY_POLLS = 120; // potem ~10 minut śledzenia dostawy na serwer
 
 export function OrderStatus({ orderId }: { orderId?: string }) {
+  const site = useSite();
   const cart = useCart();
   const [id, setId] = useState(orderId);
   const [info, setInfo] = useState<OrderInfo | null>(null);

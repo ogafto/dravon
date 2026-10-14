@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { site } from "@/config/site";
 import type { Product, Variant } from "@/data/shop";
-import { findVariant, maxQuantity } from "@/lib/catalog";
+import { findVariant, maxQuantity, splitCommands } from "@/lib/catalog";
+import { getPayments, getRawSettings, getSiteInfo } from "@/lib/config";
 import { getShopModes } from "@/lib/shop-data";
 import { fromCents, toCents } from "@/lib/format";
 import { createTransaction, SimPayError, type PaymentMethod } from "@/lib/simpay";
@@ -22,9 +22,8 @@ type Body = {
 /** Co plugin ma zrobić po opłaceniu (komendy jeszcze bez {nick}/{qty}). */
 function gameSnapshot(product: Product, variant: Variant): OrderLine["game"] {
   return {
-    commands: variant.commands?.length ? variant.commands : [variant.command],
+    ...splitCommands(product, variant),
     broadcast: variant.broadcast,
-    delivery: product.game?.delivery,
     icon: product.game?.icon,
     model: product.game?.model,
     stack: !!product.stack,
@@ -119,6 +118,9 @@ export async function POST(req: Request) {
   const store = getStore();
   await store.saveOrder(order);
 
+  const [site, payments, saved] = await Promise.all([getSiteInfo(), getPayments(), getRawSettings()]);
+  // adres powrotu z SimPay: z panelu (albo .env), a gdy pusty – ten, z którego klient wszedł
+  const base = (saved.site?.url || process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin).replace(/\/+$/, "");
   try {
     const tx = await createTransaction({
       amount,
@@ -127,9 +129,9 @@ export async function POST(req: Request) {
       method,
       nick,
       email: order.email,
-      successUrl: `${site.url}/platnosc/sukces?zamowienie=${order.id}`,
-      failureUrl: `${site.url}/platnosc/blad?zamowienie=${order.id}`,
-    });
+      successUrl: `${base}/platnosc/sukces?zamowienie=${order.id}`,
+      failureUrl: `${base}/platnosc/blad?zamowienie=${order.id}`,
+    }, payments);
     if (tx.transactionId) await store.updateOrder(order.id, { transactionId: tx.transactionId });
 
     // `paymentUrl` – zgodność z odpowiedzią starego checkout.php

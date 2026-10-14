@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { JoinCta } from "@/components/JoinCta";
 import { ModeTile } from "@/components/ModeTile";
-import { modes } from "@/data/shop";
+import { getShopModes } from "@/lib/shop-data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Sklep",
   description: "Sklep serwera Dravon.pl. Wybierz tryb gry i kup rangi, klucze oraz pakiety z automatyczną dostawą.",
 };
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const modes = await getShopModes();
   return (
     <>
     <section className="section">

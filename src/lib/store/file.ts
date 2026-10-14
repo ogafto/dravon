@@ -2,7 +2,13 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Delivery, DeliveryAck, DeliveryInfo, Order, RecentPurchase, SavedCatalog, ShopSettings, Store } from "./types";
 
-type Data = { orders: Record<string, Order>; queue: Delivery[]; catalog?: SavedCatalog; settings?: ShopSettings };
+type Data = {
+  orders: Record<string, Order>;
+  queue: Delivery[];
+  catalog?: SavedCatalog;
+  settings?: ShopSettings;
+  meta?: Record<string, string>;
+};
 
 /**
  * Magazyn w pliku JSON – dla hostingu z trwałym dyskiem (VPS, `next start`).
@@ -130,6 +136,16 @@ export class FileStore implements Store {
   saveSettings(settings: ShopSettings) {
     return this.run((d) => {
       d.settings = settings;
+    }, true);
+  }
+
+  getMeta(key: string) {
+    return this.run((d) => d.meta?.[key] ?? null, false);
+  }
+
+  setMeta(key: string, value: string) {
+    return this.run((d) => {
+      d.meta = { ...d.meta, [key]: value };
     }, true);
   }
 

@@ -3,13 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { OrdersTab } from "./OrdersTab";
+import { ModesTab } from "./ModesTab";
+import { PaymentsTab } from "./PaymentsTab";
+import { PluginTab } from "./PluginTab";
 import { ProductsTab } from "./ProductsTab";
-import { SettingsTab } from "./SettingsTab";
+import { SiteTab } from "./SiteTab";
 
 const TABS = [
   { id: "zakupy", label: "Zakupy" },
   { id: "produkty", label: "Produkty i ceny" },
-  { id: "ustawienia", label: "Ustawienia" },
+  { id: "tryby", label: "Tryby" },
+  { id: "platnosci", label: "Płatności" },
+  { id: "plugin", label: "Serwer i plugin" },
+  { id: "strona", label: "Strona" },
 ] as const;
 
 type Tab = (typeof TABS)[number]["id"];
@@ -63,7 +69,10 @@ export function PanelApp() {
       </header>
       {tab === "zakupy" && <OrdersTab />}
       {tab === "produkty" && <ProductsTab />}
-      {tab === "ustawienia" && <SettingsTab />}
+      {tab === "tryby" && <ModesTab />}
+      {tab === "platnosci" && <PaymentsTab />}
+      {tab === "plugin" && <PluginTab />}
+      {tab === "strona" && <SiteTab />}
     </div>
   );
 }

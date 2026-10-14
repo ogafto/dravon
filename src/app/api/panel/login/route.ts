@@ -1,26 +1,27 @@
 import { NextResponse } from "next/server";
-import { checkPassword, newSession, PANEL_COOKIE, panelConfigured } from "@/lib/panel-auth";
+import { checkPassword, newSession, panelConfigured, passwordProblem, sameOrigin, sessionCookie, setPassword } from "@/lib/panel-auth";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
+/**
+ * Logowanie. Gdy panel nie ma jeszcze hasła – to samo żądanie ustawia pierwsze hasło
+ * (zrób to od razu po wdrożeniu strony).
+ */
 export async function POST(req: Request) {
+  if (!sameOrigin(req)) return NextResponse.json({ status: "error", message: "Niedozwolone źródło żądania" }, { status: 403 });
   if (!rateLimit(`panel-login:${clientIp(req.headers)}`, 5, 10 * 60_000)) {
     return NextResponse.json({ status: "error", message: "Za dużo prób. Spróbuj za 10 minut." }, { status: 429 });
   }
-  if (!panelConfigured()) {
-    return NextResponse.json({ status: "error", message: "Panel nie ma hasła – ustaw ADMIN_PASSWORD na hostingu." }, { status: 503 });
-  }
   const body = (await req.json().catch(() => ({}))) as { password?: unknown };
-  if (typeof body.password !== "string" || !checkPassword(body.password)) {
+  const password = typeof body.password === "string" ? body.password : "";
+
+  if (!(await panelConfigured())) {
+    const problem = passwordProblem(password);
+    if (problem) return NextResponse.json({ status: "error", message: problem }, { status: 400 });
+    await setPassword(password);
+  } else if (!(await checkPassword(password))) {
     return NextResponse.json({ status: "error", message: "Złe hasło." }, { status: 401 });
   }
-  const session = newSession();
   const res = NextResponse.json({ status: "success" });
-  res.cookies.set(PANEL_COOKIE, session.value, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    maxAge: session.maxAge,
-  });
+  sessionCookie(res, await newSession());
   return res;
 }

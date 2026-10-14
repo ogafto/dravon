@@ -1,15 +1,15 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { site } from "@/config/site";
+import { useSite } from "./SiteProvider";
 import { PixelIcon } from "./PixelIcon";
 
-async function copyIp() {
+async function copyIp(ip: string) {
   try {
-    await navigator.clipboard.writeText(site.serverIp);
+    await navigator.clipboard.writeText(ip);
   } catch {
     const el = document.createElement("textarea");
-    el.value = site.serverIp;
+    el.value = ip;
     document.body.appendChild(el);
     el.select();
     document.execCommand("copy");
@@ -19,6 +19,7 @@ async function copyIp() {
 
 /** Modal z instrukcją dołączenia do serwera. */
 export function HowToPlay({ label = "Jak grać?", className = "btn btn-dark" }: { label?: string; className?: string }) {
+  const site = useSite();
   const ref = useRef<HTMLDialogElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -53,7 +54,7 @@ export function HowToPlay({ label = "Jak grać?", className = "btn btn-dark" }: 
               type="button"
               className={`btn ${copied ? "btn-green" : "btn-primary"}`}
               onClick={async () => {
-                await copyIp();
+                await copyIp(site.serverIp);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1800);
               }}
@@ -69,6 +70,7 @@ export function HowToPlay({ label = "Jak grać?", className = "btn btn-dark" }: 
 
 /** Zestaw przycisków z hero: GRAJ (kopiuje IP), Discord, Jak grać? */
 export function PlayActions() {
+  const site = useSite();
   const [copied, setCopied] = useState(false);
   return (
     <>
@@ -77,7 +79,7 @@ export function PlayActions() {
           type="button"
           className={`btn btn-lg ${copied ? "btn-green" : "btn-primary"}`}
           onClick={async () => {
-            await copyIp();
+            await copyIp(site.serverIp);
             setCopied(true);
             setTimeout(() => setCopied(false), 2400);
           }}

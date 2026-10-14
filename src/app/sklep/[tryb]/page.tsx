@@ -8,10 +8,10 @@ import { ItemCard } from "@/components/ItemCard";
 import { ModeTile } from "@/components/ModeTile";
 import { PixelIcon } from "@/components/PixelIcon";
 import { RankCard } from "@/components/RankCard";
-import { site } from "@/config/site";
-import { modes, type CategoryId } from "@/data/shop";
+import type { CategoryId } from "@/data/shop";
+import { getSiteInfo } from "@/lib/config";
 import { categoriesFor } from "@/lib/catalog";
-import { getShopMode } from "@/lib/shop-data";
+import { getShopMode, getShopModes } from "@/lib/shop-data";
 import { toPublicProduct } from "@/lib/public-catalog";
 
 // produkty i ceny z panelu – zawsze aktualne
@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: PageProps<"/sklep/[tryb]">): 
 export default async function ModePage({ params, searchParams }: PageProps<"/sklep/[tryb]">) {
   const mode = await getShopMode((await params).tryb);
   if (!mode) notFound();
+  const [modes, site] = await Promise.all([getShopModes(), getSiteInfo()]);
 
   const { kategoria } = await searchParams;
   const cats = categoriesFor(mode);

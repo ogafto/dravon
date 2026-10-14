@@ -27,23 +27,25 @@ export function PanelLogin({ configured }: { configured: boolean }) {
   return (
     <form className="pnl-login panel" onSubmit={submit}>
       <h1>Panel sklepu</h1>
-      {configured ? (
-        <>
-          <p>Zaloguj się, aby zarządzać produktami i zobaczyć zakupy.</p>
-          <label className="pnl-field">
-            <span>Hasło</span>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus autoComplete="current-password" />
-          </label>
-          {error && <p className="pnl-error">{error}</p>}
-          <button className="btn btn-primary btn-block" disabled={busy || !password}>
-            {busy ? "Logowanie…" : "Zaloguj"}
-          </button>
-        </>
-      ) : (
-        <p className="pnl-error">
-          Panel nie ma jeszcze hasła. Ustaw zmienną <b>ADMIN_PASSWORD</b> na hostingu strony i wdróż ją ponownie.
-        </p>
-      )}
+      <p>
+        {configured
+          ? "Zaloguj się, aby zarządzać sklepem."
+          : "Pierwsze uruchomienie – ustaw hasło do panelu (min. 10 znaków). Zapamiętaj je!"}
+      </p>
+      <label className="pnl-field">
+        <span>{configured ? "Hasło" : "Nowe hasło"}</span>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoFocus
+          autoComplete={configured ? "current-password" : "new-password"}
+        />
+      </label>
+      {error && <p className="pnl-error">{error}</p>}
+      <button className="btn btn-primary btn-block" disabled={busy || !password}>
+        {busy ? "Chwila…" : configured ? "Zaloguj" : "Ustaw hasło i wejdź"}
+      </button>
     </form>
   );
 }

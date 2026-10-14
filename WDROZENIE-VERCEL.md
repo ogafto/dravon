@@ -1,47 +1,39 @@
 # Wdrożenie strony na Vercel (dla Ciebie, nie dla klienta)
 
+Na Vercelu ustawiasz tylko bazę. Cała reszta (SimPay, token pluginu, IP serwera, Discord, tryby,
+produkty, hasło) jest w panelu `/panel`.
+
 ## 1. Projekt
-1. Wrzuć folder `dravon-next` do repozytorium na GitHubie (prywatne).
-2. Vercel → **Add New → Project** → wybierz repozytorium → Framework: Next.js (sam wykryje) → **Deploy**.
+Vercel → **Add New → Project** → repozytorium `ogafto/dravon` → **Deploy**.
 
-## 2. Baza (bez niej zamówienia by znikały)
+## 2. Baza (wymagana)
 Vercel → projekt → **Storage → Create / Connect → Upstash (Redis)** → plan Free → **Connect** do projektu.
-Vercel sam doda zmienne `KV_REST_API_URL` i `KV_REST_API_TOKEN` – strona ich używa.
+Vercel sam doda `KV_REST_API_URL` i `KV_REST_API_TOKEN`. Potem **Deployments → … → Redeploy**.
 
-## 3. Zmienne (Settings → Environment Variables)
+## 3. Pierwsze wejście do panelu – OD RAZU po wdrożeniu
+Wejdź na `https://TWOJA-DOMENA/panel`. Panel nie ma jeszcze hasła, więc poprosi o ustawienie nowego
+(min. 10 znaków). Zrób to od razu, zanim ktoś inny trafi na stronę. Hasło możesz potem zmienić w zakładce **Strona**.
 
-| Zmienna | Skąd |
+## 4. Ustawienia w panelu
+| Zakładka | Co ustawić |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | adres strony, np. `https://dravon.pl` (albo `https://twoj-projekt.vercel.app` do pokazu) |
-| `SIMPAY_API_KEY` | panel SimPay klienta → Konto Klienta → API → Bearer Token |
-| `SIMPAY_SERVICE_ID` | panel SimPay → Płatności online → Usługi → ID usługi |
-| `SIMPAY_IPN_KEY` | panel SimPay → szczegóły usługi → Klucz IPN |
-| `SIMPAY_VERIFY_IP` | `true` (na Vercelu IP jest prawdziwe) |
-| `PLUGIN_TOKEN` | długi losowy kod – ten sam wpisujesz w `plugins/DravonSklep/config.yml` |
-| `ADMIN_PASSWORD` | hasło do panelu `/panel` – długie, dajesz klientowi |
-| `MC_SERVER_ADDRESS` | adres serwera MC (licznik graczy) |
+| **Płatności** | klucz API, ID usługi i klucz IPN z panelu SimPay klienta → **Sprawdź połączenie**. Skopiuj **adres IPN** i wklej go w SimPay (ustawienia usługi). |
+| **Serwer i plugin** | **Wygeneruj token** → wklej go w `plugins/DravonSklep/config.yml` na serwerze. Ogłoszenia, wygląd, Discord. |
+| **Strona** | nazwa, IP serwera, Discord, adres strony (np. `https://dravon.pl`). |
+| **Tryby** | tryby sklepu (nowe, nazwy, „Wkrótce”). |
+| **Produkty i ceny** | produkty, ceny, zdjęcia, komendy (pakiet: ranga w „Od razu”, przedmioty w „Do skrytki”). |
 
-Po ustawieniu: **Deployments → … → Redeploy**.
+## 5. SimPay (po stronie klienta)
+- Usługa płatności online musi mieć zaakceptowaną domenę strony.
+- Adres IPN = ten z zakładki **Płatności** (`https://TWOJA-DOMENA/api/ipn`).
 
-## 4. SimPay (u klienta w panelu SimPay)
-- Usługa płatności online musi mieć zaakceptowaną domenę strony (SimPay sprawdza stronę przy zakładaniu usługi).
-- **Adres IPN (powiadomienia):** `https://TWOJA-DOMENA/api/ipn`
-- Linki powrotu ustawia strona sama.
+## 6. Domena
+Vercel → Settings → Domains → dodaj domenę i ustaw rekordy DNS. Potem w panelu → **Strona** → adres strony.
 
-Przebieg: gracz płaci → SimPay wysyła potwierdzenie na `/api/ipn` (z podpisem – fałszywego nie przyjmie,
-kwota musi się zgadzać) → zakup trafia do kolejki → plugin na serwerze pobiera go w kilka sekund.
-
-## 5. Domena
-Vercel → Settings → Domains → dodaj `dravon.pl` i ustaw rekordy DNS, które pokaże Vercel.
-Potem zmień `NEXT_PUBLIC_SITE_URL` i adres IPN w SimPay na domenę.
-
-## 6. Sprawdzenie
-1. `https://TWOJA-DOMENA/panel` → zaloguj się hasłem z `ADMIN_PASSWORD`.
-2. Na serwerze MC: `/isodbierz admin status` → „Ostatnie udane połączenie: kilka s temu”.
-3. Testowy zakup najtańszego produktu (np. ustaw w panelu produkt za 1 zł, ukryj go potem).
+## Opcjonalnie: zmienne środowiskowe
+Działają jako zapas, gdy w panelu coś jest puste: `SIMPAY_API_KEY`, `SIMPAY_SERVICE_ID`, `SIMPAY_IPN_KEY`,
+`SIMPAY_VERIFY_IP`, `PLUGIN_TOKEN`, `ADMIN_PASSWORD`, `NEXT_PUBLIC_SITE_URL`, `MC_SERVER_ADDRESS`.
 
 ## Jak pokazać klientowi
-- Daj mu link do strony i do `/panel` + hasło. W panelu widzi zakupy, zmienia ceny, dodaje produkty z komendami,
-  wybiera ogłoszenie zakupu na serwerze.
-- Najmocniejszy pokaz: na żywo kupcie produkt za 1 zł – po kilku sekundach przychodzi na serwer, a w panelu
-  i na stronie „dziękujemy” zmienia się stan: czeka → w skrytce → odebrane.
+Daj mu link do strony, `/panel` i hasło. Najmocniejszy pokaz: w panelu produkt za 1 zł → kupcie go na żywo →
+po kilku sekundach jest na serwerze, a w panelu (Zakupy) widać: czeka → w skrytce → wydane.

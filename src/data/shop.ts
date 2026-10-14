@@ -32,6 +32,13 @@ export type Variant = {
   command: string;
   /** Kilka komend (np. pakiet) – gdy jest, zastępuje `command`. */
   commands?: string[];
+  /**
+   * Podział komend (panel): `instant` – od razu po płatności (ranga, pieniądze – działa offline),
+   * `stash` – do skrytki /isodbierz (przedmioty). Gdy są, zastępują `command`/`commands`.
+   * Pakiet: ranga w `instant`, przedmioty w `stash`.
+   */
+  instant?: string[];
+  stash?: string[];
   broadcast: string;
   badge?: string;
 };

@@ -1,9 +1,10 @@
-import { site } from "@/config/site";
+import { getSiteInfo } from "@/lib/config";
 
 export type DiscordStats = { members: number; online: number; name: string } | null;
 
 /** Publiczne liczniki z zaproszenia Discord (bez tokenu). Odświeżane co 5 minut. */
 export async function getDiscordStats(): Promise<DiscordStats> {
+  const site = await getSiteInfo();
   const code = site.discord.split("/").pop();
   try {
     const res = await fetch(`https://discord.com/api/v10/invites/${code}?with_counts=true`, {

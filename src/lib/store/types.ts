@@ -1,4 +1,4 @@
-import type { Product } from "@/data/shop";
+import type { Mode, Product } from "@/data/shop";
 
 export type OrderLine = {
   variantId: string;
@@ -10,9 +10,14 @@ export type OrderLine = {
   total: number;
   /** Kopia komend i sposobu wydania z chwili zakupu (szablony z {nick} i {qty}). */
   game?: {
-    commands: string[];
-    broadcast: string;
+    /** od razu po płatności (rangi, pieniądze) */
+    instant?: string[];
+    /** do skrytki /isodbierz (przedmioty) */
+    stash?: string[];
+    /** starszy zapis: wszystkie komendy + sposób */
+    commands?: string[];
     delivery?: "instant" | "stash";
+    broadcast: string;
     icon?: string;
     model?: string;
     stack?: boolean;
@@ -68,6 +73,8 @@ export type Delivery = {
   /** Ikona w GUI: materiał MC i opcjonalny model z paczki (np. dravon:key_vampir). */
   icon?: string;
   model?: string;
+  /** false = bez ogłoszenia na serwerze (druga część pakietu – ogłaszamy raz). */
+  announce?: boolean;
 };
 
 /** Potwierdzenie od pluginu. */
@@ -77,12 +84,46 @@ export type DeliveryInfo = { id: string; name: string; quantity: number; kind?: 
 
 export type RecentPurchase = { nick: string; item: string; at: number };
 
-/** Produkty zapisane z panelu: tryb → lista produktów (zastępuje domyślne z src/data/shop.ts). */
-export type SavedCatalog = Record<string, Product[]>;
+/** Tryby i produkty zapisane z panelu. (Stara wersja: tryb → lista produktów.) */
+export type SavedCatalog = { modes: Mode[] } | Record<string, Product[]>;
 
-/** Ustawienia z panelu. announce – jak serwer ogłasza zakup (plugin pobiera je razem z dostawami). */
+export type SiteInfo = {
+  name: string;
+  url: string;
+  serverIp: string;
+  version: string;
+  tagline: string;
+  description: string;
+  discord: string;
+  email: string;
+};
+
+export type AnnounceSettings = { chat: boolean; title: boolean; bossbar: boolean; actionbar: boolean };
+
+export type PluginSettings = {
+  /** Token pluginu DravonSklep (wpisywany w plugins/DravonSklep/config.yml). */
+  token?: string;
+  name?: string;
+  color?: string;
+  accent?: string;
+  smallCaps?: boolean;
+  discordWebhook?: string;
+  discordPurchases?: boolean;
+  discordClaims?: boolean;
+  discordAlerts?: boolean;
+};
+
+/**
+ * Wszystkie ustawienia z panelu (jeden dokument w bazie). Puste pola = wartości z .env / domyślne.
+ * Sekrety (klucze SimPay, token, hasło) panel tylko zapisuje – nigdy ich nie odsyła do przeglądarki.
+ */
 export type ShopSettings = {
-  announce: { chat: boolean; title: boolean; bossbar: boolean; actionbar: boolean };
+  site?: Partial<SiteInfo>;
+  payments?: { apiKey?: string; serviceId?: string; ipnKey?: string; verifyIp?: boolean };
+  plugin?: PluginSettings;
+  announce?: Partial<AnnounceSettings>;
+  /** scrypt: sól:hash */
+  adminPasswordHash?: string;
 };
 
 export interface Store {
@@ -114,4 +155,7 @@ export interface Store {
   /** Zdjęcia produktów wgrane w panelu (data URL, już zmniejszone w przeglądarce). */
   saveImage(id: string, dataUrl: string): Promise<void>;
   getImage(id: string): Promise<string | null>;
+  /** Drobne wartości techniczne (np. kiedy plugin ostatnio pytał o zakupy). */
+  getMeta(key: string): Promise<string | null>;
+  setMeta(key: string, value: string): Promise<void>;
 }

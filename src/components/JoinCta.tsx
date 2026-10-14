@@ -1,4 +1,4 @@
-import { site } from "@/config/site";
+import { getSiteInfo } from "@/lib/config";
 import { asset } from "@/lib/asset";
 import { Particles } from "./fx/Particles";
 import { IpCopy } from "./IpCopy";
@@ -6,7 +6,8 @@ import { ItemArt } from "./ItemArt";
 import { PixelIcon } from "./PixelIcon";
 
 /** Sekcja „Twoja ekipa już gra” – na stronie głównej i w sklepie (nie na 404, koszyku i płatnościach). */
-export function JoinCta() {
+export async function JoinCta() {
+  const site = await getSiteInfo();
   return (
     <section className="join">
       <div className="join__bg" aria-hidden />

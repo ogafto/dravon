@@ -105,16 +105,21 @@ export function OrdersTab() {
                 <span className="pnl-muted">{date(o.paidAt ?? o.createdAt)}</span>
               </div>
               <ul>
-                {o.lines.map((l, i) => {
-                  const d = o.deliveries[i];
-                  return (
-                    <li key={i}>
-                      {l.name} · {l.quantity > 1 ? `×${l.quantity}` : l.variantLabel}
-                      {d && <span className={`pnl-tag pnl-tag--${DELIVERY[d.state].tone}`}>{DELIVERY[d.state].label}</span>}
-                    </li>
-                  );
-                })}
+                {o.lines.map((l, i) => (
+                  <li key={i}>
+                    {l.name} · {l.quantity > 1 ? `×${l.quantity}` : l.variantLabel}
+                  </li>
+                ))}
               </ul>
+              {o.deliveries.length > 0 && (
+                <ul className="pnl-deliveries">
+                  {o.deliveries.map((d, i) => (
+                    <li key={i}>
+                      <span className={`pnl-tag pnl-tag--${DELIVERY[d.state].tone}`}>{DELIVERY[d.state].label}</span> {d.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {o.email && <span className="pnl-muted">{o.email}</span>}
             </div>
             <b className="pnl-order__amount">{formatPrice(o.amount)}</b>

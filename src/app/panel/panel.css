@@ -214,6 +214,10 @@
   align-items: center;
   gap: 8px;
 }
+.pnl-deliveries {
+  color: var(--muted);
+  font-size: 0.82rem !important;
+}
 .pnl-order__amount {
   font-family: var(--font-display), monospace;
   font-size: 1.4rem;
@@ -428,7 +432,110 @@
   background: color-mix(in srgb, var(--accent) 10%, var(--bg-2));
 }
 
+/* formularze ustawień */
+.pnl-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+.pnl-hint {
+  color: var(--dim);
+  font-size: 0.78rem;
+}
+.pnl-hint code,
+.pnl-muted code {
+  color: var(--accent-hi);
+}
+.pnl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pnl-copy,
+.pnl-color {
+  display: flex;
+  gap: 6px;
+}
+.pnl-copy input {
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+}
+.pnl-color input[type="color"] {
+  width: 46px;
+  padding: 2px;
+  cursor: pointer;
+}
+.pnl-preview {
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  background: #1b1b1f;
+  color: #aaa;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+}
+.pnl-preview b {
+  color: var(--c);
+}
+.pnl-preview span {
+  color: #555;
+}
+.pnl-preview i {
+  color: var(--a);
+  font-style: normal;
+}
+.pnl-preview u {
+  color: #fff;
+  text-decoration: none;
+}
+.pnl-servers {
+  display: grid;
+  gap: 6px;
+}
+.pnl-server {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  background: var(--bg-2);
+}
+.pnl-server .dot {
+  width: 10px;
+  height: 10px;
+  background: var(--red);
+}
+.pnl-server .dot.dot-online {
+  background: var(--green);
+}
+.pnl-steps {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+}
+.pnl-mode__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.pnl-mode__head img,
+.pnl-mode__head .pnl-image__empty {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.pnl-mode__head h2 {
+  font-size: 1.4rem;
+}
+
 @media (max-width: 720px) {
+  .pnl-form-grid {
+    grid-template-columns: 1fr;
+  }
   .pnl-grid,
   .pnl-variant {
     grid-template-columns: 1fr;

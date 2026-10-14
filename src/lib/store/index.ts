@@ -3,12 +3,14 @@ import { FileStore } from "./file";
 import { RedisStore } from "./redis";
 import type { Store } from "./types";
 
-export type { Delivery, DeliveryAck, DeliveryInfo, DeliveryKind, DeliveryState, Order, OrderLine, OrderStatus, RecentPurchase, SavedCatalog, ShopSettings, Store } from "./types";
+export type { Delivery, DeliveryAck, DeliveryInfo, DeliveryKind, DeliveryState, Order, OrderLine, OrderStatus, RecentPurchase, SavedCatalog, ShopSettings, SiteInfo, AnnounceSettings, PluginSettings, Store } from "./types";
 
 const globalForStore = globalThis as unknown as { __dravonStoreV3?: Store };
 
 export function getStore(): Store {
-  if (!globalForStore.__dravonStoreV3) {
+  const cached = globalForStore.__dravonStoreV3;
+  // po przeładowaniu kodu (dev) stara instancja ma stare metody – tworzymy nową
+  if (!(cached instanceof RedisStore || cached instanceof FileStore)) {
     const env = process.env;
     // Upstash podpięty ręcznie (UPSTASH_*) albo przez integrację Vercel Marketplace (KV_REST_API_*)
     const url = env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL;
@@ -19,5 +21,5 @@ export function getStore(): Store {
     }
     globalForStore.__dravonStoreV3 = url && token ? new RedisStore(url, token) : new FileStore(env.DATA_DIR || "./data");
   }
-  return globalForStore.__dravonStoreV3;
+  return globalForStore.__dravonStoreV3!;
 }

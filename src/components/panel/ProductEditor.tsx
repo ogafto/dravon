@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { Product, Variant } from "@/data/shop";
-import { api } from "./PanelApp";
 import type { PanelCategory } from "./ProductsTab";
+import { uploadImage } from "./upload";
 
 /** Ikony w skrytce /isodbierz (przedmioty z Minecrafta). */
 const ICONS = [
@@ -23,29 +23,15 @@ const ICONS = [
   ["EXPERIENCE_BOTTLE", "Butelka doświadczenia"],
 ] as const;
 
-/** Zmniejsza zdjęcie w przeglądarce (max 512 px, WebP) – szybka strona i mała baza. */
-async function shrink(file: File): Promise<string> {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((ok, fail) => {
-      const i = new Image();
-      i.onload = () => ok(i);
-      i.onerror = () => fail(new Error("To nie jest obrazek."));
-      i.src = url;
-    });
-    const scale = Math.min(1, 512 / Math.max(img.width, img.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(img.width * scale);
-    canvas.height = Math.round(img.height * scale);
-    canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const webp = canvas.toDataURL("image/webp", 0.88);
-    return webp.startsWith("data:image/webp") ? webp : canvas.toDataURL("image/png");
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+/** Komendy wariantu w dwóch polach: od razu / do skrytki (starszy zapis rozdzielany wg rodzaju produktu). */
+function commandsOf(product: Product, v: Variant): { instant: string; stash: string } {
+  if (v.instant?.length || v.stash?.length) return { instant: (v.instant ?? []).join("\n"), stash: (v.stash ?? []).join("\n") };
+  const all = (v.commands?.length ? v.commands : [v.command]).filter(Boolean);
+  const instant = product.game?.delivery === "instant" || (!product.game?.delivery && all.length > 0 && all.every((c) => /^\/?(lp|luckperms|eco|economy)\s/i.test(c)));
+  return instant ? { instant: all.join("\n"), stash: "" } : { instant: "", stash: all.join("\n") };
 }
 
-const commandsOf = (v: Variant) => (v.commands?.length ? v.commands : [v.command]).filter(Boolean).join("\n");
+const lines = (s: string) => s.split("\n").map((c) => c.trim().replace(/^\//, "")).filter(Boolean);
 
 type Props = {
   product: Product;
@@ -59,7 +45,7 @@ type Props = {
 
 export function ProductEditor({ product, isNew, categories, gallery, onSave, onCancel, onDelete }: Props) {
   const [p, setP] = useState<Product>(product);
-  const [cmds, setCmds] = useState<string[]>(product.variants.map(commandsOf));
+  const [cmds, setCmds] = useState(product.variants.map((v) => commandsOf(product, v)));
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
@@ -73,9 +59,8 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
     setUploading(true);
     setError("");
     try {
-      const data = await shrink(file);
-      const d = await api<{ url: string }>("/api/panel/image", { method: "POST", body: JSON.stringify({ data }) });
-      setP((x) => ({ ...x, image: d.url, render: d.url, renderHover: undefined }));
+      const url = await uploadImage(file);
+      setP((x) => ({ ...x, image: url, render: url, renderHover: undefined }));
     } catch (e) {
       setError((e as Error).message);
     }
@@ -86,11 +71,14 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
     if (!p.name.trim()) return setError("Wpisz nazwę produktu.");
     if (!p.render) return setError("Dodaj zdjęcie produktu.");
     const variants = p.variants.map((v, i) => {
-      const list = cmds[i].split("\n").map((c) => c.trim().replace(/^\//, "")).filter(Boolean);
-      return { ...v, command: list[0] ?? "", commands: list.length > 1 ? list : undefined };
+      const instant = lines(cmds[i].instant);
+      const stash = lines(cmds[i].stash);
+      const { commands: _old, ...rest } = v;
+      void _old;
+      return { ...rest, command: instant[0] ?? stash[0] ?? "", instant, stash };
     });
     const bad = variants.find((v) => !v.command);
-    if (bad) return setError(`Wpisz komendę dla „${bad.label || "wariantu"}”.`);
+    if (bad) return setError(`Wpisz komendę dla „${bad.label || "wariantu"}” – od razu albo do skrytki.`);
     if (variants.some((v) => !(v.price >= 1))) return setError("Cena musi wynosić co najmniej 1 zł.");
     onSave({ ...p, variants });
   }
@@ -162,8 +150,8 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
 
         <h3>Ceny i komendy</h3>
         <p className="pnl-muted">
-          Komenda wykona się na serwerze po opłaceniu. <b>{"{nick}"}</b> = nick kupującego, <b>{"{qty}"}</b> = ilość. Kilka
-          komend – każda w nowej linii.
+          Komendy wykonają się na serwerze po opłaceniu. <b>{"{nick}"}</b> = nick kupującego, <b>{"{qty}"}</b> = ilość, każda
+          komenda w nowej linii. <b>Pakiet</b> (ranga + przedmioty): rangę wpisz w „Od razu”, przedmioty w „Do skrytki”.
         </p>
         {p.variants.map((v, i) => (
           <div key={i} className="pnl-variant">
@@ -182,12 +170,22 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
               />
             </label>
             <label className="pnl-field pnl-field--wide">
-              <span>Komendy na serwerze</span>
+              <span>⚡ Od razu po zapłacie – rangi, pieniądze (działa, gdy gracz jest offline)</span>
               <textarea
                 rows={2}
-                value={cmds[i]}
-                onChange={(e) => setCmds((c) => c.map((x, j) => (j === i ? e.target.value : x)))}
-                placeholder={"lp user {nick} parent set vip"}
+                value={cmds[i].instant}
+                onChange={(e) => setCmds((c) => c.map((x, j) => (j === i ? { ...x, instant: e.target.value } : x)))}
+                placeholder={"lp user {nick} parent addtemp vip 30d"}
+                spellCheck={false}
+              />
+            </label>
+            <label className="pnl-field pnl-field--wide">
+              <span>📦 Do skrytki /isodbierz – przedmioty, klucze (gracz odbiera, gdy ma miejsce)</span>
+              <textarea
+                rows={2}
+                value={cmds[i].stash}
+                onChange={(e) => setCmds((c) => c.map((x, j) => (j === i ? { ...x, stash: e.target.value } : x)))}
+                placeholder={"crates key give {nick} vip {qty}"}
                 spellCheck={false}
               />
             </label>
@@ -219,26 +217,14 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
             className="btn btn-dark btn-sm"
             onClick={() => {
               setP((x) => ({ ...x, variants: [...x.variants, { id: "", label: "", price: 10, command: "", broadcast: "" }] }));
-              setCmds((c) => [...c, ""]);
+              setCmds((c) => [...c, { instant: "", stash: "" }]);
             }}
           >
             + Dodaj wariant (np. inny czas lub ilość)
           </button>
         )}
 
-        <h3>Na serwerze</h3>
-        <div className="pnl-options pnl-options--2">
-          <label className={`pnl-option ${p.game?.delivery === "instant" ? "is-on" : ""}`}>
-            <input type="radio" checked={p.game?.delivery === "instant"} onChange={() => set("game", { ...p.game, delivery: "instant" })} />
-            <b>Od razu</b>
-            <span>Rangi, pieniądze – nadawane automatycznie, nawet gdy gracz jest offline.</span>
-          </label>
-          <label className={`pnl-option ${p.game?.delivery !== "instant" ? "is-on" : ""}`}>
-            <input type="radio" checked={p.game?.delivery !== "instant"} onChange={() => set("game", { ...p.game, delivery: "stash" })} />
-            <b>Do skrytki /isodbierz</b>
-            <span>Przedmioty, klucze – gracz odbiera, gdy ma miejsce w ekwipunku.</span>
-          </label>
-        </div>
+        <h3>W skrytce /isodbierz</h3>
         <div className="pnl-row">
           <label className="pnl-field">
             <span>Ikona w skrytce</span>

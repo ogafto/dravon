@@ -4,12 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { nav, site } from "@/config/site";
+import { nav } from "@/config/site";
+import { useSite } from "./SiteProvider";
 import { useCart } from "./CartProvider";
 import { PixelIcon } from "./PixelIcon";
 
 export function Navbar({ shopModes }: { shopModes: string[] }) {
   const pathname = usePathname();
+  const site = useSite();
   const [open, setOpen] = useState(false);
   const cart = useCart();
 

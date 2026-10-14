@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/config/site";
+import { getSiteInfo } from "@/lib/config";
 import { getShopModes } from "@/lib/shop-data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const modes = await getShopModes();
+  const [modes, site] = await Promise.all([getShopModes(), getSiteInfo()]);
   const pages = ["", "/sklep", "/regulamin", "/polityka-prywatnosci"].map((p) => ({ url: `${site.url}${p}` }));
   const shop = modes.flatMap((m) => [
     { url: `${site.url}/sklep/${m.slug}` },

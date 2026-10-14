@@ -141,6 +141,15 @@ export class RedisStore implements Store {
     await this.exec([["SET", `${this.prefix}:settings`, JSON.stringify(settings)]]);
   }
 
+  async getMeta(key: string) {
+    const [raw] = await this.exec([["GET", `${this.prefix}:meta:${key}`]]);
+    return typeof raw === "string" ? raw : null;
+  }
+
+  async setMeta(key: string, value: string) {
+    await this.exec([["SET", `${this.prefix}:meta:${key}`, value]]);
+  }
+
   async saveImage(id: string, dataUrl: string) {
     await this.exec([["SET", `${this.prefix}:image:${id}`, dataUrl]]);
   }

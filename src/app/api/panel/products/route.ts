@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { categories, modes as defaultModes, type Product, type Variant } from "@/data/shop";
+import { categories, type Product, type Variant } from "@/data/shop";
 import { requireAdmin } from "@/lib/panel-auth";
 import { getModes } from "@/lib/shop-data";
 import { getStore } from "@/lib/store";
@@ -14,7 +14,17 @@ export async function GET(req: Request) {
   return NextResponse.json({
     status: "success",
     categories: categories.map(({ id, name }) => ({ id, name })),
-    modes: modes.map((m) => ({ slug: m.slug, name: m.name, status: m.status, products: m.products })),
+    modes: modes.map((m) => ({
+      slug: m.slug,
+      name: m.name,
+      short: m.short,
+      description: m.description,
+      version: m.version,
+      status: m.status,
+      icon: m.icon,
+      render: m.render,
+      products: m.products,
+    })),
   });
 }
 
@@ -60,11 +70,21 @@ function cleanProduct(raw: Record<string, unknown>, usedSlugs: Set<string>, used
     const label = text(v.label, 30, "Nazwa wariantu", true);
     const price = Math.round(Number(v.price) * 100) / 100;
     if (!Number.isFinite(price) || price < 1 || price > 10000) throw new Invalid(`„${name}” – cena musi być od 1 do 10000 zł.`);
-    const commands = (Array.isArray(v.commands) ? v.commands : String(v.command ?? "").split("\n"))
-      .map((c) => String(c).trim().replace(/^\//, ""))
-      .filter(Boolean);
+    const list = (x: unknown) =>
+      (Array.isArray(x) ? x : typeof x === "string" ? x.split("\n") : [])
+        .map((c) => String(c).trim().replace(/^\//, ""))
+        .filter(Boolean);
+    // od razu (ranga, pieniądze) / do skrytki (przedmioty); stary zapis „commands” → wg rodzaju produktu
+    let instant = list(v.instant);
+    let stash = list(v.stash);
+    if (!instant.length && !stash.length) {
+      const old = list(Array.isArray(v.commands) && v.commands.length ? v.commands : v.command);
+      if ((raw.game as { delivery?: string } | undefined)?.delivery === "instant") instant = old;
+      else stash = old;
+    }
+    const commands = [...instant, ...stash];
     if (!commands.length) throw new Invalid(`„${name} · ${label}” – wpisz komendę, którą serwer ma wykonać.`);
-    if (commands.length > 10 || commands.some((c) => c.length > 300)) throw new Invalid(`„${name}” – max 10 komend po 300 znaków.`);
+    if (commands.length > 15 || commands.some((c) => c.length > 300)) throw new Invalid(`„${name}” – max 15 komend po 300 znaków.`);
     let id = text(v.id, 40, "id");
     if (!/^[a-z0-9_]{2,40}$/.test(id)) id = `${slug.replace(/-/g, "_")}${i ? `_${i + 1}` : ""}`.slice(0, 40);
     while (usedIds.has(id)) id = `${id}_x`.slice(-40);
@@ -75,7 +95,8 @@ function cleanProduct(raw: Record<string, unknown>, usedSlugs: Set<string>, used
       label,
       price,
       command: commands[0],
-      ...(commands.length > 1 ? { commands } : {}),
+      ...(instant.length ? { instant } : {}),
+      ...(stash.length ? { stash } : {}),
       broadcast: text(v.broadcast, 80, "Ogłoszenie") || `${name}${variantsRaw.length > 1 ? ` (${label})` : ""}`,
       ...(badge ? { badge } : {}),
     };
@@ -108,7 +129,6 @@ function cleanProduct(raw: Record<string, unknown>, usedSlugs: Set<string>, used
     ...(raw.highlight === true ? { highlight: true } : {}),
     ...(raw.hidden === true ? { hidden: true } : {}),
     game: {
-      delivery: game.delivery === "instant" ? "instant" : "stash",
       ...(typeof game.icon === "string" && /^[A-Z0-9_]{2,40}$/.test(game.icon) ? { icon: game.icon } : {}),
       ...(typeof game.model === "string" && /^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(game.model) ? { model: game.model } : {}),
     },
@@ -120,7 +140,8 @@ export async function PUT(req: Request) {
   const denied = await requireAdmin(req);
   if (denied) return denied;
   const body = (await req.json().catch(() => ({}))) as { mode?: unknown; products?: unknown };
-  const mode = defaultModes.find((m) => m.slug === body.mode);
+  const modes = await getModes();
+  const mode = modes.find((m) => m.slug === body.mode);
   if (!mode || !Array.isArray(body.products)) {
     return NextResponse.json({ status: "error", message: "Nieprawidłowe dane." }, { status: 400 });
   }
@@ -129,18 +150,14 @@ export async function PUT(req: Request) {
   let products: Product[];
   try {
     const slugs = new Set<string>();
-    const ids = new Set<string>();
+    // id wariantów muszą być unikalne w całym sklepie (koszyk, zamówienia)
+    const ids = new Set(modes.filter((m) => m.slug !== mode.slug).flatMap((m) => m.products.flatMap((p) => p.variants.map((v) => v.id))));
     products = (body.products as Record<string, unknown>[]).map((p) => cleanProduct(p, slugs, ids));
   } catch (err) {
     if (err instanceof Invalid) return NextResponse.json({ status: "error", message: err.message }, { status: 400 });
     throw err;
   }
 
-  const store = getStore();
-  const current = (await store.getCatalog()) ?? {};
-  // pierwszy zapis: pozostałe tryby dostają swoje domyślne produkty, żeby nic nie zniknęło
-  for (const m of defaultModes) if (!current[m.slug]) current[m.slug] = m.products;
-  current[mode.slug] = products;
-  await store.saveCatalog(current);
+  await getStore().saveCatalog({ modes: modes.map((m) => (m.slug === mode.slug ? { ...m, products } : m)) });
   return NextResponse.json({ status: "success", products });
 }

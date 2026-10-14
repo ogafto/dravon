@@ -5,8 +5,10 @@ import { CartProvider } from "@/components/CartProvider";
 import { RevealObserver } from "@/components/fx/RevealObserver";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { site } from "@/config/site";
-import { modes } from "@/data/shop";
+import { SiteProvider } from "@/components/SiteProvider";
+import { site as defaults } from "@/config/site";
+import { getSiteInfo } from "@/lib/config";
+import { getModes } from "@/lib/shop-data";
 import "./globals.css";
 import "./shop.css";
 
@@ -24,30 +26,36 @@ const body = Inter({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
-  title: {
-    default: "DRAVON.PL - Strona główna",
-    template: "DRAVON.PL - %s",
-  },
-  description: site.description,
-  openGraph: {
-    type: "website",
-    locale: "pl_PL",
-    siteName: site.name,
-    title: `${site.name} – ${site.tagline}`,
+// nazwa, opis i adres strony z panelu (/panel → Strona)
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteInfo();
+  const upper = site.name.toUpperCase();
+  return {
+    metadataBase: new URL(site.url),
+    title: {
+      default: `${upper} - Strona główna`,
+      template: `${upper} - %s`,
+    },
     description: site.description,
-    images: [{ url: "/logo.png", width: 640, height: 616, alt: site.name }],
-  },
-  twitter: { card: "summary", images: ["/logo.png"] },
-};
+    openGraph: {
+      type: "website",
+      locale: "pl_PL",
+      siteName: site.name,
+      title: `${site.name} – ${site.tagline}`,
+      description: site.description,
+      images: [{ url: "/logo.png", width: 640, height: 616, alt: site.name }],
+    },
+    twitter: { card: "summary", images: ["/logo.png"] },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#0c0c0e",
   colorScheme: "dark",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [site, modes] = await Promise.all([getSiteInfo(), getModes()]);
   const shopModes = modes.filter((m) => m.status === "active").map((m) => m.slug);
   return (
     <html lang="pl" data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
@@ -57,11 +65,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <RevealObserver />
+        <SiteProvider site={{ ...site, edition: defaults.edition }}>
         <CartProvider>
           <Navbar shopModes={shopModes} />
           <main>{children}</main>
           <Footer />
         </CartProvider>
+        </SiteProvider>
       </body>
     </html>
   );

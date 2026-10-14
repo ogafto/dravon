@@ -1,7 +1,8 @@
 import "server-only";
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import { modes } from "@/data/shop";
+import { getPluginSettings } from "@/lib/config";
+import { getModes } from "@/lib/shop-data";
 
 const safeEqual = (a: string, b: string) => {
   const x = Buffer.from(a);
@@ -10,11 +11,12 @@ const safeEqual = (a: string, b: string) => {
 };
 
 /**
- * Autoryzacja pluginu: nagłówek `Authorization: Bearer <PLUGIN_TOKEN>` (albo `?token=` – stary plugin).
+ * Autoryzacja pluginu: nagłówek `Authorization: Bearer <token>` (albo `?token=` – stary plugin).
+ * Token ustawia się w panelu (Plugin → Token), zapasowo PLUGIN_TOKEN z .env.
  * Zwraca odpowiedź z błędem albo null, gdy wszystko w porządku.
  */
-export function checkPlugin(req: Request, allowQuery = false): NextResponse | null {
-  const secret = process.env.PLUGIN_TOKEN;
+export async function checkPlugin(req: Request, allowQuery = false): Promise<NextResponse | null> {
+  const secret = (await getPluginSettings()).token;
   const header = req.headers.get("authorization") ?? "";
   const provided = header.startsWith("Bearer ")
     ? header.slice(7)
@@ -28,8 +30,8 @@ export function checkPlugin(req: Request, allowQuery = false): NextResponse | nu
 }
 
 /** Tryb z zapytania – musi istnieć w katalogu (src/data/shop.ts). */
-export function pluginMode(value: unknown): string | null {
-  return typeof value === "string" && modes.some((m) => m.slug === value) ? value : null;
+export async function pluginMode(value: unknown): Promise<string | null> {
+  return typeof value === "string" && (await getModes()).some((m) => m.slug === value) ? value : null;
 }
 
 export const noStore = { "Cache-Control": "no-store" };

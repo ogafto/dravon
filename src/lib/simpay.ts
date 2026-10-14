@@ -32,10 +32,9 @@ export class SimPayError extends Error {
   }
 }
 
-export async function createTransaction(input: CreateTransactionInput) {
-  const apiKey = process.env.SIMPAY_API_KEY;
-  const serviceId = process.env.SIMPAY_SERVICE_ID;
-  if (!apiKey || !serviceId) throw new SimPayError("Brak konfiguracji SimPay (SIMPAY_API_KEY / SIMPAY_SERVICE_ID).");
+export async function createTransaction(input: CreateTransactionInput, config: { apiKey: string; serviceId: string }) {
+  const { apiKey, serviceId } = config;
+  if (!apiKey || !serviceId) throw new SimPayError("Brak konfiguracji SimPay (panel → Płatności).");
 
   const body = {
     amount: input.amount,
@@ -102,4 +101,26 @@ export async function isSimPayIp(ip: string): Promise<boolean> {
   const res = await fetch(`${API}/ip`, { cache: "no-store", signal: AbortSignal.timeout(5_000) });
   const json = (await res.json()) as { data?: string[] };
   return Array.isArray(json.data) && json.data.includes(ip);
+}
+
+/**
+ * Sprawdzenie kluczy z panelu: lista transakcji usługi (nic nie tworzy).
+ * ok = klucz API i ID usługi pasują do siebie.
+ */
+export async function testConnection(config: { apiKey: string; serviceId: string }): Promise<{ ok: boolean; message: string }> {
+  if (!config.apiKey || !config.serviceId) return { ok: false, message: "Wpisz klucz API i ID usługi." };
+  try {
+    const res = await fetch(`${API}/payment/${encodeURIComponent(config.serviceId)}/transactions?limit=1`, {
+      headers: { Authorization: `Bearer ${config.apiKey}`, Accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (res.ok) return { ok: true, message: "Połączono z SimPay – klucz API i ID usługi są poprawne." };
+    if (res.status === 401 || res.status === 403) return { ok: false, message: "SimPay odrzucił klucz API (sprawdź Bearer Token)." };
+    if (res.status === 404) return { ok: false, message: "SimPay nie zna tej usługi (sprawdź ID usługi)." };
+    const json = (await res.json().catch(() => null)) as { message?: string } | null;
+    return { ok: false, message: `SimPay: ${json?.message ?? `błąd ${res.status}`}` };
+  } catch {
+    return { ok: false, message: "Brak połączenia z SimPay. Spróbuj za chwilę." };
+  }
 }

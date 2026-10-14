@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { findVariant, fillTemplate } from "@/lib/catalog";
+import { findVariant, fillTemplate, isInstantCommand, splitCommands } from "@/lib/catalog";
+import { getPayments } from "@/lib/config";
 import { getModes } from "@/lib/shop-data";
 import { toCents } from "@/lib/format";
 import { isSimPayIp, verifyIpnSignature } from "@/lib/simpay";
@@ -34,7 +35,8 @@ export async function POST(req: Request) {
     return reject(400, "INVALID_REQUEST");
   }
 
-  const key = process.env.SIMPAY_IPN_KEY;
+  const payments = await getPayments();
+  const key = payments.ipnKey;
   if (key) {
     if (!verifyIpnSignature(payload, key)) {
       console.warn("[ipn] Nieprawidłowy podpis", payload.notification_id);
@@ -42,11 +44,11 @@ export async function POST(req: Request) {
     }
   } else if (process.env.NODE_ENV === "production") {
     // Bez klucza każdy mógłby „opłacić” zamówienie fałszywym IPN. SimPay ponowi powiadomienie po konfiguracji.
-    console.error("[ipn] Brak SIMPAY_IPN_KEY – powiadomienie odrzucone");
+    console.error("[ipn] Brak klucza IPN (panel → Płatności) – powiadomienie odrzucone");
     return reject(500, "IPN_KEY_NOT_CONFIGURED");
   }
 
-  if (process.env.SIMPAY_VERIFY_IP === "true") {
+  if (payments.verifyIp) {
     const ip = clientIp(req.headers);
     if (!(await isSimPayIp(ip).catch(() => false))) {
       console.warn("[ipn] IP spoza listy SimPay:", ip);
@@ -97,15 +99,14 @@ async function buildDeliveries(order: Order): Promise<Delivery[]> {
   const mode = (await getModes()).find((m) => m.slug === order.mode);
   const time = Math.floor(Date.now() / 1000);
   return order.lines.flatMap((line) => {
-    // 1) kopia z chwili zakupu (zamówienia od wersji z panelem), 2) aktualny katalog (starsze zamówienia)
+    // 1) kopia z chwili zakupu, 2) aktualny katalog (zamówienia sprzed panelu)
     let game = line.game;
     if (!game && mode) {
       const found = findVariant(mode, line.variantId);
       if (found) {
         game = {
-          commands: found.variant.commands?.length ? found.variant.commands : [found.variant.command],
+          ...splitCommands(found.product, found.variant),
           broadcast: found.variant.broadcast,
-          delivery: found.product.game?.delivery,
           icon: found.product.game?.icon,
           model: found.product.game?.model,
           stack: !!found.product.stack,
@@ -116,32 +117,41 @@ async function buildDeliveries(order: Order): Promise<Delivery[]> {
       console.error(`[ipn] Brak produktu ${line.variantId} dla zamówienia ${order.id} – dostawa pominięta`);
       return [];
     }
-    const commands = game.commands.map((c) => fillTemplate(c, order.nick, line.quantity));
-    return [
-      {
-        id: randomUUID(),
-        nick: order.nick,
-        product: line.variantId,
-        quantity: line.quantity,
-        price: line.total.toFixed(2),
-        command: commands[0],
-        broadcast_name: fillTemplate(game.broadcast, order.nick, line.quantity),
-        time,
-        mode: order.mode,
-        order_id: order.id,
-        kind: game.delivery ?? guessKind(commands),
-        commands,
-        name: game.stack ? `${line.name} ×${line.quantity}` : `${line.name} · ${line.variantLabel}`,
-        icon: game.icon,
-        model: game.model,
-      },
-    ];
+    let { instant = [], stash = [] } = game;
+    if (!instant.length && !stash.length && game.commands?.length) {
+      // zapis z wersji przed podziałem komend
+      if ((game.delivery ?? (game.commands.every(isInstantCommand) ? "instant" : "stash")) === "instant") instant = game.commands;
+      else stash = game.commands;
+    }
+    const broadcast = game.broadcast;
+    const fill = (list: string[]) => list.map((c) => fillTemplate(c, order.nick, line.quantity));
+    const title = game.stack ? `${line.name} ×${line.quantity}` : `${line.name} · ${line.variantLabel}`;
+    const parts: { kind: DeliveryKind; commands: string[]; name: string; icon?: string; model?: string }[] = [];
+    if (instant.length) {
+      const both = stash.length > 0;
+      parts.push({ kind: "instant", commands: fill(instant), name: both ? `${title} (ranga)` : title, icon: both ? "NAME_TAG" : game.icon, model: both ? undefined : game.model });
+    }
+    if (stash.length) parts.push({ kind: "stash", commands: fill(stash), name: title, icon: game.icon, model: game.model });
+    return parts.map((part, i) => ({
+      id: randomUUID(),
+      nick: order.nick,
+      product: line.variantId,
+      quantity: line.quantity,
+      price: i === 0 ? line.total.toFixed(2) : "0.00",
+      command: part.commands[0],
+      broadcast_name: fillTemplate(broadcast, order.nick, line.quantity),
+      time,
+      mode: order.mode,
+      order_id: order.id,
+      kind: part.kind,
+      commands: part.commands,
+      name: part.name,
+      icon: part.icon,
+      model: part.model,
+      // pakiet = dwie dostawy (ranga + skrytka), ogłaszamy go raz
+      announce: i === 0,
+    }));
   });
-}
-
-/** Rangi i pieniądze (LuckPerms, Essentials) działają bez gracza online – reszta idzie do skrytki. */
-function guessKind(commands: string[]): DeliveryKind {
-  return commands.every((c) => /^(lp|luckperms|eco|economy)\s/i.test(c.trim())) ? "instant" : "stash";
 }
 
 const deliveryInfo = (list: Delivery[]) =>

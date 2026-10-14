@@ -12,8 +12,7 @@ import { PixelIcon } from "@/components/PixelIcon";
 import { PlayActions } from "@/components/PlayActions";
 import { RankCard } from "@/components/RankCard";
 import { PlayersProof } from "@/components/ServerStatus";
-import { site } from "@/config/site";
-import { modes } from "@/data/shop";
+import { getSiteInfo } from "@/lib/config";
 import { getDiscordStats } from "@/lib/discord";
 import { formatPrice } from "@/lib/format";
 import { toPublicProduct } from "@/lib/public-catalog";
@@ -26,7 +25,8 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const discord = await getDiscordStats();
-  const main = (await getShopModes()).find((m) => m.status === "active")!;
+  const [modes, site] = await Promise.all([getShopModes(), getSiteInfo()]);
+  const main = modes.find((m) => m.status === "active")!;
   const ranks = main.products.filter((p) => p.category === "rangi");
   const items = main.products.filter((p) => p.category === "klucze" || p.category === "pakiety").slice(0, 6);
   const showcase: ShowcaseRank[] = ranks.map((p) => ({

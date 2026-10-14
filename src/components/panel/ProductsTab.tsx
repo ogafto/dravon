@@ -7,6 +7,16 @@ import { api } from "./PanelApp";
 import { ProductEditor } from "./ProductEditor";
 
 type PanelMode = { slug: string; name: string; status: string; products: Product[] };
+
+/** Krótko, jak produkt jest wydawany (lista produktów). */
+function deliveryLabel(p: Product) {
+  const v = p.variants[0];
+  const instant = v?.instant?.length ?? 0;
+  const stash = v?.stash?.length ?? 0;
+  if (instant && stash) return "Ranga od razu + przedmioty w skrytce";
+  if (instant || (!stash && p.game?.delivery === "instant")) return "Nadawane od razu";
+  return "Do skrytki /isodbierz";
+}
 export type PanelCategory = { id: Product["category"]; name: string };
 
 const EMPTY: Product = {
@@ -19,7 +29,7 @@ const EMPTY: Product = {
   description: "",
   perks: [],
   variants: [{ id: "", label: "1 szt.", price: 10, command: "", broadcast: "" }],
-  game: { delivery: "stash", icon: "CHEST" },
+  game: { icon: "CHEST" },
 };
 
 export function ProductsTab() {
@@ -133,9 +143,9 @@ export function ProductsTab() {
                     <b>{p.name}</b>
                     <span>{p.variants.map((v) => `${v.label}: ${formatPrice(v.price)}`).join(" · ")}</span>
                     <span className="pnl-muted">
-                      {p.game?.delivery === "instant" ? "Nadawane od razu" : "Do skrytki /isodbierz"}
+                      {deliveryLabel(p)}
                       {p.hidden ? " · UKRYTY" : ""}
-                      {p.variants.some((v) => v.command.startsWith("KOMENDA DO")) ? " · ⚠ brak komendy" : ""}
+                      {p.variants.some((v) => [v.command, ...(v.instant ?? []), ...(v.stash ?? [])].some((c) => c?.startsWith("KOMENDA DO"))) ? " · ⚠ wpisz prawdziwą komendę" : ""}
                     </span>
                   </div>
                   <div className="pnl-product__actions">

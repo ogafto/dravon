@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PixelIcon } from "@/components/PixelIcon";
-import { site } from "@/config/site";
+import { getSiteInfo } from "@/lib/config";
 import { getStore } from "@/lib/store";
 
 export const metadata: Metadata = { title: "Płatność przerwana", robots: { index: false } };
 
 export default async function FailurePage({ searchParams }: PageProps<"/platnosc/blad">) {
+  const site = await getSiteInfo();
   const { zamowienie } = await searchParams;
   const order = typeof zamowienie === "string" && /^[a-z0-9-]{8,80}$/i.test(zamowienie)
     ? await getStore().getOrder(zamowienie)

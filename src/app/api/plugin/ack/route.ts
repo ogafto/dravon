@@ -15,7 +15,7 @@ const ID = /^[a-z0-9-]{8,80}$/i;
  *   blocked  – plugin odmówił (komenda spoza białej listy) – do sprawdzenia przez admina.
  */
 export async function POST(req: Request) {
-  const denied = checkPlugin(req);
+  const denied = await checkPlugin(req);
   if (denied) return denied;
 
   let body: { mode?: unknown; acks?: unknown };
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ status: "error", message: "Invalid JSON" }, { status: 400 });
   }
-  const mode = pluginMode(body.mode);
+  const mode = await pluginMode(body.mode);
   if (!mode || !Array.isArray(body.acks)) {
     return NextResponse.json({ status: "error", message: "Invalid request" }, { status: 400 });
   }

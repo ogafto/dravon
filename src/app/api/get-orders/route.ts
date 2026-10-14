@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { modes } from "@/data/shop";
 import { checkPlugin } from "@/lib/plugin-auth";
+import { getModes } from "@/lib/shop-data";
 import { getStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -13,12 +13,12 @@ export const dynamic = "force-dynamic";
  * /api/plugin/deliveries + /api/plugin/ack (dostawy znikają dopiero po potwierdzeniu).
  */
 export async function GET(req: Request) {
-  const denied = checkPlugin(req, true);
+  const denied = await checkPlugin(req, true);
   if (denied) return denied;
   const url = new URL(req.url);
 
   const modeParam = url.searchParams.get("mode");
-  const targetModes = modeParam ? [modeParam] : modes.map((m) => m.slug);
+  const targetModes = modeParam ? [modeParam] : (await getModes()).map((m) => m.slug);
   const orders = await getStore().drainDeliveries(targetModes);
 
   return NextResponse.json({ status: "success", orders }, { headers: { "Cache-Control": "no-store" } });
