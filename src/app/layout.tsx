@@ -26,6 +26,9 @@ const body = Inter({
   display: "swap",
 });
 
+// ustawienia z panelu (nazwa, IP, tryby…) czytane przy każdym wejściu – bez zamrażania przy buildzie
+export const dynamic = "force-dynamic";
+
 // nazwa, opis i adres strony z panelu (/panel → Strona)
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSiteInfo();
