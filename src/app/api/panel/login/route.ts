@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkPassword, newSession, panelConfigured, passwordProblem, sameOrigin, sessionCookie, setPassword } from "@/lib/panel-auth";
-import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { clientIp, rateLimitShared } from "@/lib/rate-limit";
 
 /**
  * Logowanie. Gdy panel nie ma jeszcze hasła – to samo żądanie ustawia pierwsze hasło
@@ -8,7 +8,8 @@ import { clientIp, rateLimit } from "@/lib/rate-limit";
  */
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return NextResponse.json({ status: "error", message: "Niedozwolone źródło żądania" }, { status: 403 });
-  if (!rateLimit(`panel-login:${clientIp(req.headers)}`, 5, 10 * 60_000)) {
+  // 5 prób na 10 minut z jednego IP (licznik w bazie – działa na wszystkich instancjach)
+  if (!(await rateLimitShared(`login:${clientIp(req.headers)}`, 5, 10 * 60_000))) {
     return NextResponse.json({ status: "error", message: "Za dużo prób. Spróbuj za 10 minut." }, { status: 429 });
   }
   const body = (await req.json().catch(() => ({}))) as { password?: unknown };

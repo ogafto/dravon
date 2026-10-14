@@ -8,8 +8,10 @@ import { PaymentsTab } from "./PaymentsTab";
 import { PluginTab } from "./PluginTab";
 import { ProductsTab } from "./ProductsTab";
 import { SiteTab } from "./SiteTab";
+import { StartTab } from "./StartTab";
 
 const TABS = [
+  { id: "start", label: "Start" },
   { id: "zakupy", label: "Zakupy" },
   { id: "produkty", label: "Produkty i ceny" },
   { id: "tryby", label: "Tryby" },
@@ -39,7 +41,7 @@ export async function api<T>(url: string, init?: RequestInit): Promise<T> {
 
 export function PanelApp() {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("zakupy");
+  const [tab, setTab] = useState<Tab>("start");
 
   async function logout() {
     await fetch("/api/panel/logout", { method: "POST" }).catch(() => null);
@@ -67,6 +69,7 @@ export function PanelApp() {
           Wyloguj
         </button>
       </header>
+      {tab === "start" && <StartTab go={(t) => setTab(t as Tab)} />}
       {tab === "zakupy" && <OrdersTab />}
       {tab === "produkty" && <ProductsTab />}
       {tab === "tryby" && <ModesTab />}

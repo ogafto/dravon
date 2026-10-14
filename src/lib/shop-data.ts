@@ -8,14 +8,27 @@ import { getStore, type SavedCatalog } from "@/lib/store";
  * Jedno pobranie na żądanie (React cache).
  */
 export const getModes = cache(async (): Promise<Mode[]> => {
+  // krótka pamięć podręczna procesu (mniej zapytań do bazy); zapis z panelu ją czyści
+  if (memo && Date.now() - memo.at < 10_000) return memo.modes;
   let saved: SavedCatalog | null = null;
   try {
     saved = await getStore().getCatalog();
   } catch (err) {
     console.error("[catalog] Nie udało się wczytać produktów z bazy – używam domyślnych", err);
+    if (memo) return memo.modes;
   }
-  return modesFrom(saved);
+  const modes = modesFrom(saved);
+  memo = { at: Date.now(), modes };
+  return modes;
 });
+
+let memo: { at: number; modes: Mode[] } | null = null;
+
+/** Zapis katalogu z panelu – od razu widoczny w tej instancji. */
+export async function saveModes(modes: Mode[]) {
+  await getStore().saveCatalog({ modes });
+  memo = { at: Date.now(), modes };
+}
 
 /** Zapis z panelu → lista trybów (obsługuje też starszy zapis „tryb → produkty”). */
 export function modesFrom(saved: SavedCatalog | null): Mode[] {

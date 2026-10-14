@@ -158,4 +158,6 @@ export interface Store {
   /** Drobne wartości techniczne (np. kiedy plugin ostatnio pytał o zakupy). */
   getMeta(key: string): Promise<string | null>;
   setMeta(key: string, value: string): Promise<void>;
+  /** Licznik prób w oknie czasowym (limit logowań) – zwraca liczbę prób razem z tą. */
+  hit(key: string, windowSec: number): Promise<number>;
 }

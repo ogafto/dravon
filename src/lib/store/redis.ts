@@ -150,6 +150,12 @@ export class RedisStore implements Store {
     await this.exec([["SET", `${this.prefix}:meta:${key}`, value]]);
   }
 
+  async hit(key: string, windowSec: number) {
+    const k = `${this.prefix}:hit:${key}`;
+    const [count] = await this.exec([["INCR", k], ["EXPIRE", k, windowSec, "NX"]], true);
+    return Number(count) || 0;
+  }
+
   async saveImage(id: string, dataUrl: string) {
     await this.exec([["SET", `${this.prefix}:image:${id}`, dataUrl]]);
   }

@@ -8,13 +8,20 @@ import { getStore, type AnnounceSettings, type PluginSettings, type ShopSettings
  * Dzięki temu wszystko poza bazą danych da się ustawić w panelu, a stare wdrożenia z .env dalej działają.
  */
 export const getRawSettings = cache(async (): Promise<ShopSettings> => {
+  // krótka pamięć podręczna procesu – plugin pyta co kilka sekund, a darmowy Upstash ma limit zapytań
+  if (memo && Date.now() - memo.at < MEMO_MS) return memo.value;
   try {
-    return (await getStore().getSettings()) ?? {};
+    const value = (await getStore().getSettings()) ?? {};
+    memo = { at: Date.now(), value };
+    return value;
   } catch (err) {
     console.error("[config] Nie udało się wczytać ustawień", err);
-    return {};
+    return memo?.value ?? {};
   }
 });
+
+const MEMO_MS = 10_000;
+let memo: { at: number; value: ShopSettings } | null = null;
 
 const pick = (...values: (string | undefined | null)[]) => values.find((v) => typeof v === "string" && v.trim())?.trim() ?? "";
 
@@ -38,7 +45,8 @@ export async function getPayments() {
     apiKey: pick(p.apiKey, process.env.SIMPAY_API_KEY),
     serviceId: pick(p.serviceId, process.env.SIMPAY_SERVICE_ID),
     ipnKey: pick(p.ipnKey, process.env.SIMPAY_IPN_KEY),
-    verifyIp: p.verifyIp ?? process.env.SIMPAY_VERIFY_IP === "true",
+    // domyślnie sprawdzamy IP nadawcy powiadomień (lista z SimPay); wyłączenie tylko świadomie w panelu
+    verifyIp: p.verifyIp ?? process.env.SIMPAY_VERIFY_IP !== "false",
   };
 }
 
@@ -67,5 +75,7 @@ export async function getPluginSettings(): Promise<Required<Omit<PluginSettings,
 export async function updateSettings(patch: (s: ShopSettings) => ShopSettings) {
   const store = getStore();
   const current = (await store.getSettings()) ?? {};
-  await store.saveSettings(patch(current));
+  const next = patch(current);
+  await store.saveSettings(next);
+  memo = { at: Date.now(), value: next };
 }

@@ -149,6 +149,18 @@ export class FileStore implements Store {
     }, true);
   }
 
+  private hits = new Map<string, { count: number; reset: number }>();
+
+  async hit(key: string, windowSec: number) {
+    const now = Date.now();
+    const b = this.hits.get(key);
+    if (!b || b.reset < now) {
+      this.hits.set(key, { count: 1, reset: now + windowSec * 1000 });
+      return 1;
+    }
+    return ++b.count;
+  }
+
   private imageFile(id: string) {
     return path.join(path.dirname(this.file), "images", `${id.replace(/[^a-z0-9-]/gi, "")}.txt`);
   }

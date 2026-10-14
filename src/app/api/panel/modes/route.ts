@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import type { Mode } from "@/data/shop";
 import type { IconName } from "@/components/PixelIcon";
 import { requireAdmin } from "@/lib/panel-auth";
-import { getModes } from "@/lib/shop-data";
-import { getStore } from "@/lib/store";
+import { getModes, saveModes } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +59,6 @@ export async function PUT(req: Request) {
   if (!next.some((m) => m.status === "active")) {
     return NextResponse.json({ status: "error", message: "Co najmniej jeden tryb musi być włączony." }, { status: 400 });
   }
-  await getStore().saveCatalog({ modes: next });
+  await saveModes(next);
   return NextResponse.json({ status: "success", modes: next.map(({ products, ...m }) => ({ ...m, productCount: products.length })) });
 }

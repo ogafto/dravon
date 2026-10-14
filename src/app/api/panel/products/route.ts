@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { categories, type Product, type Variant } from "@/data/shop";
 import { requireAdmin } from "@/lib/panel-auth";
-import { getModes } from "@/lib/shop-data";
-import { getStore } from "@/lib/store";
+import { getModes, saveModes } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +62,7 @@ function cleanProduct(raw: Record<string, unknown>, usedSlugs: Set<string>, used
   const image = text(raw.render ?? raw.image, 300, "Zdjęcie");
   if (!image || !IMAGE.test(image)) throw new Invalid(`Dodaj zdjęcie produktu „${name}”.`);
 
+  const isStack = Number((raw.stack as { max?: unknown } | undefined)?.max) > 1;
   const variantsRaw = Array.isArray(raw.variants) ? (raw.variants as Record<string, unknown>[]) : [];
   if (!variantsRaw.length) throw new Invalid(`„${name}” musi mieć co najmniej jedną cenę (wariant).`);
   if (variantsRaw.length > 6) throw new Invalid(`„${name}” – maksymalnie 6 wariantów.`);
@@ -97,7 +97,9 @@ function cleanProduct(raw: Record<string, unknown>, usedSlugs: Set<string>, used
       command: commands[0],
       ...(instant.length ? { instant } : {}),
       ...(stash.length ? { stash } : {}),
-      broadcast: text(v.broadcast, 80, "Ogłoszenie") || `${name}${variantsRaw.length > 1 ? ` (${label})` : ""}`,
+      broadcast:
+        text(v.broadcast, 80, "Ogłoszenie") ||
+        (isStack ? `${name} (x{qty})` : `${name}${variantsRaw.length > 1 ? ` (${label})` : ""}`),
       ...(badge ? { badge } : {}),
     };
   });
@@ -158,6 +160,6 @@ export async function PUT(req: Request) {
     throw err;
   }
 
-  await getStore().saveCatalog({ modes: modes.map((m) => (m.slug === mode.slug ? { ...m, products } : m)) });
+  await saveModes(modes.map((m) => (m.slug === mode.slug ? { ...m, products } : m)));
   return NextResponse.json({ status: "success", products });
 }
