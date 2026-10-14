@@ -1,0 +1,42 @@
+{
+ "providers": [
+  {
+   "type": "bitmap",
+   "file": "dravon:font/icons.png",
+   "height": 8,
+   "ascent": 7,
+   "chars": [
+    ""
+   ]
+  },
+  {
+   "type": "bitmap",
+   "file": "dravon:font/badge.png",
+   "height": 9,
+   "ascent": 8,
+   "chars": [
+    ""
+   ]
+  },
+  {
+   "type": "bitmap",
+   "file": "dravon:font/divider.png",
+   "height": 5,
+   "ascent": 5,
+   "chars": [
+    ""
+   ]
+  },
+  {
+   "type": "space",
+   "advances": {
+    "": -1,
+    "": 2
+   }
+  },
+  {
+   "type": "reference",
+   "id": "minecraft:default"
+  }
+ ]
+}

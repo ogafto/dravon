@@ -1,0 +1,23 @@
+{
+ "providers": [
+  {
+   "type": "bitmap",
+   "file": "dravon:font/sc.png",
+   "height": 11,
+   "ascent": 9,
+   "chars": [
+    "ABCDEFGHIJKLMNOP",
+    "QRSTUVWXYZĄĆĘŁŃÓ",
+    "ŚŹŻabcdefghijklm",
+    "nopqrstuvwxyząćę",
+    "łńóśźż0123456789",
+    ".,:!?-/()%+'$–→#",
+    "★«»=·\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+   ]
+  },
+  {
+   "type": "reference",
+   "id": "minecraft:default"
+  }
+ ]
+}

@@ -1,0 +1,391 @@
+{
+  "providers": [
+    {
+      "type": "space",
+      "advances": {
+        "": -22,
+        "": -1,
+        "": -205,
+        "": -183
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_main_0.png",
+      "ascent": 57,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_main_1.png",
+      "ascent": 57,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_main_2.png",
+      "ascent": -29,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_main_3.png",
+      "ascent": -29,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_main_4.png",
+      "ascent": -115,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_main_5.png",
+      "ascent": -115,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_tiers_0.png",
+      "ascent": 57,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_tiers_1.png",
+      "ascent": 57,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_tiers_2.png",
+      "ascent": -29,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_tiers_3.png",
+      "ascent": -29,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_tiers_4.png",
+      "ascent": -115,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_tiers_5.png",
+      "ascent": -115,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_levels_0.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_levels_1.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_levels_2.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_levels_3.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_levels_4.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_levels_5.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_admin_0.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_admin_1.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_admin_2.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_admin_3.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_admin_4.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_admin_5.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_0.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_1.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_2.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_3.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_4.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_5.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_set_0.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_set_1.png",
+      "ascent": 57,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_set_2.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_set_3.png",
+      "ascent": -35,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_set_4.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/ulepsz_edit_set_5.png",
+      "ascent": -127,
+      "height": 92,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/lobby_tryby_0.png",
+      "ascent": 57,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/lobby_tryby_1.png",
+      "ascent": 57,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/lobby_tryby_2.png",
+      "ascent": -29,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/lobby_tryby_3.png",
+      "ascent": -29,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/lobby_tryby_4.png",
+      "ascent": -115,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "dravon:gui/lobby_tryby_5.png",
+      "ascent": -115,
+      "height": 86,
+      "chars": [
+        ""
+      ]
+    }
+  ]
+}

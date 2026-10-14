@@ -1,0 +1,51 @@
+{
+ "textures": {
+  "t": "dravon:item/gui_fx/smoke_4",
+  "particle": "dravon:item/gui_fx/smoke_4"
+ },
+ "elements": [
+  {
+   "from": [
+    -16,
+    -16,
+    8
+   ],
+   "to": [
+    32,
+    32,
+    8
+   ],
+   "faces": {
+    "south": {
+     "uv": [
+      0,
+      0,
+      16,
+      16
+     ],
+     "texture": "#t"
+    }
+   }
+  }
+ ],
+ "gui_light": "front",
+ "display": {
+  "gui": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    1.3333333333333333,
+    1.3333333333333333,
+    1
+   ]
+  }
+ }
+}

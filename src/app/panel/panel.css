@@ -1,0 +1,467 @@
+/* Panel sklepu (/panel) – te same kolory i przyciski co strona, układ roboczy. */
+
+.pnl {
+  padding: 36px 0 80px;
+}
+
+.pnl h1,
+.pnl h2,
+.pnl h3 {
+  margin: 0;
+  font-family: var(--font-display), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.pnl h1 {
+  font-size: 2.4rem;
+}
+.pnl h2 {
+  font-size: 1.6rem;
+}
+.pnl h3 {
+  margin-top: 22px;
+  font-size: 1.3rem;
+}
+
+.pnl-muted {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.pnl-error {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--red);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  color: #ffd2d6;
+  font-size: 0.9rem;
+}
+.pnl-note {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--green);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
+  font-size: 0.9rem;
+}
+.pnl-spacer {
+  flex: 1;
+}
+
+/* logowanie */
+.pnl-login {
+  display: grid;
+  gap: 14px;
+  max-width: 380px;
+  margin: 40px auto;
+  padding: 28px;
+}
+.pnl-login p {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* pola */
+.pnl-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.pnl-field input,
+.pnl-field select,
+.pnl-field textarea,
+.pnl-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--line-2);
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+}
+.pnl-field textarea {
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.86rem;
+}
+.pnl-field input:focus,
+.pnl-field select:focus,
+.pnl-field textarea:focus,
+.pnl-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.pnl-input {
+  width: auto;
+  min-width: 220px;
+}
+.pnl-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+.pnl-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+/* nagłówek i zakładki */
+.pnl-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.pnl-tabs {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.pnl-tabs button {
+  padding: 10px 16px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-display), monospace;
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.pnl-tabs button:hover {
+  color: var(--text);
+}
+.pnl-tabs button.is-active {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+.pnl-section {
+  display: grid;
+  gap: 16px;
+}
+.pnl-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+/* statystyki */
+.pnl-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+.pnl-stat {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 2px solid var(--line);
+  background: var(--card);
+}
+.pnl-stat span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.pnl-stat b {
+  font-family: var(--font-display), monospace;
+  font-size: 1.9rem;
+}
+
+/* zamówienia */
+.pnl-orders {
+  display: grid;
+  gap: 8px;
+}
+.pnl-order {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 14px;
+  align-items: start;
+  padding: 14px;
+  border: 2px solid var(--line);
+  background: var(--card);
+}
+.pnl-order img {
+  image-rendering: pixelated;
+}
+.pnl-order__main {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.pnl-order__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.pnl-order ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+.pnl-order li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.pnl-order__amount {
+  font-family: var(--font-display), monospace;
+  font-size: 1.4rem;
+  white-space: nowrap;
+}
+.pnl-tag {
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.pnl-tag--ok {
+  color: var(--green);
+}
+.pnl-tag--wait {
+  color: var(--muted);
+}
+.pnl-tag--info {
+  color: var(--accent-hi);
+}
+.pnl-tag--bad {
+  color: var(--red);
+}
+
+/* produkty */
+.pnl-cat {
+  display: grid;
+  gap: 10px;
+}
+.pnl-products {
+  display: grid;
+  gap: 8px;
+}
+.pnl-product {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  background: var(--card);
+}
+.pnl-product.is-hidden {
+  opacity: 0.5;
+}
+.pnl-product img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.pnl-product__info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 0.92rem;
+}
+.pnl-product__actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* edytor */
+.pnl-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: start center;
+  padding: 24px 16px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.7);
+}
+.pnl-editor {
+  display: grid;
+  gap: 12px;
+  width: min(860px, 100%);
+  padding: 24px;
+}
+.pnl-editor header,
+.pnl-editor footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pnl-editor header h2 {
+  flex: 1;
+}
+.pnl-editor footer {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 2px solid var(--line);
+}
+.pnl-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+}
+.pnl-form {
+  display: grid;
+  gap: 12px;
+}
+.pnl-image {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.pnl-image > img,
+.pnl-image__empty {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px dashed var(--line-2);
+  background: var(--bg-2);
+  object-fit: contain;
+}
+.pnl-image__empty {
+  display: grid;
+  place-items: center;
+  color: var(--dim);
+  font-size: 0.85rem;
+}
+.pnl-image label {
+  cursor: pointer;
+  justify-content: center;
+}
+.pnl-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.pnl-gallery button {
+  padding: 2px;
+  border: 2px solid var(--line);
+  background: var(--bg-2);
+  cursor: pointer;
+}
+.pnl-gallery button:hover {
+  border-color: var(--accent);
+}
+.pnl-gallery img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+.pnl-variant {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr;
+  gap: 10px;
+  align-items: end;
+  padding: 14px;
+  border: 2px solid var(--line);
+  background: var(--bg-2);
+}
+.pnl-field--wide {
+  grid-column: span 2;
+}
+.pnl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 18px;
+}
+.pnl-row .pnl-field {
+  min-width: 200px;
+}
+.pnl-danger {
+  color: var(--red);
+}
+
+/* opcje (ustawienia, sposób wydania) */
+.pnl-card {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+}
+.pnl-card p {
+  margin: 0;
+}
+.pnl-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+.pnl-options--2 {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.pnl-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  padding: 14px;
+  border: 2px solid var(--line-2);
+  background: var(--bg-2);
+  cursor: pointer;
+}
+.pnl-option input {
+  grid-row: span 2;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+.pnl-option span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.pnl-option.is-on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-2));
+}
+
+@media (max-width: 720px) {
+  .pnl-grid,
+  .pnl-variant {
+    grid-template-columns: 1fr;
+  }
+  .pnl-field--wide {
+    grid-column: auto;
+  }
+  .pnl-image {
+    max-width: 220px;
+  }
+  .pnl-product {
+    grid-template-columns: 48px 1fr;
+  }
+  .pnl-product img {
+    width: 48px;
+    height: 48px;
+  }
+  .pnl-product__actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+  .pnl-order {
+    grid-template-columns: 32px 1fr;
+  }
+  .pnl-order img {
+    width: 32px;
+    height: 32px;
+  }
+  .pnl-order__amount {
+    grid-column: 2;
+  }
+  .pnl-input {
+    min-width: 0;
+    flex: 1;
+  }
+}
