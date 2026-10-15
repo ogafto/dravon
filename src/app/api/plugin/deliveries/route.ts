@@ -8,6 +8,11 @@ export const dynamic = "force-dynamic";
 
 const lastSeenWrite = new Map<string, number>();
 
+const serverId = (req: Request) => {
+  const id = req.headers.get("x-server-id") ?? "";
+  return /^[a-z0-9-]{8,64}$/i.test(id) ? id : undefined;
+};
+
 /**
  * Plugin DravonSklep (v2): oczekujące dostawy trybu + ustawienia z panelu.
  * GET /api/plugin/deliveries?mode=skypvp   (Authorization: Bearer <token z panelu>)
@@ -23,7 +28,8 @@ export async function GET(req: Request) {
 
   const store = getStore();
   const [deliveries, announce, plugin, modes] = await Promise.all([
-    store.pendingDeliveries(mode, 100),
+    // X-Server-Id – stały identyfikator serwera z pluginu (rezerwacja dostaw)
+    store.pendingDeliveries(mode, 100, serverId(req)),
     getAnnounce(),
     getPluginSettings(),
     getModes(),

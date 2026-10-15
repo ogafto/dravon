@@ -84,20 +84,28 @@ export function PluginTab() {
       </div>
 
       <div className="panel pnl-card">
-        <h2>Config pluginu – do wklejenia</h2>
+        <h2>Podłącz serwer – jedna komenda</h2>
+        <ol className="pnl-steps">
+          <li>Wgraj plugin <b>DravonSklep</b> do folderu <code>plugins</code> serwera i uruchom serwer.</li>
+          <li>
+            {newToken ? "Skopiuj komendę swojego trybu poniżej." : "Kliknij wyżej „Wygeneruj token” – komendy poniżej same się uzupełnią."}
+          </li>
+          <li>
+            Wklej ją w <b>konsoli serwera</b> tego trybu i naciśnij Enter. Plugin odpisze <b>„✔ Połączono!”</b>.
+          </li>
+        </ol>
         <p className="pnl-muted">
-          <b>Jeden token dla wszystkich serwerów.</b> Każdy serwer trybu (SkyPvP, BoxPvP…) ma swój plugin DravonSklep i wpisuje inny{" "}
-          <code>tryb</code> – po nim strona wie, które zakupy są dla którego serwera. Skopiuj tekst dla swojego trybu i wklej go na
-          górze pliku <code>plugins/DravonSklep/config.yml</code> na serwerze tego trybu, potem w konsoli <code>isodbierz admin przeladuj</code>.
-          Po wygenerowaniu nowego tokenu trzeba go podmienić na wszystkich serwerach.
+          Jeden token jest dla wszystkich serwerów – każdy serwer różni się tylko nazwą trybu na końcu komendy. Po wygenerowaniu nowego
+          tokenu wklej nową komendę na każdym serwerze.
         </p>
         {settings.servers.map((s) => {
-          const text = `strona: "${settings.site.url}"\ntoken: "${newToken || "WKLEJ_TU_TOKEN"}"\ntryb: "${s.slug}"`;
+          const site = settings.site.url.replace(/\/+$/, "");
+          const text = `isodbierz admin polacz ${newToken || "WYGENERUJ_TOKEN"} ${s.slug}${site && site !== "https://dravon.pl" ? ` ${site}` : ""}`;
           return (
             <div key={s.slug} className="pnl-snippet">
               <div className="pnl-snippet__head">
                 <b>{s.name}</b>
-                <button type="button" className="btn btn-dark btn-sm" onClick={() => navigator.clipboard?.writeText(text)}>
+                <button type="button" className="btn btn-dark btn-sm" disabled={!newToken} onClick={() => navigator.clipboard?.writeText(text)}>
                   Kopiuj
                 </button>
               </div>
@@ -105,12 +113,6 @@ export function PluginTab() {
             </div>
           );
         })}
-        {!newToken && settings.plugin.hasToken && (
-          <p className="pnl-muted">
-            Zamiast <code>WKLEJ_TU_TOKEN</code> wpisz token, który dostałeś przy generowaniu. Nie masz go? Wygeneruj nowy – pojawi się tu od
-            razu w gotowym tekście.
-          </p>
-        )}
       </div>
 
       <div className="panel pnl-card">

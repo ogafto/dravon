@@ -2,6 +2,7 @@ import { rank } from "./file";
 import type { Delivery, DeliveryAck, DeliveryInfo, Order, RecentPurchase, SavedCatalog, ShopSettings, Store } from "./types";
 
 const ORDER_TTL = 60 * 60 * 24 * 90; // 90 dni
+const LEASE_SEC = 120;
 
 /** Magazyn na Upstash Redis (REST) – dla Vercela i innych platform bez trwałego dysku. */
 export class RedisStore implements Store {
@@ -79,12 +80,21 @@ export class RedisStore implements Store {
     return result.sort((a, b) => a.time - b.time);
   }
 
-  async pendingDeliveries(mode: string, limit: number) {
+  async pendingDeliveries(mode: string, limit: number, serverId?: string) {
     const [items] = await this.exec([["HVALS", this.pendingKey(mode)]]);
-    return ((items as string[]) ?? [])
+    const list = ((items as string[]) ?? [])
       .map((raw) => JSON.parse(raw) as Delivery)
       .sort((a, b) => a.time - b.time)
       .slice(0, limit);
+    if (!serverId || !list.length) return list;
+    // rezerwacja: pierwszy serwer bierze dostawę na 2 min (po potwierdzeniu i tak znika z kolejki)
+    const lease = (id: string) => `${this.prefix}:lease:${id}`;
+    const taken = await this.exec(list.map((d) => ["SET", lease(d.id), serverId, "NX", "EX", LEASE_SEC]));
+    const busy = list.filter((_, i) => taken[i] !== "OK");
+    if (!busy.length) return list;
+    const owners = await this.exec(busy.map((d) => ["GET", lease(d.id)]));
+    const mine = new Set(busy.filter((_, i) => owners[i] === serverId).map((d) => d.id));
+    return list.filter((d, i) => taken[i] === "OK" || mine.has(d.id));
   }
 
   async ackDeliveries(mode: string, acks: DeliveryAck[]) {

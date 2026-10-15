@@ -78,8 +78,20 @@ export class FileStore implements Store {
     }, true);
   }
 
-  pendingDeliveries(mode: string, limit: number) {
-    return this.run((d) => d.queue.filter((x) => x.mode === mode).slice(0, limit), false);
+  private leases = new Map<string, { server: string; until: number }>();
+
+  pendingDeliveries(mode: string, limit: number, serverId?: string) {
+    return this.run((d) => {
+      const list = d.queue.filter((x) => x.mode === mode).slice(0, limit);
+      if (!serverId) return list;
+      const now = Date.now();
+      return list.filter((x) => {
+        const l = this.leases.get(x.id);
+        if (l && l.until > now && l.server !== serverId) return false;
+        this.leases.set(x.id, { server: serverId, until: now + 120_000 });
+        return true;
+      });
+    }, false);
   }
 
   ackDeliveries(mode: string, acks: DeliveryAck[]) {

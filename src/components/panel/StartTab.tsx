@@ -50,7 +50,7 @@ export function StartTab({ go }: { go: (tab: string) => void }) {
     {
       done: settings.plugin.hasToken,
       title: "Token pluginu",
-      text: "Kliknij „Wygeneruj token” i wklej go w config pluginu na serwerze (gotowy tekst do skopiowania jest w zakładce).",
+      text: "Kliknij „Wygeneruj token”. Pod spodem pojawi się gotowa komenda – wklej ją w konsoli serwera.",
       tab: "plugin",
       button: "Przejdź do Serwer i plugin",
     },
@@ -59,9 +59,9 @@ export function StartTab({ go }: { go: (tab: string) => void }) {
       title: "Serwer połączony",
       text: online.length
         ? `Połączone: ${online.map((s) => s.name).join(", ")}.`
-        : `Żaden serwer jeszcze się nie połączył (${settings.servers.map((s) => `${s.name}: ${ago(s.at, settings.now)}`).join(", ")}). Wgraj plugin DravonSklep i wpisz config.`,
+        : `Żaden serwer jeszcze się nie połączył (${settings.servers.map((s) => `${s.name}: ${ago(s.at, settings.now)}`).join(", ")}). Wgraj plugin DravonSklep i wklej komendę z zakładki „Serwer i plugin”.`,
       tab: "plugin",
-      button: "Zobacz config do wklejenia",
+      button: "Pokaż komendę do wklejenia",
     },
     {
       done: products > 0 && placeholders.length === 0,

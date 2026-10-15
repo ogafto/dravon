@@ -137,8 +137,12 @@ export interface Store {
   fulfillOrder(id: string, patch: Partial<Order>, deliveries: Delivery[]): Promise<boolean>;
   /** Stary plugin: zwraca i usuwa oczekujące dostawy (opcjonalnie tylko dla jednego trybu). */
   drainDeliveries(modes: string[]): Promise<Delivery[]>;
-  /** Plugin v2: oczekujące dostawy trybu BEZ usuwania – znikają dopiero po potwierdzeniu (ackDeliveries). */
-  pendingDeliveries(mode: string, limit: number): Promise<Delivery[]>;
+  /**
+   * Plugin v2: oczekujące dostawy trybu BEZ usuwania – znikają dopiero po potwierdzeniu (ackDeliveries).
+   * serverId: dostawę dostaje tylko jeden serwer (rezerwacja na 2 min) – dwa serwery z tym samym trybem
+   * nie wydadzą jej podwójnie.
+   */
+  pendingDeliveries(mode: string, limit: number, serverId?: string): Promise<Delivery[]>;
   /** Plugin v2: potwierdzenia (odebrano na serwerze / gracz odebrał / zablokowano). Zwraca liczbę przyjętych. */
   ackDeliveries(mode: string, acks: DeliveryAck[]): Promise<number>;
   /** Aktualne stany dostaw zamówienia. */
