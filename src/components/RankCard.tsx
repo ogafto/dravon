@@ -22,7 +22,7 @@ export function RankCard({
 }) {
   const [variantId, setVariantId] = useState(product.variants[0].id);
   const variant = product.variants.find((v) => v.id === variantId)!;
-  const color = product.showcase?.color ?? "#a37bff";
+  const color = product.showcase?.color ?? "#fc4f60";
   // jasne kolory rang (żółty, pomarańczowy) – ciemny napis; ciemniejsze – biały
   const ink = (() => {
     const m = color.match(/^#(..)(..)(..)$/);

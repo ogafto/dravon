@@ -5,7 +5,7 @@
 
 type IconDef = { grid: string[]; colors: Record<string, string>; outline?: string };
 
-const OUTLINE = "#140a22";
+const OUTLINE = "#1a0508";
 const C = "currentColor";
 
 const icons = {
@@ -143,7 +143,7 @@ const icons = {
   },
   gem: {
     outline: OUTLINE,
-    colors: { A: "#c58cff", a: "#7b2fd0", W: "#f4eaff" },
+    colors: { A: "#ff6b7d", a: "#b0102a", W: "#ffe8eb" },
     grid: [
       "................",
       ".......A........",
@@ -187,7 +187,7 @@ const icons = {
   },
   lock: {
     outline: OUTLINE,
-    colors: { S: "#9aa0b4", B: "#7d4bd8", b: "#53289e", k: "#140a22" },
+    colors: { S: "#9aa0b4", B: "#e8243a", b: "#8a0c1f", k: "#1a0508" },
     grid: [
       "................",
       "................",

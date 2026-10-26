@@ -1,7 +1,7 @@
 /* =========================================================
    DRAVON.PL
    Płasko, ostro, „jak w grze”: jeden krój pikselowy (Jersey 10) do nagłówków,
-   przycisków i cen; Inter do treści. Jeden akcent – fiolet.
+   przycisków i cen; Inter do treści. Jeden akcent – krew z logo wampira (#e8243a).
    ========================================================= */
 
 :root {
@@ -17,9 +17,9 @@
   --muted: #a3a3ab;
   --dim: #6d6d76;
 
-  --accent: #7c3aed;
-  --accent-hi: #a37bff;
-  --accent-lo: #4c1d95;
+  --accent: #e8243a;
+  --accent-hi: #fc4f60;
+  --accent-lo: #8a0c1f;
   --gold: #ffc93c;
   --green: #2fbf5b;
   --red: #ff4d5e;
@@ -453,7 +453,8 @@ html:not(.js) .title::after {
   flex: none;
 }
 .brand img {
-  width: 64px;
+  /* logo wampira z napisem – szersze niż wysokie (1761 × 1350) */
+  width: 84px;
   height: 64px;
   object-fit: contain;
   transition: transform 0.3s var(--ease);
@@ -2106,8 +2107,9 @@ html:not(.js) .title::after {
   padding-bottom: 34px;
 }
 .footer__brand img {
-  width: 72px;
+  width: 94px;
   height: 72px;
+  object-fit: contain;
   transition: transform 0.3s var(--ease);
 }
 .footer__brand:hover img {
@@ -2361,7 +2363,7 @@ html.js [data-reveal].is-in {
     border-bottom-color: transparent;
   }
   .brand img {
-    width: 50px;
+    width: 66px;
     height: 50px;
   }
 
@@ -2444,7 +2446,7 @@ html.js [data-reveal].is-in {
     display: none;
   }
   .brand img {
-    width: 46px;
+    width: 60px;
     height: 46px;
   }
   .sq {
@@ -3179,7 +3181,7 @@ html.js .legal__doc section[data-reveal] {
   }
 }
 
-/* wybór wariantu i metody płatności – zaznaczenie fioletem zamiast białej ramki */
+/* wybór wariantu i metody płatności – zaznaczenie kolorem marki zamiast białej ramki */
 .option {
   transition:
     background 0.2s,
@@ -3191,10 +3193,10 @@ html.js .legal__doc section[data-reveal] {
 }
 .options .option:has(input:checked),
 .methods .option:has(input:checked) {
-  background: linear-gradient(90deg, rgba(124, 58, 237, 0.28), rgba(124, 58, 237, 0.08));
+  background: linear-gradient(90deg, rgba(232, 36, 58, 0.28), rgba(232, 36, 58, 0.08));
   box-shadow:
     inset 4px 0 0 var(--accent),
-    inset 0 0 0 2px rgba(124, 58, 237, 0.55);
+    inset 0 0 0 2px rgba(232, 36, 58, 0.55);
 }
 .options .option:has(input:checked) .option__radio,
 .methods .option:has(input:checked) .option__radio {

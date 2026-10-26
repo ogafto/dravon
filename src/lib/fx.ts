@@ -9,8 +9,8 @@ export type BurstKind = "coins" | "sparkle" | "question" | "glint" | "xp";
 const PALETTES: Record<BurstKind, string[]> = {
   coins: ["#ffd84a", "#ffe98a", "#d9a514", "#fff3b0"],
   sparkle: ["#ffffff", "#ffd0d8", "#ff5a72", "#ffc2cc"],
-  question: ["#ffd84a", "#c58cff", "#ffffff"],
-  glint: ["#d9b8ff", "#ffffff", "#a463ff"],
+  question: ["#ffd84a", "#ff8a96", "#ffffff"],
+  glint: ["#ffc2cc", "#ffffff", "#ff4258"],
   xp: ["#c6ff3d", "#7dff5a", "#f2ff8a"],
 };
 

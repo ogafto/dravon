@@ -20,7 +20,7 @@ export async function Footer() {
     <footer className="footer">
         <div className="container footer__top" data-reveal>
           <Link href="/" className="footer__brand" aria-label={site.name}>
-            <Image src="/logo.png" alt={site.name} width={72} height={72} />
+            <Image src="/logo.png" alt={site.name} width={94} height={72} />
           </Link>
           <nav className="footer__nav" aria-label="Stopka">
             {links.map((l) => (

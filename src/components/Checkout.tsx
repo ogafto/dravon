@@ -264,7 +264,7 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
             yaw={-0.4}
             zoom={0.78}
             waving={waving}
-            rimLight={rankLook?.color ?? "#9b4dff"}
+            rimLight={rankLook?.color ?? "#ff4258"}
             className="me__char"
             label="Podgląd Twojej postaci"
           />

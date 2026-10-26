@@ -30,7 +30,7 @@ export function Navbar({ shopModes }: { shopModes: string[] }) {
         <div className="container nav__inner">
           <div className="nav__left">
             <Link href="/" className="brand" aria-label={`${site.name} – strona główna`}>
-              <Image src="/logo.png" alt="" width={64} height={64} priority />
+              <Image src="/logo.png" alt="" width={84} height={64} priority />
             </Link>
           </div>
 

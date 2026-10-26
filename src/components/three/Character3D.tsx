@@ -19,7 +19,7 @@ export type Character3DProps = {
   waving?: boolean;
   /** Postać pada na bok jak po śmierci w grze. */
   fallen?: boolean;
-  /** Fioletowa poświata od tyłu (portal). */
+  /** Poświata od tyłu w kolorze marki (krew). */
   rimLight?: string;
   className?: string;
   label: string;
@@ -56,7 +56,7 @@ export function Character3D({
   followCursor = true,
   waving = false,
   fallen = false,
-  rimLight = "#9b4dff",
+  rimLight = "#ff4258",
   className,
   label,
 }: Character3DProps) {
@@ -229,7 +229,7 @@ function applyNameTag(
   viewer.nameTag = new sv.NameTagObject(text, {
     font: `48px ${family}`,
     textStyle: color,
-    backgroundStyle: "rgba(8,4,16,0.55)",
+    backgroundStyle: "rgba(16,4,6,0.55)",
     repaintAfterLoaded: true,
   });
 }

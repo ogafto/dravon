@@ -46,7 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: site.name,
       title: `${site.name} – ${site.tagline}`,
       description: site.description,
-      images: [{ url: "/logo.png", width: 640, height: 616, alt: site.name }],
+      images: [{ url: "/logo.png", width: 1761, height: 1350, alt: site.name }],
     },
     twitter: { card: "summary", images: ["/logo.png"] },
   };

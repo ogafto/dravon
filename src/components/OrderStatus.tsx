@@ -13,7 +13,7 @@ const CONFETTI = Array.from({ length: 36 }, (_, i) => ({
   left: (i * 37) % 100,
   delay: (i % 9) * 0.12,
   dur: 2.2 + ((i * 7) % 10) / 10,
-  color: ["#9b4dff", "#ffcf4a", "#5fdc7c", "#e66bff", "#ffffff"][i % 5],
+  color: ["#ff4258", "#ffcf4a", "#5fdc7c", "#ff8a96", "#ffffff"][i % 5],
   drift: ((i * 53) % 120) - 60,
 }));
 
