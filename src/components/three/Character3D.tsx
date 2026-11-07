@@ -259,30 +259,31 @@ async function applyNameTag(
     setTag(viewer, null);
     return;
   }
-  const family = getComputedStyle(document.documentElement).getPropertyValue("--font-pixel").trim() || "monospace";
+  // czcionka Minecrafta (--font-mc), biały nick jak nad głową w grze (user 7.11: „nie rób kolorowych nicków”)
+  const family = getComputedStyle(document.documentElement).getPropertyValue("--font-mc").trim() || "monospace";
   if (!prefix) {
     setTag(viewer, new sv.NameTagObject(text, {
       font: `48px ${family}`,
       textStyle: color,
-      backgroundStyle: "rgba(16,4,6,0.55)",
+      backgroundStyle: "rgba(0,0,0,0.42)",
       repaintAfterLoaded: true,
     }));
     return;
   }
-  // nametag jak w grze: odznaka rangi z paczki (ostre piksele, ×2) + nick w kolorze rangi na półprzezroczystym tle
-  const [badge] = await Promise.all([loadImage(prefix), document.fonts.load(`56px ${family}`, text).catch(() => [])]);
+  // nametag jak w grze: odznaka rangi z paczki (ostre piksele, ×2) + nick na półprzezroczystym tle
+  const [badge] = await Promise.all([loadImage(prefix), document.fonts.load(`48px ${family}`, text).catch(() => [])]);
   if (stale()) return;
   const { CanvasTexture, NearestFilter, SRGBColorSpace, Sprite, SpriteMaterial } = await import("three");
   if (stale()) return;
   const S = 2;
   const bh = badge ? badge.height * S : 0;
   const bw = badge ? badge.width * S : 0;
-  const font = `56px ${family}`;
+  const font = `48px ${family}`;           // 48 px = 6 px na piksel czcionki gry; odznaka 32 px × 2 ≈ 10 pikseli gry
   const measure = document.createElement("canvas").getContext("2d")!;
   measure.font = font;
   const m = measure.measureText(text);
   const pad = 10;
-  const gap = badge ? 14 : 0;
+  const gap = badge ? 18 : 0;
   const th = Math.ceil(m.actualBoundingBoxAscent + m.actualBoundingBoxDescent);
   const h = Math.max(bh, th) + pad * 2;
   const w = Math.ceil(pad + bw + gap + m.width + pad);
@@ -298,8 +299,8 @@ async function applyNameTag(
   ctx.textBaseline = "alphabetic";
   const ty = Math.round((h + m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2);
   const tx = pad + bw + gap;
-  ctx.fillStyle = "rgba(0,0,0,0.55)";                                    // cień jak w czcionce gry
-  ctx.fillText(text, tx + 4, ty + 4);
+  ctx.fillStyle = "#3f3f3f";                                             // cień jak w grze (¼ jasności, 1 piksel czcionki)
+  ctx.fillText(text, tx + 6, ty + 6);
   ctx.fillStyle = color;
   ctx.fillText(text, tx, ty);
   const texture = new CanvasTexture(canvas);

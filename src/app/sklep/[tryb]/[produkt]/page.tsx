@@ -104,10 +104,9 @@ export default async function ProductPage({ params, searchParams }: PageProps<"/
                   <div className="box preview">
                     <h2 className="box__title">Tak wygląda prefiks</h2>
                     <Character3D
-                      skin={product.showcase.skin}
+                      skin="/skins/aftoxd.png"
                       cape={product.showcase.cape}
-                      nameTag="Gracz"
-                      nameTagColor={badgeFor(product.showcase.tag).nick}
+                      nameTag="DRAVON"
                       prefix={badgeFor(product.showcase.tag).prefix}
                       yaw={-0.45}
                       zoom={0.82}

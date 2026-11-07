@@ -64,10 +64,10 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
     const t = setTimeout(() => setWaving(false), 1800);
     return () => clearTimeout(t);
   }, [skinNick]);
-  // bez wpisanego nicka pokazujemy postać właściciela (aftoxd); prefiks = odznaka kupowanej rangi z gry
+  // bez wpisanego nicka: skin właściciela (aftoxd) z nickiem DRAVON (user 7.11); prefiks = odznaka kupowanej rangi z gry
   const rankLook = lines.find((l) => l.product.showcase)?.product.showcase;
   const badge = badgeFor(rankLook?.tag);
-  const shownNick = skinNick || "aftoxd";
+  const shownNick = skinNick || "DRAVON";
   const skinUrl = skinNick
     ? `https://mc-heads.net/skin/${encodeURIComponent(skinNick.replace(/^\./, ""))}`
     : "/skins/aftoxd.png";
@@ -263,7 +263,6 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
           <Character3D
             skin={skinUrl}
             nameTag={shownNick}
-            nameTagColor={badge.nick}
             prefix={badge.prefix}
             yaw={-0.4}
             zoom={0.78}

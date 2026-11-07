@@ -20,6 +20,13 @@ const display = localFont({
   declarations: [{ prop: "size-adjust", value: "64%" }],
 });
 
+// Minecraft (South-Paw/typeface-minecraft, dołączona do skinview3d) – nicki nad postaciami jak w grze (user 7.11)
+const mc = localFont({
+  src: "../fonts/Minecraft.woff2",
+  variable: "--font-mc",
+  display: "swap",
+});
+
 const body = Inter({
   subsets: ["latin", "latin-ext"],
   variable: "--font-body",
@@ -61,7 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [site, modes] = await Promise.all([getSiteInfo(), getModes()]);
   const shopModes = modes.filter((m) => m.status === "active").map((m) => m.slug);
   return (
-    <html lang="pl" data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+    <html lang="pl" data-scroll-behavior="smooth" className={`${display.variable} ${mc.variable} ${body.variable}`} suppressHydrationWarning>
       <head>
         {/* animacje wejścia działają tylko z JS – bez niego treść jest od razu widoczna */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
