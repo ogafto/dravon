@@ -49,7 +49,7 @@ export async function PUT(req: Request) {
       short: text(raw.short, 120),
       description: text(raw.description, 400),
       icon: ICONS.includes(raw.icon as IconName) ? (raw.icon as IconName) : (existing?.icon ?? "grass"),
-      render: IMAGE.test(render) ? render : (existing?.render ?? "/renders/mode-casinocash.png"),
+      render: IMAGE.test(render) ? render : (existing?.render ?? "/renders/mode-coincash.png"),
       status: raw.status === "active" ? "active" : "soon",
       version: text(raw.version, 20) || "1.21+",
       products: existing?.products ?? [],

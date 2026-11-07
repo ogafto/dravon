@@ -33,7 +33,7 @@ export async function saveModes(modes: Mode[]) {
 /** Zapis z panelu → lista trybów (obsługuje też starszy zapis „tryb → produkty”). */
 export function modesFrom(saved: SavedCatalog | null): Mode[] {
   if (!saved) return defaultModes;
-  if (Array.isArray((saved as { modes?: unknown }).modes)) return withCasinoCash((saved as { modes: Mode[] }).modes);
+  if (Array.isArray((saved as { modes?: unknown }).modes)) return withCoinCash((saved as { modes: Mode[] }).modes);
   const old = saved as Record<string, Product[]>;
   return defaultModes.map((m) => (old[m.slug] ? { ...m, products: old[m.slug] } : m));
 }
@@ -48,14 +48,14 @@ export async function getShopMode(slug: string): Promise<Mode | undefined> {
 }
 
 /**
- * User 7.11: CasinoCash zamiast SkyPvP. Katalog zapisany w panelu przed tą zmianą nie zna trybu – podstawiamy go
- * w miejsce SkyPvP (opłacone zamówienia SkyPvP mają własną kopię komend, więc nic się nie psuje). Po pierwszym
- * zapisie w panelu CasinoCash jest już w bazie i ta podmiana nic nie robi.
+ * User 7.11: CoinCash (w grze CasinoCash) zamiast SkyPvP. Katalog zapisany w panelu przed tą zmianą nie zna trybu –
+ * podstawiamy go w miejsce SkyPvP albo dawnego „casinocash” (opłacone zamówienia mają własną kopię komend, więc nic
+ * się nie psuje). Po pierwszym zapisie w panelu CoinCash jest już w bazie i ta podmiana nic nie robi.
  */
-function withCasinoCash(modes: Mode[]): Mode[] {
-  if (modes.some((m) => m.slug === "casinocash")) return modes;
-  const cc = defaultModes.find((m) => m.slug === "casinocash");
+function withCoinCash(modes: Mode[]): Mode[] {
+  if (modes.some((m) => m.slug === "coincash")) return modes;
+  const cc = defaultModes.find((m) => m.slug === "coincash");
   if (!cc) return modes;
-  const at = modes.findIndex((m) => m.slug === "skypvp");
+  const at = modes.findIndex((m) => m.slug === "casinocash" || m.slug === "skypvp");
   return at < 0 ? [cc, ...modes] : [...modes.slice(0, at), cc, ...modes.slice(at + 1)];
 }

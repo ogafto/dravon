@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 /** Pikselowe cząsteczki unoszące się jak przy portalu do Netheru. Pauzują poza ekranem. */
-export function Particles({ count = 46, className }: { count?: number; className?: string }) {
+export function Particles({ count = 46, className, colors: palette }: { count?: number; className?: string; colors?: string[] }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -11,7 +11,7 @@ export function Particles({ count = 46, className }: { count?: number; className
     const ctx = canvas.getContext("2d")!;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const colors = ["#ffffff", "#e9e4f5", "#c9c2d8", "#b98cff"];
+    const colors = palette ?? ["#ffffff", "#f0e6e6", "#c9c2c4", "#ff8a98"];
     let w = 0;
     let h = 0;
     const dpr = Math.min(window.devicePixelRatio, 2);
@@ -68,6 +68,7 @@ export function Particles({ count = 46, className }: { count?: number; className
       io.disconnect();
       window.removeEventListener("resize", resize);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- paleta to stała tablica z wywołującego
   }, [count]);
 
   return <canvas ref={ref} className={className} aria-hidden />;

@@ -5,7 +5,13 @@ import Link from "next/link";
 import { JoinCta } from "@/components/JoinCta";
 import { notFound } from "next/navigation";
 import { ItemCard } from "@/components/ItemCard";
-import { ModeTile } from "@/components/ModeTile";
+import { CategoryBar } from "@/components/CategoryBar";
+import { Particles } from "@/components/fx/Particles";
+import { IpCopy } from "@/components/IpCopy";
+import { ModeOnline } from "@/components/ServerStatus";
+import { PackModel3D } from "@/components/three/PackModel3D";
+import { MODE_EXTRA } from "@/data/mode-extra";
+import modele from "@/data/modele.json";
 import { PixelIcon } from "@/components/PixelIcon";
 import { RankCard } from "@/components/RankCard";
 import type { CategoryId } from "@/data/shop";
@@ -19,7 +25,7 @@ export const dynamic = "force-dynamic";
 
 const CAT_RENDER: Record<CategoryId, string> = {
   rangi: asset("/renders/rank-vip.png"),
-  kosy: asset("/renders/cc-kosa-3.png"),
+  kosy: asset("/renders/cc-kosa-5.png"),
   klucze: asset("/renders/cc-klucz-vampira.png"),
   pakiety: asset("/renders/chest-vip.png"),
   inne: asset("/renders/cc-odlamek.png"),
@@ -38,23 +44,98 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
 
   const { kategoria } = await searchParams;
   const cats = categoriesFor(mode);
+  // stare linki ?kategoria=… dalej pokazują jedną kategorię; bez parametru – wszystko z paskiem kategorii
   const active = cats.find((c) => c.id === kategoria)?.id as CategoryId | undefined;
   const visible = active ? cats.filter((c) => c.id === active) : cats;
   const soon = mode.status === "soon";
+  const extra = MODE_EXTRA[mode.slug];
+  const model = !soon && extra?.model && (modele as string[]).includes(extra.model) ? extra.model : undefined;
+  // druga część nazwy w kolorze („Coin” + złote „Cash”): od drugiej wielkiej litery
+  const caps = [...mode.name].map((ch, i) => (ch !== ch.toLowerCase() && i > 0 ? i : -1)).filter((i) => i > 0);
+  const accentFrom = caps[0] ?? Infinity;
 
   return (
     <>
-      <section className="shop-head">
-        <div className="container">
-          <nav className="crumbs" aria-label="Okruszki">
-            <Link href="/">Start</Link> / <Link href="/sklep">Sklep</Link> / <span aria-current="page">{mode.name}</span>
-          </nav>
-          <div className="shop-head__modes">
-            {modes.map((m) => (
-              <ModeTile key={m.slug} mode={m} active={m.slug === mode.slug} />
-            ))}
+      <section className="mode-hero">
+        <Particles className="mode-hero__particles" count={26} colors={["#ffffff", "#ffe9a8", "#ffc93c", "#ff8a98"]} />
+        <div className="container mode-hero__grid">
+          <div className="mode-hero__copy">
+            <nav className="crumbs" aria-label="Okruszki">
+              <Link href="/">Start</Link> / <Link href="/sklep">Sklep</Link> / <span aria-current="page">{mode.name}</span>
+            </nav>
+            {modes.length > 1 && (
+              <div className="mode-switch" aria-label="Tryby">
+                {modes.map((m) => (
+                  <Link
+                    key={m.slug}
+                    href={`/sklep/${m.slug}`}
+                    className="mode-switch__item"
+                    aria-current={m.slug === mode.slug ? "page" : undefined}
+                    data-status={m.status}
+                  >
+                    <Image src={m.render} alt="" width={64} height={64} className="mode-switch__img" />
+                    {m.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+            <h1 className="mode-hero__title" aria-label={mode.name}>
+              {[...mode.name].map((ch, i) => (
+                <span key={i} className={`drop ${i >= accentFrom ? "is-accent" : ""}`} aria-hidden style={{ "--i": i } as React.CSSProperties}>
+                  {ch}
+                </span>
+              ))}
+            </h1>
+            <p className="mode-hero__lead">{mode.description}</p>
+            {!soon && (
+              <div className="mode-hero__meta">
+                <span className="mode-hero__online">
+                  <ModeOnline slug={mode.slug} server={extra?.server} />
+                </span>
+                <span className="mode-hero__ver">Minecraft {mode.version}</span>
+                <IpCopy />
+              </div>
+            )}
+          </div>
+          <div className="mode-hero__art">
+            <span className="mode-hero__floor" aria-hidden />
+            {model ? (
+              <PackModel3D
+                model={model}
+                fallback={mode.render}
+                motion="spin"
+                draggable={false}
+                sizes="360px"
+                className="mode-hero__model"
+                label={`Ikona trybu ${mode.name}`}
+              />
+            ) : (
+              <Image src={mode.render} alt="" width={640} height={640} sizes="360px" priority className="mode-hero__model" />
+            )}
           </div>
         </div>
+        {!soon && (
+          <ol className="container mode-steps">
+            <li>
+              <span className="mode-steps__num">1</span>
+              <span>
+                <strong>Wybierz</strong> rangę, kosę albo klucze
+              </span>
+            </li>
+            <li>
+              <span className="mode-steps__num">2</span>
+              <span>
+                <strong>Zapłać</strong> BLIK-iem, przelewem lub kartą
+              </span>
+            </li>
+            <li>
+              <span className="mode-steps__num">3</span>
+              <span>
+                <strong>Odbierz</strong> w grze komendą <code>/isodbierz</code>
+              </span>
+            </li>
+          </ol>
+        )}
       </section>
 
       {soon ? (
@@ -76,55 +157,60 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
           </div>
         </section>
       ) : (
-        <section className="section-tight">
-          <div className="container">
-            <nav className="tabs" aria-label="Kategorie">
-              <Link href={`/sklep/${mode.slug}`} className="tab" aria-current={!active} scroll={false}>
-                Wszystko
-              </Link>
-              {cats.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/sklep/${mode.slug}?kategoria=${c.id}`}
-                  className="tab"
-                  aria-current={active === c.id}
-                  scroll={false}
-                >
-                  <Image src={CAT_RENDER[c.id]} alt="" width={64} height={64} className="tab__img" /> {c.name}
+        <>
+          {!active && (
+            <CategoryBar
+              items={cats.map((c) => ({
+                id: c.id,
+                name: c.name,
+                render: CAT_RENDER[c.id],
+                count: mode.products.filter((p) => p.category === c.id).length,
+              }))}
+            />
+          )}
+          <section className="section-tight shop-list" id="oferta">
+            <div className="container">
+              {active && (
+                <Link href={`/sklep/${mode.slug}`} className="btn btn-ghost btn-sm shop-list__all" scroll={false}>
+                  <PixelIcon name="arrowLeft" size={12} /> Wszystkie kategorie
                 </Link>
-              ))}
-            </nav>
-
-            {visible.map((cat) => {
-              const products = mode.products.filter((p) => p.category === cat.id);
-              return (
-                <div key={cat.id} className="cat-group">
-                  <h2 className="title" data-reveal>{cat.name}</h2>
-                  {cat.id === "rangi" ? (
-                    <div className="ranks">
-                      {products.map((p, i) => (
-                        <RankCard
-                          key={p.slug}
-                          product={toPublicProduct(p)}
-                          perks={p.perks}
-                          href={`/sklep/${mode.slug}/${p.slug}`}
-                          top={i === products.length - 1}
-                          index={i}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="items">
-                      {products.map((p, i) => (
-                        <ItemCard key={p.slug} mode={mode} product={p} index={i} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
+              )}
+              {visible.map((cat) => {
+                const products = mode.products.filter((p) => p.category === cat.id);
+                return (
+                  <div key={cat.id} className="cat-group" id={cat.id}>
+                    <header className="cat-head" data-reveal>
+                      <Image src={CAT_RENDER[cat.id]} alt="" width={96} height={96} className="cat-head__img" />
+                      <h2 className="cat-head__name">{cat.name}</h2>
+                      <span className="cat-head__count">{products.length}</span>
+                      <span className="cat-head__line" aria-hidden />
+                    </header>
+                    {cat.id === "rangi" ? (
+                      <div className="ranks">
+                        {products.map((p, i) => (
+                          <RankCard
+                            key={p.slug}
+                            product={toPublicProduct(p)}
+                            perks={p.perks}
+                            href={`/sklep/${mode.slug}/${p.slug}`}
+                            top={i === products.length - 1}
+                            index={i}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="items" data-cols={products.length === 1 ? "wide" : Math.min(products.length, 5)}>
+                        {products.map((p, i) => (
+                          <ItemCard key={p.slug} mode={mode} product={p} index={i} tier={cat.id === "kosy" ? { level: i + 1, of: products.length } : undefined} wide={products.length === 1} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </>
       )}
       <JoinCta />
     </>

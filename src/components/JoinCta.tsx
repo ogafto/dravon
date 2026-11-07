@@ -30,7 +30,7 @@ export async function JoinCta() {
         </div>
 
         <div className="join__art" data-fx-host data-reveal aria-hidden>
-          <ItemArt src={asset("/renders/mode-casinocash.png")} fx="glint" sizes="300px" className="join__wings" />
+          <ItemArt src={asset("/renders/mode-coincash.png")} fx="glint" sizes="300px" className="join__wings" />
           <ItemArt
             src={asset("/renders/chest-vampir-closed.png")}
             hoverSrc={asset("/renders/chest-vampir.png")}

@@ -7,7 +7,8 @@ import type * as THREE from "three";
 /**
  * Model przedmiotu prosto z paczki gry (public/modele, kopiuje scripts/copy-modele.mjs) na żywo w 3D.
  * motion="sway" – łagodne kołysanie (strona produktu), obracanie myszką / palcem z bezwładnością;
- * motion="spin" – wirowanie jak moneta (ikona trybu), po najechaniu na kafel szybciej.
+ * motion="spin" – moneta (ikona trybu): stoi przodem i lekko się kołysze, co kilka sekund szybki obrót jak podrzucona
+ * moneta, po najechaniu na kafel kręci się bez przerwy.
  * Poza ekranem stoi. Do czasu wczytania (i bez WebGL) widać statyczny render – potem płynne przenikanie.
  */
 export type PackModel3DProps = {
@@ -178,7 +179,11 @@ export function PackModel3D({
 
       const start = performance.now();
       let last = start;
-      let angle = 0;
+      const TAU = Math.PI * 2;
+      const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+      let base = 0; // pełne obroty (wielokrotność 2π po zakończeniu)
+      let flipAt = 1.2; // pierwszy obrót chwilę po wczytaniu
+      let flip = 0;
       function frame(now: number) {
         raf = 0;
         const dt = Math.min(0.05, (now - last) / 1000);
@@ -192,9 +197,22 @@ export function PackModel3D({
           pitch = lerp(pitch, 0, 1 - Math.pow(0.2, dt));
         }
         if (spin) {
-          // obrót jak rzucona moneta: szybciej przy krawędzi, wolniej gdy widać przód (litera D)
-          angle += dt * (1.6 + boost * 4.5) * (1 + 0.55 * Math.abs(Math.sin(angle)));
-          pivot.rotation.set(0.16 + pitch, reduced ? 0.5 : angle + yaw, 0);
+          if (boost > 0.5) {
+            base += dt * 6.5 * boost; // najechanie: kręci się bez przerwy
+            flipAt = t + 1.5;
+          } else if (t >= flipAt) {
+            const p = Math.min(1, (t - flipAt) / 0.85);
+            flip = ease(p) * TAU;
+            if (p >= 1) {
+              base += TAU;
+              flip = 0;
+              flipAt = t + 3.2;
+            }
+          } else {
+            base = lerp(base, Math.round(base / TAU) * TAU, 1 - Math.pow(0.004, dt)); // po zjechaniu wraca przodem
+          }
+          const sway = Math.sin(t * 1.3) * 0.32;
+          pivot.rotation.set(0.12 + pitch, reduced ? 0.3 : base + flip + sway + yaw, 0);
           pivot.position.y = reduced ? 0 : Math.sin(t * 2) * radius * 0.04;
         } else {
           const sway = reduced ? 0 : Math.sin(t * 0.9) * 0.3;

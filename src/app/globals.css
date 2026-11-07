@@ -1046,10 +1046,9 @@ html:not(.js) .title::after {
   text-transform: uppercase;
   color: var(--dim);
 }
-/* żywy żeton 3D zamiast obrazka – ten sam rozmiar, większe płótno na wirowanie */
+/* żywa moneta 3D zamiast obrazka (bez poświaty – user 7.11) */
 .mode-tile__model {
   flex: none;
-  filter: drop-shadow(0 0 12px rgba(232, 36, 58, 0.35)) drop-shadow(0 8px 8px rgba(0, 0, 0, 0.5));
 }
 .mode-tile__count {
   color: #fff;

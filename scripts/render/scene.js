@@ -1411,8 +1411,8 @@ const ITEMS = {
   "chest-vampir": async () => chestPair("vampir", -0.75),
   "mode-skypvp": async () => snapshot(elytraSprite(), { yaw: 0.35, pitch: 0.2, pad: 1.04 }),
   "mode-soon": async () => snapshot(block({ top: mysteryDark, side: mysteryDark, seed: 13 })),
-  // CasinoCash (user 7.11): modele prosto z paczki gry – kosy, klucze skrzyń, odłamek, automat (ikona trybu)
-  "mode-casinocash": async () => packShot("emblemat_zeton", { yaw: 0, pitch: 0 }),  // user 7.11: żeton trybu (na kafelku wiruje w 3D)
+  // CoinCash (user 7.11): modele prosto z paczki gry – kosy, klucze skrzyń, odłamek, moneta (ikona trybu)
+  "mode-coincash": async () => packShot("moneta_coincash", { yaw: 0, pitch: 0 }),  // user 7.11: moneta CoinCash (na kafelku wiruje w 3D)
   "cc-kosa-1": async () => packShot("kosa_1", { yaw: 0, pitch: 0 }),
   "cc-kosa-2": async () => packShot("kosa_2", { yaw: 0, pitch: 0 }),
   "cc-kosa-3": async () => packShot("kosa_3", { yaw: 0, pitch: 0 }),

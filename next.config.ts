@@ -27,7 +27,12 @@ const nextConfig: NextConfig = {
       { source: "/sklep.html", destination: "/sklep", permanent: true },
       { source: "/dokumenty", destination: "/regulamin", permanent: true },
       { source: "/dokumenty.html", destination: "/regulamin", permanent: true },
-      { source: "/sklep/survival/:path*", destination: "/sklep/skypvp/:path*", permanent: false },
+      { source: "/sklep/survival/:path*", destination: "/sklep/coincash/:path*", permanent: false },
+      // 7.11: SkyPvP → CasinoCash → CoinCash (SimPay nie obsługuje kasyn – bez „casino” w adresie)
+      { source: "/sklep/skypvp/:path*", destination: "/sklep/coincash/:path*", permanent: false },
+      { source: "/sklep/casinocash/:path*", destination: "/sklep/coincash/:path*", permanent: false },
+      { source: "/sklep/skypvp", destination: "/sklep/coincash", permanent: false },
+      { source: "/sklep/casinocash", destination: "/sklep/coincash", permanent: false },
     ];
   },
 
