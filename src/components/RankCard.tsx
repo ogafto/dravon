@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import type { PublicProduct } from "@/lib/public-catalog";
 import { ItemArt } from "./ItemArt";
-import { PixelIcon } from "./PixelIcon";
 import { Rich } from "./Rich";
 
 export function RankCard({
@@ -32,7 +31,6 @@ export function RankCard({
   })();
   const [whole, cents] = variant.price.toFixed(2).split(".");
   const forever = product.variants[1];
-  const isForever = variant.id === forever?.id;
 
   return (
     <article
@@ -63,10 +61,6 @@ export function RankCard({
             ))}
           </div>
         )}
-        <p className="rank__note">
-          <PixelIcon name={isForever ? "heart" : "clock"} size={10} />
-          {isForever ? "Jednorazowa płatność – ranga na zawsze" : "Ranga ważna 30 dni"}
-        </p>
         <Link href={`${href}?wariant=${variant.id}`} className="btn btn-primary btn-block price-btn">
           <span className="price-roll" key={variant.id}>
             {whole},{cents}

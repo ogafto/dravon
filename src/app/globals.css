@@ -1046,9 +1046,11 @@ html:not(.js) .title::after {
   text-transform: uppercase;
   color: var(--dim);
 }
-/* żywa moneta 3D zamiast obrazka (bez poświaty – user 7.11) */
+/* żywy stos monet 3D zamiast obrazka (bez poświaty – user 7.11); płaski model – szersze pole niż obrazek */
 .mode-tile__model {
   flex: none;
+  width: 130px !important;
+  margin: 0 -23px;
 }
 .mode-tile__count {
   color: #fff;
@@ -1215,14 +1217,6 @@ html:not(.js) .title::after {
   border: 5px solid transparent;
   border-bottom: 0;
   border-top-color: var(--green);
-}
-.rank__note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  font-size: 0.84rem;
-  color: var(--dim);
 }
 .btn-price,
 .price-btn {
@@ -1400,27 +1394,6 @@ html:not(.js) .title::after {
   filter: drop-shadow(0 16px 16px rgba(0, 0, 0, 0.55)) brightness(1.12);
 }
 /* gwiazdki migające wokół przedmiotu */
-.art__sparks {
-  position: absolute;
-  inset: -6%;
-  pointer-events: none;
-}
-.art__sparks i {
-  position: absolute;
-  background: #fff;
-  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
-  opacity: 0;
-  animation: twinkle-star 2.8s ease-in-out infinite;
-}
-.art--sparkle .art__sparks i {
-  background: var(--fx, #fff);
-}
-.art--glint .art__sparks i {
-  background: #e7d7ff;
-}
-.art--shake .art__sparks i {
-  background: #ffd84a;
-}
 @keyframes twinkle-star {
   0%,
   100% {
@@ -1435,9 +1408,6 @@ html:not(.js) .title::after {
     opacity: 0.6;
     transform: scale(1);
   }
-}
-[data-fx-host]:hover .art__sparks i {
-  animation-duration: 1.2s;
 }
 [data-fx-host]:hover .art--glint .art__move {
   transform: translateY(-10px) scale(1.08) rotate(-10deg);

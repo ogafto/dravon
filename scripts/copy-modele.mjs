@@ -14,7 +14,7 @@ const MODELE = [
   "kosa_1", "kosa_2", "kosa_3", "kosa_4", "kosa_5",
   "skrzynia_vampira_klucz", "skrzynia_dusz_klucz", "skrzynia_kosmetyczna_klucz", "skrzynia_pety_klucz", "skrzynia_epicka_klucz",
   "odlamek", "automat",
-  "moneta_coincash", // ikona trybu CoinCash (wirująca moneta, scripts/render-moneta.mjs)
+  "coincash_monety", // ikona trybu CoinCash: stos monet i sztabek (kantor_monety bez żetonów), obraca się na stronie
 ];
 
 await mkdir(OUT, { recursive: true });

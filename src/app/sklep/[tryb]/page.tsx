@@ -7,8 +7,6 @@ import { notFound } from "next/navigation";
 import { ItemCard } from "@/components/ItemCard";
 import { CategoryBar } from "@/components/CategoryBar";
 import { Particles } from "@/components/fx/Particles";
-import { IpCopy } from "@/components/IpCopy";
-import { ModeOnline } from "@/components/ServerStatus";
 import { PackModel3D } from "@/components/three/PackModel3D";
 import { MODE_EXTRA } from "@/data/mode-extra";
 import modele from "@/data/modele.json";
@@ -57,28 +55,9 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
   return (
     <>
       <section className="mode-hero">
-        <Particles className="mode-hero__particles" count={26} colors={["#ffffff", "#ffe9a8", "#ffc93c", "#ff8a98"]} />
+        <Particles className="mode-hero__particles" count={22} colors={["#ffffff", "#ffe9a8", "#ffc93c"]} />
         <div className="container mode-hero__grid">
           <div className="mode-hero__copy">
-            <nav className="crumbs" aria-label="Okruszki">
-              <Link href="/">Start</Link> / <Link href="/sklep">Sklep</Link> / <span aria-current="page">{mode.name}</span>
-            </nav>
-            {modes.length > 1 && (
-              <div className="mode-switch" aria-label="Tryby">
-                {modes.map((m) => (
-                  <Link
-                    key={m.slug}
-                    href={`/sklep/${m.slug}`}
-                    className="mode-switch__item"
-                    aria-current={m.slug === mode.slug ? "page" : undefined}
-                    data-status={m.status}
-                  >
-                    <Image src={m.render} alt="" width={64} height={64} className="mode-switch__img" />
-                    {m.name}
-                  </Link>
-                ))}
-              </div>
-            )}
             <h1 className="mode-hero__title" aria-label={mode.name}>
               {[...mode.name].map((ch, i) => (
                 <span key={i} className={`drop ${i >= accentFrom ? "is-accent" : ""}`} aria-hidden style={{ "--i": i } as React.CSSProperties}>
@@ -87,15 +66,6 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
               ))}
             </h1>
             <p className="mode-hero__lead">{mode.description}</p>
-            {!soon && (
-              <div className="mode-hero__meta">
-                <span className="mode-hero__online">
-                  <ModeOnline slug={mode.slug} server={extra?.server} />
-                </span>
-                <span className="mode-hero__ver">Minecraft {mode.version}</span>
-                <IpCopy />
-              </div>
-            )}
           </div>
           <div className="mode-hero__art">
             <span className="mode-hero__floor" aria-hidden />
@@ -103,41 +73,24 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
               <PackModel3D
                 model={model}
                 fallback={mode.render}
-                motion="spin"
+                motion="turn"
                 draggable={false}
-                sizes="360px"
+                sizes="420px"
                 className="mode-hero__model"
                 label={`Ikona trybu ${mode.name}`}
               />
             ) : (
-              <Image src={mode.render} alt="" width={640} height={640} sizes="360px" priority className="mode-hero__model" />
+              <Image src={mode.render} alt="" width={640} height={640} sizes="420px" priority className="mode-hero__model" />
             )}
           </div>
         </div>
-        {!soon && (
-          <ol className="container mode-steps">
-            <li>
-              <span className="mode-steps__num">1</span>
-              <span>
-                <strong>Wybierz</strong> rangę, kosę albo klucze
-              </span>
-            </li>
-            <li>
-              <span className="mode-steps__num">2</span>
-              <span>
-                <strong>Zapłać</strong> BLIK-iem, przelewem lub kartą
-              </span>
-            </li>
-            <li>
-              <span className="mode-steps__num">3</span>
-              <span>
-                <strong>Odbierz</strong> w grze komendą <code>/isodbierz</code>
-              </span>
-            </li>
-          </ol>
-        )}
       </section>
 
+      <CategoryBar
+        modes={modes.map((m) => ({ slug: m.slug, name: m.name, render: m.render, soon: m.status === "soon" }))}
+        current={mode.slug}
+        items={soon || active ? [] : cats.map((c) => ({ id: c.id, name: c.name, render: CAT_RENDER[c.id] }))}
+      />
       {soon ? (
         <section className="section">
           <div className="container">
@@ -158,16 +111,7 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
         </section>
       ) : (
         <>
-          {!active && (
-            <CategoryBar
-              items={cats.map((c) => ({
-                id: c.id,
-                name: c.name,
-                render: CAT_RENDER[c.id],
-                count: mode.products.filter((p) => p.category === c.id).length,
-              }))}
-            />
-          )}
+
           <section className="section-tight shop-list" id="oferta">
             <div className="container">
               {active && (
@@ -182,7 +126,6 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
                     <header className="cat-head" data-reveal>
                       <Image src={CAT_RENDER[cat.id]} alt="" width={96} height={96} className="cat-head__img" />
                       <h2 className="cat-head__name">{cat.name}</h2>
-                      <span className="cat-head__count">{products.length}</span>
                       <span className="cat-head__line" aria-hidden />
                     </header>
                     {cat.id === "rangi" ? (

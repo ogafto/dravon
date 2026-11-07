@@ -4,5 +4,5 @@
  */
 export const MODE_EXTRA: Record<string, { model?: string; server?: string }> = {
   // na stronie CoinCash, w proxy serwer „CasinoCash”
-  coincash: { model: "moneta_coincash", server: "CasinoCash" },
+  coincash: { model: "coincash_monety", server: "CasinoCash" },
 };

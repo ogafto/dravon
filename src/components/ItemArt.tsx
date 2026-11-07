@@ -6,15 +6,6 @@ import { burst, type BurstKind } from "@/lib/fx";
 
 export type ItemFx = "chest" | "glint" | "shake" | "sparkle";
 
-// stałe pozycje gwiazdek (bez losowania – identyczne na serwerze i w przeglądarce)
-const SPARKS: [string, string, string, number][] = [
-  ["8%", "18%", "0s", 8],
-  ["86%", "10%", "-1.1s", 6],
-  ["92%", "62%", "-2.3s", 8],
-  ["4%", "70%", "-0.6s", 6],
-  ["52%", "-4%", "-1.7s", 5],
-];
-
 const BURST: Record<ItemFx, BurstKind> = {
   chest: "coins",
   glint: "glint",
@@ -58,7 +49,8 @@ export function ItemArt({
       const now = Date.now();
       if (now - last < 500) return;
       last = now;
-      if (layer.current) burst(layer.current, BURST[fx], fx === "shake" ? 7 : 16, fx === "sparkle" ? color : undefined);
+      // iskry w kolorze przedmiotu (user 7.11: „zmień kolor pod dany model”)
+      if (layer.current) burst(layer.current, BURST[fx], fx === "shake" ? 7 : 16, fx === "chest" ? undefined : color);
     };
     host.addEventListener("pointerenter", onEnter);
     return () => host.removeEventListener("pointerenter", onEnter);
@@ -72,13 +64,6 @@ export function ItemArt({
           {hoverSrc && <Image src={hoverSrc} alt="" width={640} height={640} sizes={sizes} className="art__img art__img--hover" />}
         </span>
       </span>
-      {fx && fx !== "chest" && (
-        <span className="art__sparks" aria-hidden>
-          {SPARKS.map((p, i) => (
-            <i key={i} style={{ left: p[0], top: p[1], animationDelay: p[2], width: p[3], height: p[3] } as React.CSSProperties} />
-          ))}
-        </span>
-      )}
       <span ref={layer} className="art__fx" aria-hidden />
     </span>
   );

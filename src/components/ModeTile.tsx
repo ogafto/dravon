@@ -23,7 +23,7 @@ export function ModeTile({ mode, active }: { mode: Mode; active?: boolean }) {
         <PackModel3D
           model={model}
           fallback={mode.render}
-          motion="spin"
+          motion="turn"
           draggable={false}
           sizes="84px"
           className="mode-tile__img mode-tile__model"

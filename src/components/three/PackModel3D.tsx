@@ -7,7 +7,8 @@ import type * as THREE from "three";
 /**
  * Model przedmiotu prosto z paczki gry (public/modele, kopiuje scripts/copy-modele.mjs) na żywo w 3D.
  * motion="sway" – łagodne kołysanie (strona produktu), obracanie myszką / palcem z bezwładnością;
- * motion="spin" – moneta (ikona trybu): stoi przodem i lekko się kołysze, co kilka sekund szybki obrót jak podrzucona
+ * motion="turn" – obrotowa podstawka (ikona trybu, stos monet): powolny obrót wokół pionu, lekko z góry, po najechaniu szybciej;
+ * motion="spin" – moneta: stoi przodem i lekko się kołysze, co kilka sekund szybki obrót jak podrzucona
  * moneta, po najechaniu na kafel kręci się bez przerwy.
  * Poza ekranem stoi. Do czasu wczytania (i bez WebGL) widać statyczny render – potem płynne przenikanie.
  */
@@ -17,7 +18,7 @@ export type PackModel3DProps = {
   fallback: string;
   /** Kolor poświaty od tyłu (np. kolor rangi). */
   color?: string;
-  motion?: "sway" | "spin";
+  motion?: "sway" | "spin" | "turn";
   /** Obracanie myszką / palcem (wyłączone np. w kafelku, który jest linkiem). */
   draggable?: boolean;
   /** Rozmiar obrazka zastępczego dla next/image. */
@@ -57,6 +58,8 @@ export function PackModel3D({
     let cleanup = () => {};
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const spin = motion === "spin";
+    const turn = motion === "turn";
+    const TILT = 0.5; // podstawka: widok lekko z góry (rad)
 
     (async () => {
       const T = await import("three");
@@ -97,12 +100,15 @@ export function PackModel3D({
       mesh.position.set(-8, -8, -8);
       const gui = new T.Group();
       gui.add(mesh);
-      const r = spin ? null : def.display?.gui?.rotation;
+      const r = spin || turn ? null : def.display?.gui?.rotation;
       if (r) gui.rotation.set(T.MathUtils.degToRad(r[0]), T.MathUtils.degToRad(r[1]), T.MathUtils.degToRad(r[2]), "XYZ");
       const box = new T.Box3().setFromObject(gui);
       gui.position.sub(box.getCenter(new T.Vector3()));
       const size = box.getSize(new T.Vector3());
-      if (spin) size.x = size.z = Math.max(size.x, size.z); // przy obrocie szerokość = największy wymiar poziomy
+      // przy obrocie szerokość w kadrze rośnie do przekątnej podstawy (stos monet nie wypełnia rogów – 80 % przekątnej)
+      if (spin) size.x = size.z = Math.hypot(size.x, size.z);
+      if (turn) size.x = size.z = Math.hypot(size.x, size.z) * 0.8;
+      if (turn) size.y = size.y * Math.cos(TILT) + size.z * Math.sin(TILT); // pochylenie: wysokość w kadrze
       const radius = size.length() / 2;
       const pivot = new T.Group();
       pivot.add(gui);
@@ -116,7 +122,7 @@ export function PackModel3D({
         camera.aspect = width / height;
         const tan = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
         const dist = Math.max(size.y / 2 / tan, size.x / 2 / (tan * camera.aspect)) + size.z / 2;
-        camera.position.set(0, 0, dist * (spin ? 1.05 : 1.12));
+        camera.position.set(0, 0, dist * (spin ? 1.05 : turn ? 0.95 : 1.12));
         camera.lookAt(0, 0, 0);
         camera.updateProjectionMatrix();
       };
@@ -196,7 +202,11 @@ export function PackModel3D({
           if (!spin) yaw = lerp(yaw, 0, 1 - Math.pow(0.35, dt)); // powrót do pozycji z gry
           pitch = lerp(pitch, 0, 1 - Math.pow(0.2, dt));
         }
-        if (spin) {
+        if (turn) {
+          base += dt * (0.5 + boost * 2.2);
+          pivot.rotation.set(TILT + pitch, reduced ? 0.8 : base + yaw, 0); // XYZ: najpierw obrót wokół pionu, potem pochylenie
+          pivot.position.y = reduced ? 0 : Math.sin(t * 1.6) * radius * 0.025;
+        } else if (spin) {
           if (boost > 0.5) {
             base += dt * 6.5 * boost; // najechanie: kręci się bez przerwy
             flipAt = t + 1.5;

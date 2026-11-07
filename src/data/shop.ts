@@ -61,6 +61,8 @@ export type Product = {
   /** **pogrubienie** = wyróżnienie w kolorze rangi */
   perks: string[];
   variants: Variant[];
+  /** Kolor przedmiotu: iskry po najechaniu i krawędź karty (np. błękit Kosy Burzowej). */
+  accent?: string;
   /** Postać 3D z prefiksem rangi (strona produktu, podium, koszyk). */
   showcase?: { skin: string; cape?: string; tag: string; color: string };
   /** Produkty z ilością (klucze, odłamki). Rangi i pakiety kupuje się pojedynczo. */
@@ -315,15 +317,17 @@ const ccRank = (key: "vip" | "svip" | "vampir", name: string, label: string, mon
   ],
 });
 
-const KOSY: [tier: number, name: string, area: string, price: number, fx: string][] = [
-  [1, "Kosa Polna", "3x3", 5, "kłosy i złote iskry"],
-  [2, "Kosa Burzowa", "5x5", 12, "błyskawice nad polem"],
-  [3, "Kosa Ognista", "7x7", 22, "płomienie przy każdym zamachu"],
-  [4, "Kosa Żniwiarza", "10x10", 39, "dusze unoszące się nad plonem"],
-  [5, "Kosa Smocza", "15x15", 69, "smoczy ogień i łuski"],
+// kolory jak w grze (casinocash/config.yml → kosa.poziomy.*.kolor)
+const KOSY: [tier: number, name: string, area: string, price: number, fx: string, accent: string][] = [
+  [1, "Kosa Polna", "3x3", 5, "kłosy i złote iskry", "#facc15"],
+  [2, "Kosa Burzowa", "5x5", 12, "błyskawice nad polem", "#7dd3fc"],
+  [3, "Kosa Ognista", "7x7", 22, "płomienie przy każdym zamachu", "#ff7a18"],
+  [4, "Kosa Żniwiarza", "10x10", 39, "dusze unoszące się nad plonem", "#a78bfa"],
+  [5, "Kosa Smocza", "15x15", 69, "smoczy ogień i łuski", "#e879f9"],
 ];
 
-const ccKosy: Product[] = KOSY.map(([tier, name, area, price, fx]) => ({
+const ccKosy: Product[] = KOSY.map(([tier, name, area, price, fx, accent]) => ({
+  accent,
   slug: `kosa-${tier}`,
   name: `${name} ${area}`,
   category: "kosy",
@@ -338,15 +342,17 @@ const ccKosy: Product[] = KOSY.map(([tier, name, area, price, fx]) => ({
   variants: [{ id: `cc_kosa_${tier}`, label: "Kosa", price, command: `dcadmin kosa {nick} ${tier}`, broadcast: `${name} ${area}` }],
 }));
 
-const KLUCZE: [crate: string, slug: string, key: string, name: string, price: number, what: string][] = [
-  ["vampira", "vampira", "Klucz Vampira", "Skrzynia Vampira", 6, "odłamki, vPLN i płaszcz wampira"],
-  ["kosmetyczna", "kosmetyczna", "Klucz Kosmetyczny", "Skrzynia Kosmetyczna", 4, "skrzydła, czapki i inne kosmetyki"],
-  ["legendarna", "dusz", "Klucz Dusz", "Skrzynia Dusz", 5, "rzadkie nagrody i dużo vPLN"],
-  ["pety", "pety", "Klucz Petów", "Skrzynia Petów", 5, "pety z umiejętnościami, odłamki i turbo"],
-  ["rzadka", "epicka", "Klucz Epicki", "Skrzynia Epicka", 3, "epickie przedmioty i dolarki"],
+// kolory skrzyń z gry (casinocash/config.yml → skrzynki.*.kolor)
+const KLUCZE: [crate: string, slug: string, key: string, name: string, price: number, what: string, accent: string][] = [
+  ["vampira", "vampira", "Klucz Vampira", "Skrzynia Vampira", 6, "odłamki, vPLN i płaszcz wampira", "#ff4258"],
+  ["kosmetyczna", "kosmetyczna", "Klucz Kosmetyczny", "Skrzynia Kosmetyczna", 4, "skrzydła, czapki i inne kosmetyki", "#ff7ac8"],
+  ["legendarna", "dusz", "Klucz Dusz", "Skrzynia Dusz", 5, "rzadkie nagrody i dużo vPLN", "#5ef0ff"],
+  ["pety", "pety", "Klucz Petów", "Skrzynia Petów", 5, "pety z umiejętnościami, odłamki i turbo", "#ff9a3c"],
+  ["rzadka", "epicka", "Klucz Epicki", "Skrzynia Epicka", 3, "epickie przedmioty i dolarki", "#c084fc"],
 ];
 
-const ccKlucze: Product[] = KLUCZE.map(([crate, slug, key, name, price, what]) => ({
+const ccKlucze: Product[] = KLUCZE.map(([crate, slug, key, name, price, what, accent]) => ({
+  accent,
   slug: `klucz-${slug}`,
   name: key,
   category: "klucze",
@@ -397,6 +403,7 @@ const coincashProducts: Product[] = [
   {
     slug: "odlamki-vampira",
     name: "Odłamki Vampira",
+    accent: "#a78bfa",
     category: "inne",
     image: asset("/renders/cc-odlamek.png"),
     render: asset("/renders/cc-odlamek.png"),

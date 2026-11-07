@@ -23,28 +23,30 @@ export function ItemCard({
   const [whole, cents] = lowestPrice(product).toFixed(2).split(".");
   const area = product.name.match(/\s(\d+x\d+)$/)?.[1];
   const name = area ? product.name.slice(0, -area.length - 1) : product.name;
-  const unit = product.variants[0]?.label ?? "1 szt.";
+  // paczka (np. „Paczka 100 szt.”) – plakietka „100 szt.” jak obszar kosy; bez opisów (user 7.11)
+  const pack = product.variants[0]?.label.match(/(\d+)\s*szt/)?.[1];
+  const badge = area ?? (pack && pack !== "1" ? `${pack} szt.` : undefined);
+  const tint = product.accent ?? product.showcase?.color ?? "#ff5a72";
   return (
     <Link
       href={`/sklep/${mode.slug}/${product.slug}`}
       className={`item ${wide ? "item--wide" : ""}`}
       data-reveal
       data-fx-host
-      style={{ "--i": index % 5 } as React.CSSProperties}
+      style={{ "--i": index % 5, "--tint": tint } as React.CSSProperties}
     >
       {product.highlight && <span className="item__badge">Polecane</span>}
       <ItemArt
         src={product.render}
         hoverSrc={product.renderHover}
         fx={product.fx}
-        color="#ff5a72"
+        color={tint}
         sizes={wide ? "240px" : "190px"}
         className="item__render"
       />
       <span className="item__body">
-        {area && <span className="item__area">{area}</span>}
+        {badge && <span className="item__area">{badge}</span>}
         <h3 className="item__name">{name}</h3>
-        <p className="item__desc">{product.tagline}</p>
         {tier && (
           <span className="item__tier" aria-label={`Poziom ${tier.level} z ${tier.of}`}>
             {Array.from({ length: tier.of }, (_, i) => (
@@ -53,11 +55,6 @@ export function ItemCard({
           </span>
         )}
         <span className="item__foot">
-          {product.stack && (
-            <span className="item__unit">
-              {unit === "1 szt." ? `Cena za sztukę · do ${product.stack.max} szt.` : `${unit} · do ${product.stack.max} naraz`}
-            </span>
-          )}
           <span className="btn btn-primary btn-block price-btn">
             {whole},{cents}
             <small>zł</small>
