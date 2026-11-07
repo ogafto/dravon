@@ -76,7 +76,7 @@ export function ModeOnline({ slug, server }: { slug: string; server?: string }) 
   const status = useServerStatus();
   const want = (server ?? slug).toLowerCase();
   const entry = Object.entries(status?.tryby ?? {}).find(([name]) => name.toLowerCase() === want);
-  if (!entry || !status?.online) {
+  if (!entry) {
     return (
       <>
         <span className="dot dot-online" /> Otwarty
