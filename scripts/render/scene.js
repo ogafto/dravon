@@ -165,7 +165,7 @@ function faceTexture(name, seed) {
 const MC_FACE = { front: "south", back: "north", right: "west", left: "east", top: "up", bottom: "down" };
 
 /** Model bloku/przedmiotu Java (elements + atlas tekstury) z listy siatek z przesunięciami. */
-function javaModel(parts, textureId, { tilt = false } = {}) {
+function javaModel(parts, textureId, { tilt = false, frame } = {}) {
   const boxes = parts.flatMap(({ mesh, offset = [0, 0, 0] }) =>
     mesh.boxes.map((b) => ({
       from: b.from.map((v, i) => v + offset[i]),
@@ -174,8 +174,9 @@ function javaModel(parts, textureId, { tilt = false } = {}) {
     })),
   );
   // dopasowanie do siatki modelu: x/z wyśrodkowane na 8, spód na y=0
-  const min = [0, 1, 2].map((i) => Math.min(...boxes.map((b) => b.from[i])));
-  const max = [0, 1, 2].map((i) => Math.max(...boxes.map((b) => b.to[i])));
+  // frame – wspólne granice dla kilku części jednego obiektu (np. korpus + wieko skrzyni), żeby się pokrywały
+  const min = frame?.min ?? [0, 1, 2].map((i) => Math.min(...boxes.map((b) => b.from[i])));
+  const max = frame?.max ?? [0, 1, 2].map((i) => Math.max(...boxes.map((b) => b.to[i])));
   const tall = max[1] - min[1] > 32;
   const shift = [8 - (min[0] + max[0]) / 2, tall ? 8 - (min[1] + max[1]) / 2 : -min[1], 8 - (min[2] + max[2]) / 2];
 
@@ -236,7 +237,35 @@ function javaModel(parts, textureId, { tilt = false } = {}) {
       thirdperson_righthand: { rotation: [75, 45, 0], translation: [0, 2.5, 0], scale: sc(0.375) },
     },
   };
-  return { model: JSON.stringify(model, null, 2), texture: cv.toDataURL("image/png") };
+  return { model: JSON.stringify(model, null, 2), texture: cv.toDataURL("image/png"), shift };
+}
+
+/** Granice wszystkich części (z przesunięciami). */
+function partsBounds(parts) {
+  const boxes = parts.flatMap(({ mesh, offset = [0, 0, 0] }) =>
+    mesh.boxes.map((b) => ({ from: b.from.map((v, i) => v + offset[i]), to: b.to.map((v, i) => v + offset[i]) })),
+  );
+  return {
+    min: [0, 1, 2].map((i) => Math.min(...boxes.map((b) => b.from[i]))),
+    max: [0, 1, 2].map((i) => Math.max(...boxes.map((b) => b.to[i]))),
+  };
+}
+
+/**
+ * Skrzynia do animacji w grze: osobno korpus i wieko (wspólna siatka – zamknięte idealnie się pokrywają).
+ * info.zawias = oś obrotu wieka w pikselach modelu (plugin obraca wieko wokół tego punktu).
+ */
+function chestSplit(name) {
+  const parts = fancyChest({ ...CHESTS[name], lid: 0 }).userData.parts;
+  const frame = partsBounds(parts);
+  return {
+    [`chest_${name}_base`]: async () => javaModel([parts[0]], `dravon:item/chest_${name}_base`, { frame }),
+    [`chest_${name}_lid`]: async () => {
+      const out = javaModel([parts[1]], `dravon:item/chest_${name}_lid`, { frame });
+      const [ox, oy, oz] = parts[1].offset;
+      return { ...out, info: { zawias: [ox + out.shift[0], oy + out.shift[1], oz + out.shift[2]] } };
+    },
+  };
 }
 
 /** Płaski przedmiot (tekstura + model item/handheld) – gra sama go „wyciska” w 3D. */
@@ -1253,6 +1282,91 @@ function snapshot(object, { yaw = 0.62, pitch = 0.5, rotate = [0, 0, 0], pad = 1
   return renderer.domElement.toDataURL("image/png");
 }
 
+/* ---------------------------------------------------------------- modele 3D z paczki gry (Blockbench / Minecraft JSON) */
+
+const PACK_A = "/minecraft/DravonPack/assets/dravon";
+
+/** Tekstura z paczki: ostre piksele, przezroczystość; animowany pasek – pierwsza klatka. */
+async function packTexture(id) {
+  const path = id.replace(/^dravon:/, "");
+  const tex = await new THREE.TextureLoader().loadAsync(`${PACK_A}/textures/${path}.png`);
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const { width: w, height: h } = tex.image;
+  const anim = await fetch(`${PACK_A}/textures/${path}.png.mcmeta`).then((r) => r.ok).catch(() => false);
+  if (anim && h > w) { tex.repeat.set(1, w / h); tex.offset.set(0, 1 - w / h); }
+  return tex;
+}
+
+/**
+ * Model przedmiotu z paczki (elements: from/to, ściany z uv 0–16, obroty elementów i ścian) jako grupa three.js,
+ * ustawiona jak w ekwipunku gry (display.gui), środek modelu w (0,0,0). Ta sama geometria co w grze – strona
+ * pokazuje kosy, klucze, odłamek i automat dokładnie tak, jak wyglądają na serwerze.
+ */
+async function mcModel(name, { gui = true } = {}) {
+  const def = await fetch(`${PACK_A}/models/item/${name}.json`).then((r) => r.json());
+  const texIds = def.textures ?? {};
+  const mats = {};
+  const mat = async (ref) => {
+    let id = ref?.startsWith("#") ? texIds[ref.slice(1)] : ref;
+    while (id?.startsWith("#")) id = texIds[id.slice(1)];
+    if (!id) return null;
+    if (!mats[id]) mats[id] = new THREE.MeshLambertMaterial({ map: await packTexture(id), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide });
+    return mats[id];
+  };
+  const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  const group = new THREE.Group();
+  for (const el of def.elements ?? []) {
+    const [x0, y0, z0] = el.from, [x1, y1, z1] = el.to;
+    const faces = {
+      south: [V3(x0, y1, z1), V3(x1 - x0, 0, 0), V3(0, y0 - y1, 0)],
+      north: [V3(x1, y1, z0), V3(x0 - x1, 0, 0), V3(0, y0 - y1, 0)],
+      west: [V3(x0, y1, z0), V3(0, 0, z1 - z0), V3(0, y0 - y1, 0)],
+      east: [V3(x1, y1, z1), V3(0, 0, z0 - z1), V3(0, y0 - y1, 0)],
+      up: [V3(x0, y1, z0), V3(x1 - x0, 0, 0), V3(0, 0, z1 - z0)],
+      down: [V3(x0, y0, z1), V3(x1 - x0, 0, 0), V3(0, 0, z0 - z1)],
+    };
+    let rot = null;
+    if (el.rotation && el.rotation.angle) {
+      const o = V3(...el.rotation.origin), ax = { x: V3(1, 0, 0), y: V3(0, 1, 0), z: V3(0, 0, 1) }[el.rotation.axis];
+      const q = new THREE.Quaternion().setFromAxisAngle(ax, (el.rotation.angle * Math.PI) / 180);
+      rot = (p) => p.clone().sub(o).applyQuaternion(q).add(o);
+    }
+    for (const [fname, f] of Object.entries(el.faces ?? {})) {
+      const geo = faces[fname];
+      if (!geo) continue;
+      const m = await mat(f.texture);
+      if (!m) continue;
+      const [o, U, Vv] = geo;
+      let pts = [o, o.clone().add(U), o.clone().add(U).add(Vv), o.clone().add(Vv)];   // tl, tr, br, bl
+      if (rot) pts = pts.map(rot);
+      const [u1, v1, u2, v2] = f.uv ?? [0, 0, 16, 16];
+      const base = [[u1, v1], [u2, v1], [u2, v2], [u1, v2]];
+      const k = (((f.rotation ?? 0) / 90) % 4 + 4) % 4;
+      const uv = base.map((_, i) => base[(i + 4 - k) % 4]).map(([u, v]) => [u / 16, 1 - v / 16]);
+      const order = [0, 3, 2, 0, 2, 1];                                            // dwa trójkąty: tl-bl-br, tl-br-tr
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(order.flatMap((i) => pts[i].toArray()), 3));
+      g.setAttribute("uv", new THREE.Float32BufferAttribute(order.flatMap((i) => uv[i]), 2));
+      g.computeVertexNormals();
+      group.add(new THREE.Mesh(g, m));
+    }
+  }
+  // środek modelu (blok 16×16×16) w zerze, obrót jak w ekwipunku
+  group.position.set(-8, -8, -8);
+  const holder = new THREE.Group();
+  holder.add(group);
+  const out = new THREE.Group();
+  out.add(holder);
+  const r = gui ? def.display?.gui?.rotation : null;
+  if (r) out.rotation.set((r[0] * Math.PI) / 180, (r[1] * Math.PI) / 180, (r[2] * Math.PI) / 180, "XYZ");
+  return out;
+}
+
+/** Zdjęcie modelu z paczki: lekko z boku i z góry, jak reszta renderów sklepu. */
+const packShot = async (name, opts = {}) => snapshot(await mcModel(name, opts), { yaw: opts.yaw ?? 0.3, pitch: opts.pitch ?? 0.18, pad: opts.pad ?? 1.04 });
+
 /* ---------------------------------------------------------------- katalog renderów */
 
 const CHESTS = {
@@ -1297,6 +1411,19 @@ const ITEMS = {
   "chest-vampir": async () => chestPair("vampir", -0.75),
   "mode-skypvp": async () => snapshot(elytraSprite(), { yaw: 0.35, pitch: 0.2, pad: 1.04 }),
   "mode-soon": async () => snapshot(block({ top: mysteryDark, side: mysteryDark, seed: 13 })),
+  // CasinoCash (user 7.11): modele prosto z paczki gry – kosy, klucze skrzyń, odłamek, automat (ikona trybu)
+  "mode-casinocash": async () => packShot("emblemat_zeton", { yaw: 0, pitch: 0 }),  // user 7.11: żeton trybu (na kafelku wiruje w 3D)
+  "cc-kosa-1": async () => packShot("kosa_1", { yaw: 0, pitch: 0 }),
+  "cc-kosa-2": async () => packShot("kosa_2", { yaw: 0, pitch: 0 }),
+  "cc-kosa-3": async () => packShot("kosa_3", { yaw: 0, pitch: 0 }),
+  "cc-kosa-4": async () => packShot("kosa_4", { yaw: 0, pitch: 0 }),
+  "cc-kosa-5": async () => packShot("kosa_5", { yaw: 0, pitch: 0 }),
+  "cc-klucz-vampira": async () => packShot("skrzynia_vampira_klucz", { yaw: 0, pitch: 0 }),
+  "cc-klucz-dusz": async () => packShot("skrzynia_dusz_klucz", { yaw: 0, pitch: 0 }),
+  "cc-klucz-kosmetyczna": async () => packShot("skrzynia_kosmetyczna_klucz", { yaw: 0, pitch: 0 }),
+  "cc-klucz-pety": async () => packShot("skrzynia_pety_klucz", { yaw: 0, pitch: 0 }),
+  "cc-klucz-epicka": async () => packShot("skrzynia_epicka_klucz", { yaw: 0, pitch: 0 }),
+  "cc-odlamek": async () => packShot("odlamek", { yaw: 0, pitch: 0 }),
 };
 
 /** Modele do resource packa Minecraft (Java): nazwa → { model, texture } */
@@ -1307,10 +1434,16 @@ const EXPORTS = {
   chest_vip: async () => javaModel(fancyChest({ ...CHESTS.vip, lid: 0 }).userData.parts, "dravon:item/chest_vip"),
   chest_svip: async () => javaModel(fancyChest({ ...CHESTS.svip, lid: 0 }).userData.parts, "dravon:item/chest_svip"),
   chest_vampir: async () => javaModel(fancyChest({ ...CHESTS.vampir, lid: 0 }).userData.parts, "dravon:item/chest_vampir"),
+  // skrzynie na serwer (plugin DravonSkrzynie): korpus + wieko osobno, wieko animowane
+  ...chestSplit("vip"),
+  ...chestSplit("svip"),
+  ...chestSplit("vampir"),
 };
 window.EXPORT_NAMES = Object.keys(EXPORTS);
 window.exportItem = (name) => EXPORTS[name]();
 
 window.ITEM_NAMES = Object.keys(ITEMS);
 window.renderItem = (name) => ITEMS[name]();
+/** Podgląd dowolnego modelu z paczki (wybór ikon): node scripts/… → window.packPreview("nazwa"). */
+window.packPreview = (name) => packShot(name, { yaw: 0, pitch: 0 });
 window.renderReady = true;

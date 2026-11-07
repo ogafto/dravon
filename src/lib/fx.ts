@@ -32,6 +32,21 @@ export function burst(layer: HTMLElement, kind: BurstKind, count = 14, color?: s
   }
 }
 
+let bump: Animation | null = null;
+let bumpTimer: ReturnType<typeof setTimeout> | undefined;
+
+/** Podskok ikonki koszyka – osobna animacja, nie rusza animacji wejścia navbaru (nic nie mruga). */
+function bumpCart(target: HTMLElement) {
+  bump?.cancel();
+  bump = target.animate(
+    [{ transform: "none" }, { transform: "scale(1.22) rotate(-6deg)", offset: 0.4 }, { transform: "none" }],
+    { duration: 340, easing: "cubic-bezier(.2,.8,.2,1)" },
+  );
+  target.classList.add("is-bump");
+  clearTimeout(bumpTimer);
+  bumpTimer = setTimeout(() => target.classList.remove("is-bump"), 450);
+}
+
 /** Kule doświadczenia lecące od elementu do ikonki koszyka. */
 export function flyToCart(from: Element, count = 9) {
   const target = document.querySelector("[data-cart-target]");
@@ -58,10 +73,7 @@ export function flyToCart(from: Element, count = 9) {
     );
     anim.onfinish = () => {
       orb.remove();
-      target.classList.remove("is-bump");
-      void (target as HTMLElement).offsetWidth;
-      target.classList.add("is-bump");
-      setTimeout(() => target.classList.remove("is-bump"), 450);
+      bumpCart(target as HTMLElement);
     };
   }
 }

@@ -28,7 +28,7 @@ export default async function HomePage() {
   const [modes, site] = await Promise.all([getShopModes(), getSiteInfo()]);
   const main = modes.find((m) => m.status === "active")!;
   const ranks = main.products.filter((p) => p.category === "rangi");
-  const items = main.products.filter((p) => p.category === "klucze" || p.category === "pakiety").slice(0, 6);
+  const items = main.products.filter((p) => p.category === "kosy" || p.category === "klucze" || p.category === "pakiety").slice(0, 6);
   const showcase: ShowcaseRank[] = ranks.map((p) => ({
     slug: p.slug,
     name: p.name,
@@ -103,7 +103,7 @@ export default async function HomePage() {
           <h2 className="title" data-reveal>
             Rangi
           </h2>
-          <p className="title-sub" data-reveal>Tryb {main.name} · nadawane automatycznie po płatności</p>
+          <p className="title-sub" data-reveal>Tryb {main.name} · trafia do /isodbierz chwilę po płatności</p>
           <div className="ranks">
             {ranks.map((p, i) => (
               <RankCard
@@ -124,7 +124,7 @@ export default async function HomePage() {
           <h2 className="title" data-reveal>
             Klucze i pakiety
           </h2>
-          <p className="title-sub" data-reveal>Skrzynie, zestawy i przedmioty specjalne</p>
+          <p className="title-sub" data-reveal>Kosy, klucze i przedmioty specjalne</p>
           <div className="items">
             {items.map((p, i) => (
               <ItemCard key={p.slug} mode={main} product={p} index={i} />

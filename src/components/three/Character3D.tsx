@@ -8,6 +8,8 @@ export type Character3DProps = {
   cape?: string;
   nameTag?: string;
   nameTagColor?: string;
+  /** Odznaka rangi z gry (PNG 32 px wysokości) rysowana przed nickiem – nametag jak nad głową w grze. */
+  prefix?: string;
   /** Kąt startowy w radianach (obrót postaci). */
   yaw?: number;
   zoom?: number;
@@ -50,6 +52,7 @@ export function Character3D({
   cape,
   nameTag,
   nameTagColor = "#ffffff",
+  prefix,
   yaw = 0,
   zoom = 0.85,
   draggable = true,
@@ -161,10 +164,10 @@ export function Character3D({
       });
       if (reduced) viewer.animation.paused = true;
 
-      await viewer.loadSkin(skin, { model: "default" }).catch(() => viewer.loadSkin("/skins/mascot.png"));
+      await viewer.loadSkin(skin, { model: "auto-detect" }).catch(() => viewer.loadSkin("/skins/mascot.png"));
       if (cape) await viewer.loadCape(cape).catch(() => undefined);
       if (disposed) return;
-      applyNameTag(sv, viewer, nameTag, nameTagColor);
+      await applyNameTag(sv, viewer, nameTag, nameTagColor, prefix);
       setReady(true);
 
       ro = new ResizeObserver(([entry]) => {
@@ -194,14 +197,14 @@ export function Character3D({
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer || !ready) return;
-    viewer.loadSkin(skin, { model: "default" }).catch(() => viewer.loadSkin("/skins/mascot.png"));
+    viewer.loadSkin(skin, { model: "auto-detect" }).catch(() => viewer.loadSkin("/skins/mascot.png"));
   }, [skin, ready]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer || !ready) return;
-    import("skinview3d").then((sv) => applyNameTag(sv, viewer, nameTag, nameTagColor));
-  }, [nameTag, nameTagColor, ready]);
+    import("skinview3d").then((sv) => applyNameTag(sv, viewer, nameTag, nameTagColor, prefix));
+  }, [nameTag, nameTagColor, prefix, ready]);
 
   return (
     <div
@@ -215,21 +218,96 @@ export function Character3D({
   );
 }
 
-function applyNameTag(
+const images = new Map<string, Promise<HTMLImageElement | null>>();
+function loadImage(src: string) {
+  if (!images.has(src)) {
+    images.set(
+      src,
+      new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = src;
+      }),
+    );
+  }
+  return images.get(src)!;
+}
+
+/** Ostatnie żądanie wygrywa (osobno dla każdej postaci) – szybkie pisanie nicka nie podmieni nametagu starszą wersją. */
+const tagSeq = new WeakMap<SkinViewer, number>();
+
+// setter skinview3d przyjmuje każdy Object3D (własny sprite z odznaką), choć typ mówi tylko o NameTagObject
+function setTag(viewer: SkinViewer, tag: import("three").Sprite | null) {
+  const old = viewer.nameTag as unknown as { material?: { map?: { dispose(): void } | null; dispose(): void } } | null;
+  viewer.nameTag = tag as SkinViewer["nameTag"];
+  old?.material?.map?.dispose();
+  old?.material?.dispose();
+}
+
+async function applyNameTag(
   sv: typeof import("skinview3d"),
   viewer: SkinViewer,
   text: string | undefined,
   color: string,
+  prefix?: string,
 ) {
+  const seq = (tagSeq.get(viewer) ?? 0) + 1;
+  tagSeq.set(viewer, seq);
+  const stale = () => tagSeq.get(viewer) !== seq;
   if (!text) {
-    viewer.nameTag = null;
+    setTag(viewer, null);
     return;
   }
   const family = getComputedStyle(document.documentElement).getPropertyValue("--font-pixel").trim() || "monospace";
-  viewer.nameTag = new sv.NameTagObject(text, {
-    font: `48px ${family}`,
-    textStyle: color,
-    backgroundStyle: "rgba(16,4,6,0.55)",
-    repaintAfterLoaded: true,
-  });
+  if (!prefix) {
+    setTag(viewer, new sv.NameTagObject(text, {
+      font: `48px ${family}`,
+      textStyle: color,
+      backgroundStyle: "rgba(16,4,6,0.55)",
+      repaintAfterLoaded: true,
+    }));
+    return;
+  }
+  // nametag jak w grze: odznaka rangi z paczki (ostre piksele, ×2) + nick w kolorze rangi na półprzezroczystym tle
+  const [badge] = await Promise.all([loadImage(prefix), document.fonts.load(`56px ${family}`, text).catch(() => [])]);
+  if (stale()) return;
+  const { CanvasTexture, NearestFilter, SRGBColorSpace, Sprite, SpriteMaterial } = await import("three");
+  if (stale()) return;
+  const S = 2;
+  const bh = badge ? badge.height * S : 0;
+  const bw = badge ? badge.width * S : 0;
+  const font = `56px ${family}`;
+  const measure = document.createElement("canvas").getContext("2d")!;
+  measure.font = font;
+  const m = measure.measureText(text);
+  const pad = 10;
+  const gap = badge ? 14 : 0;
+  const th = Math.ceil(m.actualBoundingBoxAscent + m.actualBoundingBoxDescent);
+  const h = Math.max(bh, th) + pad * 2;
+  const w = Math.ceil(pad + bw + gap + m.width + pad);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "rgba(0,0,0,0.42)";
+  ctx.fillRect(0, 0, w, h);
+  if (badge) ctx.drawImage(badge, pad, Math.round((h - bh) / 2), bw, bh);
+  ctx.font = font;
+  ctx.textBaseline = "alphabetic";
+  const ty = Math.round((h + m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2);
+  const tx = pad + bw + gap;
+  ctx.fillStyle = "rgba(0,0,0,0.55)";                                    // cień jak w czcionce gry
+  ctx.fillText(text, tx + 4, ty + 4);
+  ctx.fillStyle = color;
+  ctx.fillText(text, tx, ty);
+  const texture = new CanvasTexture(canvas);
+  texture.magFilter = NearestFilter;
+  texture.minFilter = NearestFilter;
+  texture.colorSpace = SRGBColorSpace;
+  const sprite = new Sprite(new SpriteMaterial({ map: texture, transparent: true, alphaTest: 1e-5 }));
+  const height = 4.6;
+  sprite.scale.set((w / h) * height, height, 1);
+  setTag(viewer, sprite);
 }

@@ -6,7 +6,7 @@ export const site = {
   version: "1.21+",
   tagline: "Serwer Minecraft, na którym liczy się każda walka",
   description:
-    "Latające wyspy, walki o łupy i skrzynie pełne nagród. Zbierz ekipę, zgarnij rangę i zapisz swój nick w historii serwera.",
+    "CasinoCash: własna wyspa z generatorami, pola do koszenia, kasyno z ruletką i automatami, skrzynie w Skarbcu. Zbierz ekipę, zgarnij rangę i zapisz swój nick w topkach.",
   discord: "https://discord.gg/sPK2C73PBb",
   email: "dravon.pl@gmail.com",
   credits: { label: "afto.works", href: "https://afto.works" },

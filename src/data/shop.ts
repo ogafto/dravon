@@ -16,7 +16,7 @@ import { asset } from "@/lib/asset";
  * - Ceny są liczone na serwerze z tego pliku – klient nie może ich podmienić.
  */
 
-export type CategoryId = "rangi" | "klucze" | "pakiety" | "inne";
+export type CategoryId = "rangi" | "kosy" | "klucze" | "pakiety" | "inne";
 
 export type Category = {
   id: CategoryId;
@@ -87,6 +87,7 @@ export type Mode = {
 
 export const categories: Category[] = [
   { id: "rangi", name: "Rangi", icon: "crown", description: "Prestiż i przywileje na serwerze" },
+  { id: "kosy", name: "Kosy", icon: "sword", description: "Koszą całe pola jednym zamachem" },
   { id: "klucze", name: "Klucze", icon: "key", description: "Otwieraj skrzynie z nagrodami" },
   { id: "pakiety", name: "Pakiety", icon: "chest", description: "Zestawy w lepszej cenie" },
   { id: "inne", name: "Inne", icon: "gem", description: "Przedmioty specjalne" },
@@ -291,18 +292,136 @@ const skypvpProducts: Product[] = [
   },
 ];
 
+/* ---------------------------------------------------------------- CasinoCash (user 7.11 – zamiast SkyPvP)
+ * Wydanie przez DravonSklep do skrytki /isodbierz (gracz musi być online – komendy AftoCore biorą gracza z serwera):
+ *  rangi – voucher rangi (gracz używa go w grze, ranga trafia przez proxy i nie nadpisze wyższej/wiecznej),
+ *  kosy – /dcadmin kosa, klucze – /dcadmin klucz (id skrzyń z casinocash/config.yml), odłamki – /dcadmin odlamki.
+ * Modele i tekstury renderów prosto z paczki gry (scripts/render/scene.js → packShot). Ceny: propozycja do akceptacji.
+ */
+const ccRank = (key: "vip" | "svip" | "vampir", name: string, label: string, monthly: number, forever: number, extra: Partial<Product>): Product => ({
+  ...rank(key, name, label, monthly, forever, extra),
+  game: { delivery: "stash", icon: "PAPER", model: `dravon:voucher_${key}` },
+  variants: [
+    { id: `cc_${key}`, label: "30 dni", price: monthly, command: `voucher daj {nick} ${key} 30 1`, broadcast: `rangę ${label} na 30 dni` },
+    {
+      id: `cc_${key}_permanent`,
+      label: "Na zawsze",
+      price: forever,
+      command: `voucher daj {nick} ${key} zawsze 1`,
+      broadcast: `rangę ${label} na zawsze`,
+      badge: "Najlepsza wartość",
+    },
+  ],
+});
+
+const KOSY: [tier: number, name: string, area: string, price: number, fx: string][] = [
+  [1, "Kosa Polna", "3x3", 5, "kłosy i złote iskry"],
+  [2, "Kosa Burzowa", "5x5", 12, "błyskawice nad polem"],
+  [3, "Kosa Ognista", "7x7", 22, "płomienie przy każdym zamachu"],
+  [4, "Kosa Żniwiarza", "10x10", 39, "dusze unoszące się nad plonem"],
+  [5, "Kosa Smocza", "15x15", 69, "smoczy ogień i łuski"],
+];
+
+const ccKosy: Product[] = KOSY.map(([tier, name, area, price, fx]) => ({
+  slug: `kosa-${tier}`,
+  name: `${name} ${area}`,
+  category: "kosy",
+  image: asset(`/renders/cc-kosa-${tier}.png`),
+  render: asset(`/renders/cc-kosa-${tier}.png`),
+  fx: "glint",
+  tagline: `Kosi pole ${area} jednym zamachem.`,
+  description: `${name} z trybu CasinoCash: ścina plony na obszarze ${area}, a efekt to ${fx}. Trafia do skrytki /isodbierz – odbierasz ją w grze, kiedy chcesz.`,
+  perks: [`Obszar koszenia **${area}**`, `Własny efekt: **${fx}**`, "Model 3D z paczki serwera", "Dostawa do skrytki **/isodbierz**"],
+  highlight: tier === 3,
+  game: { delivery: "stash", icon: "NETHERITE_HOE", model: `dravon:kosa_${tier}` },
+  variants: [{ id: `cc_kosa_${tier}`, label: "Kosa", price, command: `dcadmin kosa {nick} ${tier}`, broadcast: `${name} ${area}` }],
+}));
+
+const KLUCZE: [crate: string, slug: string, key: string, name: string, price: number, what: string][] = [
+  ["vampira", "vampira", "Klucz Vampira", "Skrzynia Vampira", 6, "odłamki, vPLN i płaszcz wampira"],
+  ["kosmetyczna", "kosmetyczna", "Klucz Kosmetyczny", "Skrzynia Kosmetyczna", 4, "skrzydła, czapki i inne kosmetyki"],
+  ["legendarna", "dusz", "Klucz Dusz", "Skrzynia Dusz", 5, "rzadkie nagrody i dużo vPLN"],
+  ["pety", "pety", "Klucz Petów", "Skrzynia Petów", 5, "pety z umiejętnościami, odłamki i turbo"],
+  ["rzadka", "epicka", "Klucz Epicki", "Skrzynia Epicka", 3, "epickie przedmioty i dolarki"],
+];
+
+const ccKlucze: Product[] = KLUCZE.map(([crate, slug, key, name, price, what]) => ({
+  slug: `klucz-${slug}`,
+  name: key,
+  category: "klucze",
+  image: asset(`/renders/cc-klucz-${slug}.png`),
+  render: asset(`/renders/cc-klucz-${slug}.png`),
+  fx: "glint",
+  tagline: `Otwiera: ${name}.`,
+  description: `Klucz do skrzyni „${name}” w Skarbcu trybu CasinoCash. W środku: ${what}. Kupujesz dowolną liczbę naraz.`,
+  perks: [`Otwiera **${name}**`, `W środku: ${what}`, "Od 1 do 100 sztuk naraz", "Dostawa do skrytki **/isodbierz**"],
+  stack: { max: 100 },
+  highlight: slug === "vampira",
+  game: { delivery: "stash", icon: "TRIPWIRE_HOOK", model: `dravon:skrzynia_${slug}_klucz` },
+  variants: [{ id: `cc_klucz_${slug}`, label: "1 szt.", price, command: `dcadmin klucz {nick} ${crate} {qty}`, broadcast: `${key} (x{qty})` }],
+}));
+
+/** Dawny tryb SkyPvP – zdjęty ze strony 7.11 (CasinoCash), zostaje jako wzór produktów. */
+export const skypvpMode: Mode = {
+  slug: "skypvp",
+  name: "SkyPvP",
+  short: "Latające wyspy, walka i skrzynie z nagrodami.",
+  description:
+    "Główny tryb Dravon.pl. Rangi, klucze i pakiety trafiają do Ciebie automatycznie chwilę po płatności.",
+  icon: "sword",
+  render: asset("/renders/mode-skypvp.png"),
+  status: "active",
+  version: "1.21+",
+  products: skypvpProducts,
+};
+
+const casinocashProducts: Product[] = [
+  ccRank("vip", "Ranga VIP", "VIP", 10, 30, {
+    tagline: "Wygodne komendy i teleporty bez czekania.",
+    description: "Pierwszy krok wyżej w trybie CasinoCash. Dostajesz voucher rangi do skrytki /isodbierz – używasz go w grze i ranga wchodzi od razu.",
+    perks: ["Odznaka **[VIP]** na czacie, w TAB i nad głową", "**/workbench**, **/enderchest**, **/hat**, **/feed**, **/back**", "Teleporty **bez odliczania**", "Rynek: **10 ofert** (gracz ma 5)"],
+  }),
+  ccRank("svip", "Ranga SVIP", "SVIP", 20, 55, {
+    tagline: "Latanie, leczenie i kolory na czacie.",
+    description: "Wszystko z VIP i sporo więcej. Dostajesz voucher rangi do skrytki /isodbierz – używasz go w grze i ranga wchodzi od razu.",
+    perks: ["Odznaka **[SVIP]** na czacie, w TAB i nad głową", "Wszystko z **VIP**", "**/fly**, **/heal** i przenośne stoły", "**Kolory** na czacie, rynek: **15 ofert**"],
+  }),
+  ccRank("vampir", "Ranga Vampir", "Vampir", 50, 130, {
+    tagline: "Najwyższa ranga. Władca nocy.",
+    description: "Topowa ranga trybu CasinoCash – wszystko z SVIP i najwięcej miejsca na rynku. Dostajesz voucher rangi do skrytki /isodbierz.",
+    perks: ["Odznaka **[VAMPIR]** na czacie, w TAB i nad głową", "Wszystko z **VIP** i **SVIP**", "**Najwięcej** ofert na rynku", "**Największe** wsparcie serwera"],
+  }),
+  ...ccKosy,
+  ...ccKlucze,
+  {
+    slug: "odlamki-vampira",
+    name: "Odłamki Vampira",
+    category: "inne",
+    image: asset("/renders/cc-odlamek.png"),
+    render: asset("/renders/cc-odlamek.png"),
+    fx: "sparkle",
+    tagline: "Rzadki materiał – wymienisz go na żetony.",
+    description: "Odłamki Vampira z trybu CasinoCash. Zbierasz je, wymieniasz w sklepie żetonów (250 odłamków = 1 żeton) i ulepszasz nimi sprzęt.",
+    perks: ["Paczka = **100 odłamków**", "**250** odłamków = **1 żeton**", "Od 1 do 50 paczek naraz", "Dostawa do skrytki **/isodbierz**"],
+    stack: { max: 50 },
+    game: { delivery: "stash", icon: "AMETHYST_SHARD", model: "dravon:odlamek" },
+    // {qty}00 = liczba paczek × 100 (np. 5 paczek → „dcadmin odlamki Nick 500”)
+    variants: [{ id: "cc_odlamki_100", label: "Paczka 100 szt.", price: 3, command: "dcadmin odlamki {nick} {qty}00", broadcast: "Odłamki Vampira (x{qty}00)" }],
+  },
+];
+
 export const modes: Mode[] = [
   {
-    slug: "skypvp",
-    name: "SkyPvP",
-    short: "Latające wyspy, walka i skrzynie z nagrodami.",
+    slug: "casinocash",
+    name: "CasinoCash",
+    short: "Kasyno, wyspy z generatorami, kosy i skrzynie.",
     description:
-      "Główny tryb Dravon.pl. Rangi, klucze i pakiety trafiają do Ciebie automatycznie chwilę po płatności.",
-    icon: "sword",
-    render: asset("/renders/mode-skypvp.png"),
+      "Tryb CasinoCash: zarabiasz dolarki na wyspie i polach, grasz w kasynie i otwierasz skrzynie w Skarbcu. Zakupy trafiają do skrytki /isodbierz chwilę po płatności.",
+    icon: "gem",
+    render: asset("/renders/mode-casinocash.png"),
     status: "active",
-    version: "1.21+",
-    products: skypvpProducts,
+    version: "1.21.11",
+    products: casinocashProducts,
   },
   // Kolejny tryb – nazwę i produkty uzupełnij przed startem, potem ustaw status: "active".
   {

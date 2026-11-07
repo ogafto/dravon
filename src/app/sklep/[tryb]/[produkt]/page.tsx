@@ -11,6 +11,9 @@ import { PixelIcon } from "@/components/PixelIcon";
 import { ProductPurchase } from "@/components/ProductPurchase";
 import { Rich } from "@/components/Rich";
 import { Character3D } from "@/components/three/Character3D";
+import { badgeFor } from "@/data/prefixes";
+import modele from "@/data/modele.json";
+import { PackModel3D } from "@/components/three/PackModel3D";
 import { getCategory, getProduct } from "@/lib/catalog";
 import { getShopMode } from "@/lib/shop-data";
 import { toPublicProduct } from "@/lib/public-catalog";
@@ -38,6 +41,9 @@ export default async function ProductPage({ params, searchParams }: PageProps<"/
   if (!mode || !product || mode.status !== "active") notFound();
 
   const category = getCategory(product.category);
+  // żywy model 3D, gdy produkt ma model z paczki skopiowany na stronę (scripts/copy-modele.mjs)
+  const packModel = product.game?.model?.replace(/^dravon:/, "");
+  const model3d = packModel && (modele as string[]).includes(packModel) ? packModel : undefined;
   const related = mode.products
     .filter((p) => p.slug !== product.slug)
     .sort((a, b) => Number(b.category === product.category) - Number(a.category === product.category))
@@ -59,16 +65,26 @@ export default async function ProductPage({ params, searchParams }: PageProps<"/
                 <span className="stage-card__floor" aria-hidden />
                 <Particles className="stage-card__particles" count={18} />
                 <Image src={asset("/renders/pedestal.png")} alt="" width={640} height={640} className="stage-card__pedestal" priority />
-                <ItemArt
-                  src={product.render}
-                  hoverSrc={product.renderHover}
-                  fx={product.fx}
-                  color={product.showcase?.color ?? "#ff5a72"}
-                  sizes="300px"
-                  priority
-                  alt={product.name}
-                  className={`stage-card__render ${product.category === "klucze" && product.fx === "glint" ? "stage-card__render--tall" : ""}`}
-                />
+                {model3d ? (
+                  <PackModel3D
+                    model={model3d}
+                    fallback={product.render}
+                    color={product.showcase?.color ?? "#ff4258"}
+                    className="stage-card__model"
+                    label={`${product.name} – model 3D, przeciągnij, aby obrócić`}
+                  />
+                ) : (
+                  <ItemArt
+                    src={product.render}
+                    hoverSrc={product.renderHover}
+                    fx={product.fx}
+                    color={product.showcase?.color ?? "#ff5a72"}
+                    sizes="300px"
+                    priority
+                    alt={product.name}
+                    className={`stage-card__render ${product.category === "klucze" && product.fx === "glint" ? "stage-card__render--tall" : ""}`}
+                  />
+                )}
               </div>
 
               <div className="product-info">
@@ -90,8 +106,9 @@ export default async function ProductPage({ params, searchParams }: PageProps<"/
                     <Character3D
                       skin={product.showcase.skin}
                       cape={product.showcase.cape}
-                      nameTag={`${product.showcase.tag} Gracz`}
-                      nameTagColor={product.showcase.color}
+                      nameTag="Gracz"
+                      nameTagColor={badgeFor(product.showcase.tag).nick}
+                      prefix={badgeFor(product.showcase.tag).prefix}
                       yaw={-0.45}
                       zoom={0.82}
                       rimLight={product.showcase.color}

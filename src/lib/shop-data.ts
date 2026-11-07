@@ -33,7 +33,7 @@ export async function saveModes(modes: Mode[]) {
 /** Zapis z panelu → lista trybów (obsługuje też starszy zapis „tryb → produkty”). */
 export function modesFrom(saved: SavedCatalog | null): Mode[] {
   if (!saved) return defaultModes;
-  if (Array.isArray((saved as { modes?: unknown }).modes)) return (saved as { modes: Mode[] }).modes;
+  if (Array.isArray((saved as { modes?: unknown }).modes)) return withCasinoCash((saved as { modes: Mode[] }).modes);
   const old = saved as Record<string, Product[]>;
   return defaultModes.map((m) => (old[m.slug] ? { ...m, products: old[m.slug] } : m));
 }
@@ -45,4 +45,17 @@ export const getShopModes = cache(async (): Promise<Mode[]> =>
 
 export async function getShopMode(slug: string): Promise<Mode | undefined> {
   return (await getShopModes()).find((m) => m.slug === slug);
+}
+
+/**
+ * User 7.11: CasinoCash zamiast SkyPvP. Katalog zapisany w panelu przed tą zmianą nie zna trybu – podstawiamy go
+ * w miejsce SkyPvP (opłacone zamówienia SkyPvP mają własną kopię komend, więc nic się nie psuje). Po pierwszym
+ * zapisie w panelu CasinoCash jest już w bazie i ta podmiana nic nie robi.
+ */
+function withCasinoCash(modes: Mode[]): Mode[] {
+  if (modes.some((m) => m.slug === "casinocash")) return modes;
+  const cc = defaultModes.find((m) => m.slug === "casinocash");
+  if (!cc) return modes;
+  const at = modes.findIndex((m) => m.slug === "skypvp");
+  return at < 0 ? [cc, ...modes] : [...modes.slice(0, at), cc, ...modes.slice(at + 1)];
 }

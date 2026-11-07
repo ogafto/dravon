@@ -167,6 +167,46 @@
   width: 320px !important;
   bottom: 110px !important;
 }
+/* żywy model 3D z paczki gry nad postumentem */
+.pack3d {
+  position: relative;
+}
+.pack3d__fallback,
+.pack3d__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  transition: opacity 0.6s var(--ease);
+}
+.pack3d__canvas {
+  opacity: 0;
+  pointer-events: none;
+}
+.pack3d.is-draggable .pack3d__canvas {
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.pack3d.is-draggable .pack3d__canvas:active {
+  cursor: grabbing;
+}
+.pack3d.is-ready .pack3d__canvas {
+  opacity: 1;
+}
+.pack3d.is-ready .pack3d__fallback {
+  opacity: 0;
+}
+.stage-card__model {
+  position: absolute;
+  left: 50%;
+  bottom: 150px;
+  width: 330px;
+  height: 250px;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.55));
+}
 .stage-card__render {
   position: absolute !important;
   left: 50%;
@@ -1021,6 +1061,11 @@
   .stage-card__render {
     width: 180px;
     bottom: 112px;
+  }
+  .stage-card__model {
+    width: 230px;
+    height: 180px;
+    bottom: 128px;
   }
   .legal__doc {
     padding: 22px 16px;

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatPrice, fromCents, toCents } from "@/lib/format";
 import type { PublicProduct } from "@/lib/public-catalog";
 import { isValidEmail, isValidNick } from "@/lib/validation";
+import { badgeFor } from "@/data/prefixes";
 import { useCart } from "./CartProvider";
 import { PixelIcon, type IconName } from "./PixelIcon";
 import { QuantitySlider } from "./QuantitySlider";
@@ -63,11 +64,13 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
     const t = setTimeout(() => setWaving(false), 1800);
     return () => clearTimeout(t);
   }, [skinNick]);
+  // bez wpisanego nicka pokazujemy postać właściciela (aftoxd); prefiks = odznaka kupowanej rangi z gry
   const rankLook = lines.find((l) => l.product.showcase)?.product.showcase;
+  const badge = badgeFor(rankLook?.tag);
+  const shownNick = skinNick || "aftoxd";
   const skinUrl = skinNick
     ? `https://mc-heads.net/skin/${encodeURIComponent(skinNick.replace(/^\./, ""))}`
-    : (rankLook?.skin ?? "/skins/mascot.png");
-  const tagText = skinNick ? `${rankLook ? `${rankLook.tag} ` : ""}${skinNick}` : rankLook ? `${rankLook.tag} ???` : "???";
+    : "/skins/aftoxd.png";
 
   const pay = async () => {
     setTouched(true);
@@ -167,14 +170,14 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
                 onChange={(e) => cart.setNick(e.target.value.replace(/\s/g, ""))}
                 onBlur={() => setTouched(true)}
                 aria-invalid={touched && !nickOk}
-                aria-describedby="nick-hint"
+                aria-describedby={touched && !nickOk ? "nick-hint" : undefined}
               />
             </div>
-            <p id="nick-hint" className={`hint ${touched && !nickOk ? "error" : ""}`}>
-              {touched && !nickOk
-                ? "Nick musi mieć 3–16 znaków: litery, cyfry lub podkreślnik."
-                : "Sprawdź dokładnie – wielkość liter ma znaczenie."}
-            </p>
+            {touched && !nickOk && (
+              <p id="nick-hint" className="hint error">
+                Nick musi mieć 3–16 znaków: litery, cyfry lub podkreślnik.
+              </p>
+            )}
           </div>
           <div className="field">
             <label className="label" htmlFor="email">
@@ -256,11 +259,12 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
       </div>
 
       <aside className="summary panel" aria-labelledby="summary-title">
-        <div className="me" style={{ "--rank": rankLook?.color ?? "#c08bff" } as React.CSSProperties}>
+        <div className="me" style={{ "--rank": rankLook?.color ?? "#e8243a" } as React.CSSProperties}>
           <Character3D
             skin={skinUrl}
-            nameTag={tagText}
-            nameTagColor={rankLook?.color ?? "#ffffff"}
+            nameTag={shownNick}
+            nameTagColor={badge.nick}
+            prefix={badge.prefix}
             yaw={-0.4}
             zoom={0.78}
             waving={waving}
@@ -268,9 +272,6 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
             className="me__char"
             label="Podgląd Twojej postaci"
           />
-          <span className="me__label">
-            {skinNick ? "Tak zobaczą Cię na serwerze" : "Wpisz nick – pokażemy Twoją postać"}
-          </span>
         </div>
         <h2 id="summary-title">
           <PixelIcon name="chest" size={28} /> Twój ekwipunek

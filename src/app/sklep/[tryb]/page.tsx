@@ -19,9 +19,10 @@ export const dynamic = "force-dynamic";
 
 const CAT_RENDER: Record<CategoryId, string> = {
   rangi: asset("/renders/rank-vip.png"),
-  klucze: asset("/renders/key-normal.png"),
+  kosy: asset("/renders/cc-kosa-3.png"),
+  klucze: asset("/renders/cc-klucz-vampira.png"),
   pakiety: asset("/renders/chest-vip.png"),
-  inne: asset("/renders/shard.png"),
+  inne: asset("/renders/cc-odlamek.png"),
 };
 
 export async function generateMetadata({ params }: PageProps<"/sklep/[tryb]">): Promise<Metadata> {
@@ -99,7 +100,6 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
               return (
                 <div key={cat.id} className="cat-group">
                   <h2 className="title" data-reveal>{cat.name}</h2>
-                  <p className="title-sub" data-reveal>{cat.description}</p>
                   {cat.id === "rangi" ? (
                     <div className="ranks">
                       {products.map((p, i) => (
