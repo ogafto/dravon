@@ -7,7 +7,7 @@ import type * as THREE from "three";
 /**
  * Model przedmiotu prosto z paczki gry (public/modele, kopiuje scripts/copy-modele.mjs) na żywo w 3D.
  * motion="sway" – łagodne kołysanie (strona produktu), obracanie myszką / palcem z bezwładnością;
- * motion="turn" – obrotowa podstawka (ikona trybu, stos monet): powolny obrót wokół pionu, lekko z góry, po najechaniu szybciej;
+ * motion="turn" – ikona trybu (stos monet): stoi lekko z góry i nie zużywa klatek; po najechaniu jeden płynny obrót z podskokiem;
  * motion="spin" – moneta: stoi przodem i lekko się kołysze, co kilka sekund szybki obrót jak podrzucona
  * moneta, po najechaniu na kafel kręci się bez przerwy.
  * Poza ekranem stoi. Do czasu wczytania (i bez WebGL) widać statyczny render – potem płynne przenikanie.
@@ -76,7 +76,7 @@ export function PackModel3D({
       } catch {
         return; // brak WebGL – zostaje statyczny render
       }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // płynność (7.11): mniej pikseli na Retinie
       renderer.outputColorSpace = T.SRGBColorSpace;
 
       const scene = new T.Scene();
@@ -166,8 +166,10 @@ export function PackModel3D({
       const host = (wrap.closest("a, [data-fx-host]") as HTMLElement | null) ?? wrap;
       let boost = 0;
       let boostTarget = 0;
+      let hoverAt = -1; // turn: początek obrotu po najechaniu (ms), -1 = stoi
       const enter = () => {
         boostTarget = 1;
+        if (turn && hoverAt < 0) hoverAt = performance.now();
         if (!raf) raf = requestAnimationFrame(frame);
       };
       const leave = () => {
@@ -190,8 +192,14 @@ export function PackModel3D({
       let base = 0; // pełne obroty (wielokrotność 2π po zakończeniu)
       let flipAt = 1.2; // pierwszy obrót chwilę po wczytaniu
       let flip = 0;
+      let drawn = 0;
       function frame(now: number) {
         raf = 0;
+        if (now - drawn < 15) {
+          raf = requestAnimationFrame(frame); // najwyżej ~60 klatek/s także na ekranach 120 Hz
+          return;
+        }
+        drawn = now;
         const dt = Math.min(0.05, (now - last) / 1000);
         last = now;
         const t = (now - start) / 1000;
@@ -203,9 +211,14 @@ export function PackModel3D({
           pitch = lerp(pitch, 0, 1 - Math.pow(0.2, dt));
         }
         if (turn) {
-          base += dt * (0.5 + boost * 2.2);
-          pivot.rotation.set(TILT + pitch, reduced ? 0.8 : base + yaw, 0); // XYZ: najpierw obrót wokół pionu, potem pochylenie
-          pivot.position.y = reduced ? 0 : Math.sin(t * 1.6) * radius * 0.025;
+          // user 7.11: bez ciągłego kręcenia – stoi, po najechaniu jeden obrót (1,1 s) z podskokiem
+          let p = 1;
+          if (hoverAt >= 0 && !reduced) {
+            p = Math.min(1, (now - hoverAt) / 1100);
+            if (p >= 1) hoverAt = -1;
+          }
+          pivot.rotation.set(TILT + pitch, -0.8 + ease(p) * TAU + yaw, 0); // XYZ: najpierw obrót wokół pionu, potem pochylenie
+          pivot.position.y = Math.sin(p * Math.PI) * radius * 0.12;
         } else if (spin) {
           if (boost > 0.5) {
             base += dt * 6.5 * boost; // najechanie: kręci się bez przerwy
@@ -230,8 +243,9 @@ export function PackModel3D({
           pivot.position.y = reduced ? 0 : Math.sin(t * 1.6) * radius * 0.035;
         }
         renderer.render(scene, camera);
-        const settled = !dragging && Math.abs(vYaw) < 1e-4 && Math.abs(pitch) < 1e-3 && (spin || Math.abs(yaw) < 1e-3);
-        if (visible && (!reduced || !settled)) raf = requestAnimationFrame(frame);
+        const settled = !dragging && Math.abs(vYaw) < 1e-4 && Math.abs(pitch) < 1e-3 && (spin || turn || Math.abs(yaw) < 1e-3);
+        const moving = turn ? hoverAt >= 0 : !reduced;
+        if (visible && (moving || !settled)) raf = requestAnimationFrame(frame);
       }
       raf = requestAnimationFrame(frame);
       setReady(true);

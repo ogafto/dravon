@@ -30,9 +30,6 @@ export function LegalDocument({ doc, current }: { doc: LegalDoc; current: "regul
     <>
       <section className="section-tight legal-head">
         <div className="container">
-          <nav className="crumbs" aria-label="Okruszki">
-            <Link href="/">Start</Link> / <span aria-current="page">{doc.title}</span>
-          </nav>
           <h1 className="title-left">{doc.title}</h1>
           <p className="legal-head__meta">{doc.updated}</p>
           <div className="tabs">

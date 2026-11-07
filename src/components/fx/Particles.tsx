@@ -14,7 +14,8 @@ export function Particles({ count = 46, className, colors: palette }: { count?: 
     const colors = palette ?? ["#ffffff", "#f0e6e6", "#c9c2c4", "#ff8a98"];
     let w = 0;
     let h = 0;
-    const dpr = Math.min(window.devicePixelRatio, 2);
+    // płynność (7.11): kwadraciki rysujemy w 1× (ostre dzięki image-rendering: pixelated) i najwyżej 60 razy na sekundę
+    const dpr = 1;
     const resize = () => {
       w = canvas.clientWidth;
       h = canvas.clientHeight;
@@ -38,9 +39,11 @@ export function Particles({ count = 46, className, colors: palette }: { count?: 
 
     let raf = 0;
     let visible = true;
-    const tick = () => {
+    let last = 0;
+    const tick = (now = 0) => {
       raf = requestAnimationFrame(tick);
-      if (!visible) return;
+      if (!visible || now - last < 15) return;
+      last = now;
       ctx.clearRect(0, 0, w, h);
       for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
@@ -71,5 +74,5 @@ export function Particles({ count = 46, className, colors: palette }: { count?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paleta to stała tablica z wywołującego
   }, [count]);
 
-  return <canvas ref={ref} className={className} aria-hidden />;
+  return <canvas ref={ref} className={className} style={{ imageRendering: "pixelated" }} aria-hidden />;
 }

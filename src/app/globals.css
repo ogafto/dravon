@@ -296,15 +296,15 @@ p {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -60%;
+  left: 0;
   width: 40%;
   z-index: -1;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.55s var(--ease);
+  transform: translateX(-150%) skewX(-20deg);
+  transition: transform 0.55s var(--ease);
 }
 .btn:hover::after {
-  left: 120%;
+  transform: translateX(300%) skewX(-20deg);
 }
 .btn:hover {
   filter: brightness(1.12);
@@ -642,12 +642,13 @@ html:not(.js) .title::after {
   z-index: -3;
   animation: kenburns 28s ease-in-out infinite alternate;
   translate: calc(var(--mx) * -14px) calc(var(--my) * -10px);
+  /* płynność (7.11): rozmycie i przygaszenie wypalone w plikach – filtr liczony co klatkę przy zoomie przycinał Safari */
   background:
-    url(/bg-left.jpg) left center / auto 110% no-repeat,
-    url(/bg-right.jpg) right center / auto 110% no-repeat,
-    #121214;
-  filter: blur(6px) saturate(0.3) brightness(0.65);
+    url(/bg-left-tlo.jpg) left center / auto 110% no-repeat,
+    url(/bg-right-tlo.jpg) right center / auto 110% no-repeat,
+    #0c0c0d;
   transform: scale(1.03);
+  will-change: transform;
 }
 @keyframes kenburns {
   from {
@@ -1089,7 +1090,6 @@ html:not(.js) .title::after {
   display: block;
   width: 210px;
   margin: -104px auto 0;
-  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.55));
   transition: transform 0.35s var(--ease);
 }
 
@@ -1257,7 +1257,6 @@ html:not(.js) .title::after {
   display: block;
   width: 170px;
   margin: -86px auto 4px;
-  filter: drop-shadow(0 16px 16px rgba(0, 0, 0, 0.55));
   transition: transform 0.35s var(--ease);
 }
 
@@ -1320,6 +1319,7 @@ html:not(.js) .title::after {
 }
 .art__float {
   display: block;
+  will-change: transform;                     /* własna warstwa: cień obrazka liczony raz, unoszenie na GPU */
   animation: bob 5s ease-in-out infinite;
   animation-delay: calc(var(--i, 0) * -1.3s);
 }
@@ -2715,11 +2715,11 @@ html.js [data-reveal]:not(.join__art).is-in .art {
 @keyframes price-shine {
   0%,
   70% {
-    left: -60%;
+    transform: translateX(-150%) skewX(-20deg);
   }
   85%,
   100% {
-    left: 120%;
+    transform: translateX(300%) skewX(-20deg);
   }
 }
 

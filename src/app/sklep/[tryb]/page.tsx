@@ -124,7 +124,6 @@ export default async function ModePage({ params, searchParams }: PageProps<"/skl
                 return (
                   <div key={cat.id} className="cat-group" id={cat.id}>
                     <header className="cat-head" data-reveal>
-                      <Image src={CAT_RENDER[cat.id]} alt="" width={96} height={96} className="cat-head__img" />
                       <h2 className="cat-head__name">{cat.name}</h2>
                       <span className="cat-head__line" aria-hidden />
                     </header>

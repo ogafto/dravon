@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { JoinCta } from "@/components/JoinCta";
 import { ModeTile } from "@/components/ModeTile";
 import { getShopModes } from "@/lib/shop-data";
@@ -17,9 +16,6 @@ export default async function ShopPage() {
     <>
     <section className="section">
       <div className="container">
-        <nav className="crumbs" aria-label="Okruszki">
-          <Link href="/">Start</Link> / <span aria-current="page">Sklep</span>
-        </nav>
         <h1 className="title" data-reveal>Wybierz tryb</h1>
         <p className="title-sub" data-reveal>Przedmioty są przypisane do trybu, na którym grasz.</p>
         <div className="modes-bar__inner modes-bar__inner--page">

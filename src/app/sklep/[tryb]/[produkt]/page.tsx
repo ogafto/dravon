@@ -53,11 +53,6 @@ export default async function ProductPage({ params, searchParams }: PageProps<"/
     <>
       <section className="section-tight">
         <div className="container">
-          <nav className="crumbs" aria-label="Okruszki">
-            <Link href="/sklep">Sklep</Link> / <Link href={`/sklep/${mode.slug}`}>{mode.name}</Link> /{" "}
-            <Link href={`/sklep/${mode.slug}?kategoria=${category.id}`}>{category.name}</Link> /{" "}
-            <span aria-current="page">{product.name}</span>
-          </nav>
 
           <div className="product-layout">
             <div className="product-main">

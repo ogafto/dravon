@@ -93,7 +93,7 @@ export function Character3D({
         height: Math.max(1, height),
         zoom,
         fov: 40,
-        pixelRatio: Math.min(window.devicePixelRatio, 2),
+        pixelRatio: Math.min(window.devicePixelRatio, 1.5),   // płynność (7.11): mniej pikseli na Retinie
       });
       viewerRef.current = viewer;
 
