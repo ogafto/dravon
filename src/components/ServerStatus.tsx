@@ -110,7 +110,7 @@ export function PlayersProof() {
         <CountUp value={n} />
       </span>
       <span className="proof__label">
-        <span className="dot dot-online dot-pulse" /> graczy na serwerze
+        <span className="dot dot-online dot-pulse" /> {n === 1 ? "gracz" : "graczy"} na serwerze
       </span>
     </div>
   );
