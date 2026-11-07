@@ -103,7 +103,6 @@ export default async function HomePage() {
           <h2 className="title" data-reveal>
             Rangi
           </h2>
-          <p className="title-sub" data-reveal>Tryb {main.name} · trafia do /isodbierz chwilę po płatności</p>
           <div className="ranks">
             {ranks.map((p, i) => (
               <RankCard
@@ -122,9 +121,8 @@ export default async function HomePage() {
       <section className="section-tight">
         <div className="container">
           <h2 className="title" data-reveal>
-            Klucze i pakiety
+            Kosy i klucze
           </h2>
-          <p className="title-sub" data-reveal>Kosy, klucze i przedmioty specjalne</p>
           <div className="items">
             {items.map((p, i) => (
               <ItemCard key={p.slug} mode={main} product={p} index={i} />
