@@ -296,21 +296,21 @@ const skypvpProducts: Product[] = [
 
 /* ---------------------------------------------------------------- CoinCash (user 7.11 – zamiast SkyPvP; w grze tryb CasinoCash,
  * na stronie CoinCash: SimPay nie obsługuje płatności za hazard i kasyna – bez kasyna w nazwie, adresie i opisach)
- * Wydanie przez DravonSklep do skrytki /isodbierz (gracz musi być online – komendy AftoCore biorą gracza z serwera):
- *  rangi – voucher rangi (gracz używa go w grze, ranga trafia przez proxy i nie nadpisze wyższej/wiecznej),
- *  kosy – /dcadmin kosa, klucze – /dcadmin klucz (id skrzyń z casinocash/config.yml), odłamki – /dcadmin odlamki.
+ * Wydanie przez DravonSklep (user 24.11: rangi od razu, do skrytki /odbierz tylko przedmioty):
+ *  rangi – /sklepranga (AftoCore: ranga od razu przez proxy; gracz offline → po wejściu; wyższa ranga → voucher),
+ *  kosy – /dcadmin kosa, klucze – /dcadmin klucz (id skrzyń z casinocash/config.yml), odłamki – /dcadmin odlamki – skrytka /odbierz.
  * Modele i tekstury renderów prosto z paczki gry (scripts/render/scene.js → packShot). Ceny: propozycja do akceptacji.
  */
 const ccRank = (key: "vip" | "svip" | "vampir", name: string, label: string, monthly: number, forever: number, extra: Partial<Product>): Product => ({
   ...rank(key, name, label, monthly, forever, extra),
-  game: { delivery: "stash", icon: "PAPER", model: `dravon:voucher_${key}` },
+  game: { delivery: "instant", icon: "NAME_TAG", model: `dravon:voucher_${key}` },
   variants: [
-    { id: `cc_${key}`, label: "30 dni", price: monthly, command: `voucher daj {nick} ${key} 30 1`, broadcast: `rangę ${label} na 30 dni` },
+    { id: `cc_${key}`, label: "30 dni", price: monthly, command: `sklepranga {nick} ${key} 30`, broadcast: `rangę ${label} na 30 dni` },
     {
       id: `cc_${key}_permanent`,
       label: "Na zawsze",
       price: forever,
-      command: `voucher daj {nick} ${key} zawsze 1`,
+      command: `sklepranga {nick} ${key} zawsze`,
       broadcast: `rangę ${label} na zawsze`,
       badge: "Najlepsza wartość",
     },

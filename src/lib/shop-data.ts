@@ -33,7 +33,7 @@ export async function saveModes(modes: Mode[]) {
 /** Zapis z panelu → lista trybów (obsługuje też starszy zapis „tryb → produkty”). */
 export function modesFrom(saved: SavedCatalog | null): Mode[] {
   if (!saved) return defaultModes;
-  if (Array.isArray((saved as { modes?: unknown }).modes)) return withCoinCash((saved as { modes: Mode[] }).modes);
+  if (Array.isArray((saved as { modes?: unknown }).modes)) return rangiOdRazu(withCoinCash((saved as { modes: Mode[] }).modes));
   const old = saved as Record<string, Product[]>;
   return defaultModes.map((m) => (old[m.slug] ? { ...m, products: old[m.slug] } : m));
 }
@@ -58,4 +58,33 @@ function withCoinCash(modes: Mode[]): Mode[] {
   if (!cc) return modes;
   const at = modes.findIndex((m) => m.slug === "casinocash" || m.slug === "skypvp");
   return at < 0 ? [cc, ...modes] : [...modes.slice(0, at), cc, ...modes.slice(at + 1)];
+}
+
+/**
+ * User 24.11: „rangi kupione mają się nadawać od razu, odbierać tylko rzeczy typu klucze, kosa, odłamki”. Katalog zapisany
+ * w panelu może mieć jeszcze vouchery (voucher daj {nick} vip 30 1 → skrytka) – zamieniamy je na /sklepranga (od razu)
+ * i zdejmujemy wymuszone „do skrytki” z produktów, w których zostały same rangi. Pakiety dzieli splitCommands.
+ */
+const VOUCHER = /^\/?voucher\s+daj\s+(\{nick\})\s+(vip|svip|vampir)\s+(\S+)(\s+\d+)?\s*$/i;
+const naRange = (c: string) => c.replace(VOUCHER, (_m, nick: string, rank: string, time: string) => `sklepranga ${nick} ${rank.toLowerCase()} ${time === "0" ? "zawsze" : time}`);
+function rangiOdRazu(modes: Mode[]): Mode[] {
+  return modes.map((m) => ({
+    ...m,
+    products: m.products.map((p) => {
+      if (!p.variants.some((v) => [v.command, ...(v.commands ?? []), ...(v.instant ?? []), ...(v.stash ?? [])].some((c) => c && VOUCHER.test(c)))) return p;
+      const variants = p.variants.map((v) => {
+        const stash = v.stash?.filter((c) => !VOUCHER.test(c));
+        const moved = (v.stash ?? []).filter((c) => VOUCHER.test(c)).map(naRange);
+        return {
+          ...v,
+          command: v.command ? naRange(v.command) : v.command,
+          commands: v.commands?.map(naRange),
+          instant: v.instant || moved.length ? [...(v.instant ?? []).map(naRange), ...moved] : undefined,
+          stash: v.stash ? stash : undefined,
+        };
+      });
+      const tylkoRangi = variants.every((v) => [v.command, ...(v.commands ?? [])].filter(Boolean).every((c) => /^\/?sklepranga\s/i.test(c!)));
+      return { ...p, variants, game: p.game ? { ...p.game, delivery: tylkoRangi ? "instant" : p.game.delivery === "stash" ? undefined : p.game.delivery, icon: tylkoRangi ? "NAME_TAG" : p.game.icon } : p.game };
+    }),
+  }));
 }
