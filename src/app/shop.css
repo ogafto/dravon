@@ -1375,3 +1375,34 @@
     animation: none;
   }
 }
+
+/* paysafecard (user 24.11): do 3 kodów pod listą metod */
+.methods .option:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+.psc {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 2px solid var(--line);
+}
+.psc__row {
+  display: grid;
+  gap: 6px;
+}
+.psc__field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.psc__input {
+  flex: 1;
+  font-family: var(--font-display), monospace;
+  font-size: 1.45rem;
+  letter-spacing: 0.08em;
+  padding: 9px 14px 11px;
+}
+.psc .btn {
+  justify-self: start;
+}

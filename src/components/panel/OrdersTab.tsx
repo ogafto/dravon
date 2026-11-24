@@ -10,7 +10,8 @@ type PanelOrder = {
   nick: string;
   email?: string;
   amount: number;
-  status: "pending" | "paid" | "failed" | "amount_mismatch";
+  status: "pending" | "paid" | "failed" | "amount_mismatch" | "psc_pending" | "rejected";
+  payment?: "simpay" | "paysafecard";
   createdAt: number;
   paidAt?: number;
   lines: { name: string; variantLabel: string; quantity: number; total: number }[];
@@ -22,6 +23,8 @@ const STATUS: Record<PanelOrder["status"], { label: string; tone: string }> = {
   pending: { label: "Czeka na płatność", tone: "wait" },
   failed: { label: "Nieudane", tone: "bad" },
   amount_mismatch: { label: "Zła kwota", tone: "bad" },
+  psc_pending: { label: "paysafecard · do sprawdzenia", tone: "wait" },
+  rejected: { label: "paysafecard odrzucone", tone: "bad" },
 };
 
 const DELIVERY: Record<PanelOrder["deliveries"][number]["state"], { label: string; tone: string }> = {

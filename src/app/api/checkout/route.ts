@@ -9,6 +9,7 @@ import { createTransaction, SimPayError, type PaymentMethod } from "@/lib/simpay
 import { getStore, type Order, type OrderLine } from "@/lib/store";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { isValidEmail, isValidNick } from "@/lib/validation";
+import { normalizePsc, PSC_MAX } from "@/lib/paysafecard";
 
 type Body = {
   mode?: unknown;
@@ -17,6 +18,8 @@ type Body = {
   method?: unknown;
   items?: unknown;
   consents?: { terms?: unknown; delivery?: unknown };
+  /** kody paysafecard (method = "paysafecard") */
+  psc?: unknown;
 };
 
 /** Co plugin ma zrobić po opłaceniu (komendy jeszcze bez {nick}/{qty}). */
@@ -58,7 +61,22 @@ export async function POST(req: Request) {
   const email = typeof body.email === "string" ? body.email.trim() : "";
   if (email && !isValidEmail(email)) return fail("Adres e-mail jest niepoprawny.");
 
+  const paysafecard = body.method === "paysafecard";
   const method = METHODS.includes(body.method as PaymentMethod) ? (body.method as PaymentMethod) : "all";
+
+  // paysafecard (user 24.11): 1–3 kody po 16 cyfr, bez powtórzeń – sprawdza je Właściciel na Discordzie
+  let codes: string[] = [];
+  if (paysafecard) {
+    const raw = Array.isArray(body.psc) ? body.psc.filter((c) => typeof c === "string" && c.trim()) : [];
+    if (!raw.length) return fail("Wpisz kod paysafecard.");
+    if (raw.length > PSC_MAX) return fail(`Możesz podać najwyżej ${PSC_MAX} kody paysafecard.`);
+    for (const c of raw) {
+      const code = normalizePsc(c);
+      if (!code) return fail("Kod paysafecard ma 16 cyfr. Sprawdź, czy wpisałeś go dokładnie.");
+      if (codes.includes(code)) return fail("Ten sam kod paysafecard jest wpisany dwa razy.");
+      codes.push(code);
+    }
+  }
 
   if (body.consents?.terms !== true || body.consents?.delivery !== true) {
     return fail("Zaakceptuj regulamin i zgodę na natychmiastową realizację zamówienia.");
@@ -116,11 +134,17 @@ export async function POST(req: Request) {
   };
 
   const store = getStore();
-  await store.saveOrder(order);
-
   const [site, payments, saved] = await Promise.all([getSiteInfo(), getPayments(), getRawSettings()]);
   // adres powrotu z SimPay: z panelu (albo .env), a gdy pusty – ten, z którego klient wszedł
   const base = (saved.site?.url || process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin).replace(/\/+$/, "");
+
+  if (paysafecard) {
+    // bez bramki: zamówienie czeka, bot Discorda pokazuje je Właścicielowi (/api/plugin/psc), „Nadaj” = opłacone
+    await store.saveOrder({ ...order, status: "psc_pending", payment: "paysafecard", psc: { codes } });
+    return NextResponse.json({ status: "success", orderId: order.id, paymentUrl: `${base}/platnosc/sukces?zamowienie=${order.id}` });
+  }
+
+  await store.saveOrder(order);
   try {
     const tx = await createTransaction({
       amount,

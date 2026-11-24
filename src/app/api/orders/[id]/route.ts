@@ -16,6 +16,9 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/orders/[id]">) 
   return NextResponse.json(
     {
       status: order.status,
+      payment: order.payment ?? "simpay",
+      // powód odrzucenia kodów paysafecard (bez samych kodów)
+      reason: order.status === "rejected" ? order.psc?.decision?.reason : undefined,
       nick: order.nick,
       mode: order.mode,
       amount: order.amount,

@@ -12,18 +12,24 @@ import { PixelIcon, type IconName } from "./PixelIcon";
 import { QuantitySlider } from "./QuantitySlider";
 import { Character3D } from "./three/Character3D";
 
-type Method = "blik" | "transfer" | "cards" | "all";
+type Method = "blik" | "transfer" | "cards" | "paysafecard" | "all";
 
 const METHODS: { id: Method; label: string; sub: string; icon: IconName }[] = [
   { id: "blik", label: "BLIK", sub: "Kod z aplikacji banku", icon: "phone" },
   { id: "transfer", label: "Przelew online", sub: "Szybki przelew z banku", icon: "bank" },
   { id: "cards", label: "Karta / Pay", sub: "Visa, Mastercard, Apple Pay, Google Pay", icon: "card" },
+  { id: "paysafecard", label: "paysafecard", sub: "Kod 16 cyfr, możesz podać do 3 kodów", icon: "key" },
   { id: "all", label: "Wszystkie metody", sub: "Wybierzesz w bramce SimPay", icon: "grid" },
 ];
+
+/** paysafecard (user 24.11): do 3 kodów po 16 cyfr – w stanie same cyfry, na ekranie w grupach po 4. */
+const PSC_MAX = 3;
+const pscShow = (digits: string) => digits.replace(/(\d{4})(?=\d)/g, "$1 ");
 
 export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: string; catalog: PublicProduct[] }) {
   const cart = useCart();
   const [method, setMethod] = useState<Method>("blik");
+  const [psc, setPsc] = useState<string[]>([""]);
   const [terms, setTerms] = useState(false);
   const [delivery, setDelivery] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -49,7 +55,10 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
   const email = cart.email.trim();
   const nickOk = isValidNick(nick);
   const emailOk = !email || isValidEmail(email);
-  const canPay = lines.length > 0 && nickOk && emailOk && terms && delivery && !submitting;
+  const isPsc = method === "paysafecard";
+  const pscCodes = psc.filter((c) => c.length > 0);
+  const pscOk = pscCodes.length > 0 && pscCodes.every((c) => c.length === 16) && new Set(pscCodes).size === pscCodes.length;
+  const canPay = lines.length > 0 && nickOk && emailOk && terms && delivery && !submitting && (!isPsc || pscOk);
 
   // podgląd postaci 3D – skin wczytywany po chwili bez pisania
   const [skinNick, setSkinNick] = useState("");
@@ -77,6 +86,10 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
     setError(null);
     if (!nickOk) return setError("Wpisz poprawny nick z Minecrafta.");
     if (!emailOk) return setError("Adres e-mail jest niepoprawny.");
+    if (isPsc && !pscOk) {
+      return setError(pscCodes.length === 0 ? "Wpisz kod paysafecard." : new Set(pscCodes).size !== pscCodes.length
+        ? "Ten sam kod paysafecard jest wpisany dwa razy." : "Kod paysafecard ma 16 cyfr. Sprawdź, czy wpisałeś go dokładnie.");
+    }
     if (!terms || !delivery) return setError("Zaznacz wymagane zgody, aby przejść do płatności.");
 
     setSubmitting(true);
@@ -91,6 +104,7 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
           method,
           items: lines.map((l) => ({ id: l.variant.id, quantity: l.line.quantity })),
           consents: { terms, delivery },
+          psc: isPsc ? pscCodes : undefined,
         }),
       });
       const data = (await res.json()) as { status: string; paymentUrl?: string; orderId?: string; message?: string };
@@ -203,7 +217,7 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
             </span>
             <div>
               <h2 id="step-method">Metoda płatności</h2>
-              <p>Płatność realizuje bezpieczna bramka SimPay.</p>
+              <p>{isPsc ? "Wpisz kod paysafecard." : "Płatność realizuje bezpieczna bramka SimPay."}</p>
             </div>
           </div>
           <div className="methods" role="radiogroup" aria-labelledby="step-method">
@@ -220,6 +234,56 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
               </label>
             ))}
           </div>
+          {isPsc && (
+            <div className="psc">
+              {psc.map((code, i) => {
+                const bad = touched && code.length > 0 && code.length < 16;
+                return (
+                  <div key={i} className="psc__row">
+                    <label className="label" htmlFor={`psc-${i}`}>
+                      {psc.length > 1 ? `Kod paysafecard ${i + 1}` : "Kod paysafecard"}
+                    </label>
+                    <div className="psc__field">
+                      <input
+                        id={`psc-${i}`}
+                        className="input psc__input"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        spellCheck={false}
+                        placeholder="0000 0000 0000 0000"
+                        value={pscShow(code)}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
+                          setPsc((list) => list.map((c, k) => (k === i ? digits : c)));
+                        }}
+                        onBlur={() => setTouched(true)}
+                        aria-invalid={bad}
+                      />
+                      {psc.length > 1 && (
+                        <button
+                          type="button"
+                          className="link-btn"
+                          onClick={() => setPsc((list) => list.filter((_, k) => k !== i))}
+                          aria-label={`Usuń kod ${i + 1}`}
+                        >
+                          <PixelIcon name="trash" size={12} /> Usuń
+                        </button>
+                      )}
+                    </div>
+                    {bad && <p className="hint error">Kod ma 16 cyfr.</p>}
+                  </div>
+                );
+              })}
+              {psc.length < PSC_MAX && (
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPsc((list) => [...list, ""])}>
+                  <PixelIcon name="plus" size={12} /> Dodaj kolejny kod
+                </button>
+              )}
+              <p className="hint">
+                Masz kilka kart? Dodaj do {PSC_MAX} kodów, razem muszą pokryć {formatPrice(total)}.
+              </p>
+            </div>
+          )}
         </section>
 
         <section className="step panel" aria-labelledby="step-consents">
@@ -331,11 +395,12 @@ export function Checkout({ mode, modeName, catalog }: { mode: string; modeName: 
           aria-disabled={!canPay}
           disabled={submitting}
         >
-          {submitting ? "Łączenie z SimPay…" : `Zapłać ${formatPrice(total)}`}
+          {submitting ? (isPsc ? "Wysyłanie kodów…" : "Łączenie z SimPay…") : isPsc ? `Zapłać paysafecard · ${formatPrice(total)}` : `Zapłać ${formatPrice(total)}`}
           {!submitting && <PixelIcon name="arrowRight" size={14} />}
         </button>
         <p className="summary__note">
-          <PixelIcon name="shield" size={12} /> Zostaniesz przekierowany do bezpiecznej bramki SimPay.
+          <PixelIcon name="shield" size={12} />{" "}
+          {isPsc ? "Płatność potwierdzimy w ciągu chwili." : "Zostaniesz przekierowany do bezpiecznej bramki SimPay."}
         </p>
         <div style={{ marginTop: 18, textAlign: "center" }}>
           <Link href={`/sklep/${mode}`} className="btn btn-ghost btn-sm">

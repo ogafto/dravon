@@ -18,7 +18,9 @@ const CONFETTI = Array.from({ length: 36 }, (_, i) => ({
 }));
 
 type OrderInfo = {
-  status: "pending" | "paid" | "failed" | "amount_mismatch" | "not_found";
+  status: "pending" | "paid" | "failed" | "amount_mismatch" | "psc_pending" | "rejected" | "not_found";
+  payment?: "simpay" | "paysafecard";
+  reason?: string;
   nick?: string;
   mode?: string;
   amount?: number;
@@ -39,6 +41,8 @@ function deliveryLabel(d: NonNullable<OrderInfo["deliveries"]>[number]) {
 const deliveryDone = (info: OrderInfo) =>
   !!info.deliveries?.length && info.deliveries.every((d) => d.state === "claimed" || d.state === "blocked");
 
+const PSC_POLL_MS = 10_000;
+const MAX_PSC_POLLS = 360; // kody paysafecard sprawdza człowiek – czekamy do godziny
 const POLL_MS = 3000;
 const MAX_POLLS = 40; // ~2 minuty na potwierdzenie płatności
 const DELIVERY_POLL_MS = 5000;
@@ -81,6 +85,10 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
           // po płatności śledzimy jeszcze dostawę na serwer (czeka → w skrytce → odebrane)
           if (deliveryDone(data) || !data.deliveries?.length || polls >= MAX_POLLS + MAX_DELIVERY_POLLS) return;
           timer = setTimeout(poll, DELIVERY_POLL_MS);
+          return;
+        }
+        if (data.status === "psc_pending") {
+          if (polls < MAX_PSC_POLLS) timer = setTimeout(poll, PSC_POLL_MS);
           return;
         }
         if (data.status !== "pending") return;
@@ -132,6 +140,27 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
     );
   }
 
+  if (info.status === "psc_pending") {
+    return (
+      <div className="result panel">
+        <div className="result__icon">
+          <PixelIcon name="clock" size={44} />
+        </div>
+        <h1>Sprawdzamy płatność</h1>
+        <p>Potwierdzimy ją w ciągu chwili, ta strona sama się odświeży.</p>
+        <div className="loadbar" aria-hidden>
+          <span />
+        </div>
+        <div className="result__actions">
+          <Link href={shopHref} className="btn btn-dark">
+            <PixelIcon name="arrowLeft" size={12} /> Wróć do sklepu
+          </Link>
+        </div>
+        {id && <p className="hint">Numer zamówienia: {id}</p>}
+      </div>
+    );
+  }
+
   if (info.status === "paid") {
     return (
       <div className="result panel result--paid">
@@ -166,7 +195,7 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
         <h1>Dzięki, {info.nick}!</h1>
         <p>
           Zamówienie zostało opłacone. Rangi nadajemy automatycznie, a przedmioty czekają w skrytce – wejdź na serwer i
-          wpisz <b>/isodbierz</b>.
+          wpisz <b>/odbierz</b>.
         </p>
         {info.deliveries && info.deliveries.length > 0 ? (
           <ul className="result__lines">
@@ -213,6 +242,8 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
       <p>
         {notFound
           ? "Nie mamy informacji o tym zamówieniu. Jeśli pieniądze zostały pobrane, skontaktuj się z nami."
+          : info.status === "rejected"
+            ? `Płatność nie została potwierdzona${info.reason ? `: ${info.reason}` : "."} Jeśli to pomyłka, napisz do nas na Discordzie.`
           : info.status === "amount_mismatch"
             ? "Kwota płatności nie zgadza się z zamówieniem. Skontaktuj się z nami – wyjaśnimy to ręcznie."
             : "Płatność została odrzucona lub anulowana. Nic nie zostało pobrane – możesz spróbować ponownie."}

@@ -24,7 +24,17 @@ export type OrderLine = {
   };
 };
 
-export type OrderStatus = "pending" | "paid" | "failed" | "amount_mismatch";
+/** psc_pending – kody paysafecard czekają na sprawdzenie przez Właściciela (Discord → „Nadaj”); rejected – odrzucone. */
+export type OrderStatus = "pending" | "paid" | "failed" | "amount_mismatch" | "psc_pending" | "rejected";
+
+/** Płatność kodami paysafecard (user 24.11): 1–3 kody, sprawdzane ręcznie na Discordzie. */
+export type PscPayment = {
+  codes: string[];
+  /** bot wysłał kartę na kanał sklepu (id wiadomości) */
+  notified?: boolean;
+  discordMessage?: string;
+  decision?: { ok: boolean; by: string; at: number; reason?: string };
+};
 
 export type Order = {
   id: string;
@@ -38,6 +48,9 @@ export type Order = {
   paidAt?: number;
   transactionId?: string;
   simpayStatus?: string;
+  /** sposób płatności (brak = SimPay) */
+  payment?: "simpay" | "paysafecard";
+  psc?: PscPayment;
   /** Dostawy utworzone po opłaceniu (stan do strony „dziękujemy”). */
   deliveries?: DeliveryInfo[];
 };

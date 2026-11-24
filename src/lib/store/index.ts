@@ -3,7 +3,7 @@ import { FileStore } from "./file";
 import { RedisStore } from "./redis";
 import type { Store } from "./types";
 
-export type { Delivery, DeliveryAck, DeliveryInfo, DeliveryKind, DeliveryState, Order, OrderLine, OrderStatus, RecentPurchase, SavedCatalog, ShopSettings, SiteInfo, AnnounceSettings, PluginSettings, Store } from "./types";
+export type { PscPayment, Delivery, DeliveryAck, DeliveryInfo, DeliveryKind, DeliveryState, Order, OrderLine, OrderStatus, RecentPurchase, SavedCatalog, ShopSettings, SiteInfo, AnnounceSettings, PluginSettings, Store } from "./types";
 
 const globalForStore = globalThis as unknown as { __dravonStoreV3?: Store };
 

@@ -18,6 +18,7 @@ export async function GET(req: Request) {
       email: o.email,
       amount: o.amount,
       status: o.status,
+      payment: o.payment ?? "simpay",
       createdAt: o.createdAt,
       paidAt: o.paidAt,
       lines: o.lines.map(({ name, variantLabel, quantity, total }) => ({ name, variantLabel, quantity, total })),
