@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatPrice } from "@/lib/format";
 import { api } from "./PanelApp";
+import { nazwaPozycji } from "@/lib/nazwy";
 
 type PanelOrder = {
   id: string;
@@ -110,7 +111,7 @@ export function OrdersTab() {
               <ul>
                 {o.lines.map((l, i) => (
                   <li key={i}>
-                    {l.name} · {l.quantity > 1 ? `×${l.quantity}` : l.variantLabel}
+                    {nazwaPozycji(l.name)} · {l.quantity > 1 ? `×${l.quantity}` : l.variantLabel}
                   </li>
                 ))}
               </ul>
@@ -118,7 +119,7 @@ export function OrdersTab() {
                 <ul className="pnl-deliveries">
                   {o.deliveries.map((d, i) => (
                     <li key={i}>
-                      <span className={`pnl-tag pnl-tag--${DELIVERY[d.state].tone}`}>{DELIVERY[d.state].label}</span> {d.name}
+                      <span className={`pnl-tag pnl-tag--${DELIVERY[d.state].tone}`}>{DELIVERY[d.state].label}</span> {nazwaPozycji(d.name)}
                     </li>
                   ))}
                 </ul>

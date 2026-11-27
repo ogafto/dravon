@@ -5642,3 +5642,24 @@ body {
 .result .result__lead {
   max-width: 560px;
 }
+
+/* ostatnie zakupy: dłuższa nazwa („Ulepszenie rangi VIP na SVIP”) zawija się do dwóch linii zamiast ucinać się kropkami */
+.recent2__item-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  line-height: 1.3;
+}
+.recent2__item {
+  align-content: start;
+}
+
+/* menu „Sklep”: ikonki trybów „Wkrótce” obracają się tak samo płynnie jak CasinoCash (przyciemnienie nadpisywało przejście transform) */
+.navdrop__item[data-soon] .navdrop__icon {
+  transition:
+    transform 0.45s var(--icon-ease),
+    opacity 0.2s,
+    filter 0.2s;
+}

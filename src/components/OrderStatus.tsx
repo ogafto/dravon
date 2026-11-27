@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSite } from "./SiteProvider";
 import { formatPrice } from "@/lib/format";
+import { nazwaPozycji as nazwa } from "@/lib/nazwy";
 import { useCart } from "./CartProvider";
 import { PixelIcon } from "./PixelIcon";
 
@@ -28,9 +29,6 @@ type OrderInfo = {
 };
 
 type DeliveryState = "queued" | "received" | "claimed" | "blocked";
-
-/** Starsze zamówienia mają „Ulepszenie VIP → SVIP” – pokazujemy „Ulepszenie rangi VIP na SVIP” (user 27.11). */
-const nazwa = (n: string) => n.replace(/Ulepszenie (\S+) → (\S+)/, "Ulepszenie rangi $1 na $2");
 
 /** Napis przy dostawie: czeka na serwer → w skrytce (/isodbierz) → odebrane. */
 function deliveryLabel(d: NonNullable<OrderInfo["deliveries"]>[number]) {
