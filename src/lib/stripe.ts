@@ -83,14 +83,17 @@ export function blikMessage(code?: string, decline?: string): string {
   return "Płatność BLIK nie przeszła. Wygeneruj nowy kod i spróbuj ponownie.";
 }
 
-/** BLIK: tworzy PaymentIntent i od razu potwierdza go kodem z aplikacji banku (gracz ma ~60 s na akceptację). */
-export async function startBlik(order: Order, code: string, description: string): Promise<PaymentIntent> {
+/**
+ * BLIK: tworzy PaymentIntent i od razu potwierdza go kodem z aplikacji banku (gracz ma ~60 s na akceptację).
+ * Nowe API Stripe (2026-11) nie przyjmuje już `payment_method_types` – metody bierze z panelu Stripe, a BLIK
+ * wybieramy przy potwierdzeniu (payment_method_data[type]). return_url wymagany przy metodach z panelu, BLIK z niego nie korzysta.
+ */
+export async function startBlik(order: Order, code: string, description: string, returnUrl: string): Promise<PaymentIntent> {
   const intent = await call<PaymentIntent>(
     "/payment_intents",
     {
       amount: toCents(order.amount),
       currency: "pln",
-      "payment_method_types[]": "blik",
       description,
       "metadata[order]": order.id,
       "metadata[nick]": order.nick,
@@ -104,6 +107,7 @@ export async function startBlik(order: Order, code: string, description: string)
     "payment_method_data[type]": "blik",
     "payment_method_data[billing_details][email]": order.email,
     "payment_method_options[blik][code]": code,
+    return_url: returnUrl,
   });
 }
 

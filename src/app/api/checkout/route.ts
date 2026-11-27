@@ -235,7 +235,7 @@ export async function POST(req: Request) {
   if (method === "blik") {
     await store.saveOrder({ ...order, payment: "stripe", stripe: { kind: "blik" } });
     try {
-      const intent = await startBlik(order, blikCode, description);
+      const intent = await startBlik(order, blikCode, description, `${base}/platnosc/sukces?zamowienie=${order.id}`);
       await store.updateOrder(order.id, { stripe: { kind: "blik", intent: intent.id } });
       if (intent.status === "requires_payment_method" || intent.status === "canceled") {
         const message = blikMessage(intent.last_payment_error?.code, intent.last_payment_error?.decline_code);

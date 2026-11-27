@@ -597,20 +597,8 @@ export function Checkout({ modes }: { modes: CartMode[] }) {
             </div>
           ) : (
             <button type="button" className="btn btn-primary btn-lg btn-block btn-price" onClick={pay} aria-disabled={!canPay} disabled={submitting}>
-              {submitting
-                ? isPsc
-                  ? "Wysyłanie kodów…"
-                  : isBlik
-                    ? "Wysyłanie kodu BLIK…"
-                    : "Łączenie ze Stripe…"
-                : !method
-                  ? `Zapłać ${formatPrice(total)}`
-                  : isPsc
-                  ? `Zapłać PaySafeCard · ${formatPrice(total)}`
-                  : isBlik
-                    ? `Zapłać BLIK · ${formatPrice(total)}`
-                    : `Zapłać ${formatPrice(total)}`}
-              {!submitting && <PixelIcon name="arrowRight" size={14} />}
+              {/* user 27.11: zawsze tylko „Zapłać X zł”, także w trakcie wysyłania (przycisk jest wtedy wyłączony) */}
+              Zapłać {formatPrice(total)} <PixelIcon name="arrowRight" size={14} />
             </button>
           )}
           <Link href="/#tryby" className="summary__back">
