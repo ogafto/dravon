@@ -529,6 +529,10 @@ export const privacy: LegalDoc = {
         {
           "type": "p",
           "text": "4. Użytkownik może kontrolować cookies za pomocą ustawień przeglądarki oraz, jeżeli strona udostępnia taki mechanizm, panelu ustawień prywatności."
+        },
+        {
+          "type": "p",
+          "text": "5. Strona prowadzi własne, anonimowe statystyki odwiedzin bez plików cookies i bez zapisywania czegokolwiek na urządzeniu użytkownika. Zliczane są wyświetlenia podstron, liczba odwiedzających w danym dniu oraz domena strony, z której nastąpiło wejście. Do rozpoznania tego samego odwiedzającego w ciągu jednego dnia używany jest skrót (hash) utworzony z adresu IP i danych przeglądarki z losową, codziennie zmienianą częścią; sam adres IP nie jest zapisywany, a skrót nie pozwala powiązać wizyt z różnych dni. Podstawą jest prawnie uzasadniony interes Administratora (art. 6 ust. 1 lit. f RODO) polegający na mierzeniu ruchu na stronie; dane są przechowywane do 400 dni."
         }
       ]
     },

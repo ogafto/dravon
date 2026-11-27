@@ -1,5 +1,6 @@
 import { rank } from "./file";
-import type { Delivery, DeliveryAck, DeliveryInfo, Order, RecentPurchase, SavedCatalog, ShopSettings, Store } from "./types";
+import type { Delivery, DeliveryAck, DeliveryInfo, Order, RecentPurchase, SavedCatalog, ShopSettings, Store, VisitHit, VisitStats } from "./types";
+import { topCounts } from "./visits";
 
 const ORDER_TTL = 60 * 60 * 24 * 90; // 90 dni
 const LEASE_SEC = 120;
@@ -173,6 +174,35 @@ export class RedisStore implements Store {
   async getImage(id: string) {
     const [raw] = await this.exec([["GET", `${this.prefix}:image:${id}`]]);
     return typeof raw === "string" ? raw : null;
+  }
+
+  async recordVisit({ day, path, visitor, source }: VisitHit) {
+    const k = (n: string) => `${this.prefix}:stat:${n}:${day}`;
+    const ttl = 400 * 86400;
+    const cmds: (string | number)[][] = [
+      ["INCR", k("views")],
+      ["PFADD", k("uv"), visitor],
+      ["HINCRBY", k("pages"), path, 1],
+      ...["views", "uv", "pages"].map((n) => ["EXPIRE", k(n), ttl]),
+    ];
+    if (source) cmds.push(["HINCRBY", k("src"), source, 1], ["EXPIRE", k("src"), ttl]);
+    await this.exec(cmds);
+  }
+
+  async visitStats(days: string[]): Promise<VisitStats> {
+    const k = (n: string, d: string) => `${this.prefix}:stat:${n}:${d}`;
+    const out = await this.exec(days.flatMap((d) => [["GET", k("views", d)], ["PFCOUNT", k("uv", d)], ["HGETALL", k("pages", d)], ["HGETALL", k("src", d)]]));
+    const hash = (flat: unknown) => {
+      const a = (flat as string[]) ?? [];
+      const m: Record<string, number> = {};
+      for (let i = 0; i + 1 < a.length; i += 2) m[a[i]] = Number(a[i + 1]);
+      return m;
+    };
+    return {
+      days: days.map((day, i) => ({ day, views: Number(out[i * 4]) || 0, visitors: Number(out[i * 4 + 1]) || 0 })),
+      pages: topCounts(days.map((_, i) => hash(out[i * 4 + 2]))),
+      sources: topCounts(days.map((_, i) => hash(out[i * 4 + 3]))),
+    };
   }
 
   async listRecent(limit: number) {

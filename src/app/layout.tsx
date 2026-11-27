@@ -6,6 +6,7 @@ import { RevealObserver } from "@/components/fx/RevealObserver";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { TabTitle } from "@/components/TabTitle";
+import { VisitBeacon } from "@/components/VisitBeacon";
 import { SiteProvider } from "@/components/SiteProvider";
 import { site as defaults } from "@/config/site";
 import { getSiteInfo } from "@/lib/config";
@@ -103,6 +104,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <RevealObserver />
         <TabTitle />
+        <VisitBeacon />
         <SiteProvider site={{ ...site, edition: defaults.edition }}>
         <CartProvider known={known}>
           <Navbar shopModes={shopModes} navModes={navModes} />

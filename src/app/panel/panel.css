@@ -1320,3 +1320,209 @@
     padding: 20px 18px;
   }
 }
+
+/* =========================================================
+   STATYSTYKI ODWIEDZIN (user 27.11): kafle z liczbami, wykres słupkowy 30 dni, strony i źródła
+   ========================================================= */
+.pnl-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.pnl-stat {
+  --s: 6px;
+  display: grid;
+  gap: 4px;
+  padding: 18px 20px 20px;
+  background: #170f12;
+  animation: rv-card 0.7s var(--ease-title) backwards;
+}
+.pnl-stat:nth-child(2) { animation-delay: 0.05s; }
+.pnl-stat:nth-child(3) { animation-delay: 0.1s; }
+.pnl-stat:nth-child(4) { animation-delay: 0.15s; }
+.pnl-stat__label {
+  font-family: var(--font-h);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.pnl-stat b {
+  font-family: var(--font-display), monospace;
+  font-size: 2.6rem;
+  font-weight: 400;
+  line-height: 1;
+  text-shadow: 0 0.06em 0 rgba(0, 0, 0, 0.45);
+}
+.pnl-stat__sub {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.pnl-chart {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 220px auto;
+  column-gap: 10px;
+  row-gap: 8px;
+  margin-top: 4px;
+}
+.pnl-chart__axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: -0.5em 0;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+.pnl-chart__plot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.pnl-chart__grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+.pnl-chart__col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  cursor: default;
+}
+.pnl-chart__bar {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  background: var(--accent);
+  transform-origin: bottom;
+  animation: pnl-bar 0.7s var(--ease-title) backwards;
+  transition: background 0.15s;
+}
+.pnl-chart__col.is-on .pnl-chart__bar {
+  background: var(--accent-hi);
+}
+.pnl-chart__col.is-on {
+  background: rgba(255, 255, 255, 0.04);
+}
+@keyframes pnl-bar {
+  from {
+    transform: scaleY(0);
+  }
+}
+.pnl-chart__tip {
+  --s: 4px;
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  background: #0c0709;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.75);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.pnl-chart__tip b {
+  color: #fff;
+  font-family: var(--font-h);
+}
+.pnl-chart__days {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+.pnl-details summary {
+  cursor: pointer;
+  font-family: var(--font-h);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+.pnl-details summary:hover {
+  color: #fff;
+}
+.pnl-table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.pnl-table th,
+.pnl-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: right;
+}
+.pnl-table th:first-child,
+.pnl-table td:first-child {
+  text-align: left;
+}
+.pnl-table th {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.pnl-stats-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.pnl-stats-lists .pnl-card {
+  align-content: start;
+}
+.pnl-rank {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pnl-rank li {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  font-size: 0.92rem;
+  isolation: isolate;
+}
+.pnl-rank li i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  background: rgba(232, 36, 58, 0.16);
+}
+.pnl-rank li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pnl-rank li b {
+  font-family: var(--font-h);
+}
+
+@media (max-width: 960px) {
+  .pnl-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pnl-stats-lists {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pnl-chart {
+    grid-template-rows: 170px auto;
+  }
+}

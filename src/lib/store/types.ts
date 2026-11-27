@@ -115,6 +115,10 @@ export type DeliveryInfo = { id: string; name: string; quantity: number; kind?: 
 
 export type RecentPurchase = { nick: string; item: string; at: number };
 
+/** Odwiedziny (user 27.11): jedno wyświetlenie strony; visitor = anonimowy skrót zmieniany codziennie (bez IP, bez cookies). */
+export type VisitHit = { day: string; path: string; visitor: string; source?: string };
+export type VisitStats = { days: { day: string; views: number; visitors: number }[]; pages: [string, number][]; sources: [string, number][] };
+
 /** Tryby i produkty zapisane z panelu. (Stara wersja: tryb → lista produktów.) */
 export type SavedCatalog = { modes: Mode[] } | Record<string, Product[]>;
 
@@ -196,4 +200,8 @@ export interface Store {
   setMeta(key: string, value: string): Promise<void>;
   /** Licznik prób w oknie czasowym (limit logowań) – zwraca liczbę prób razem z tą. */
   hit(key: string, windowSec: number): Promise<number>;
+  /** Statystyki odwiedzin: zapis jednego wyświetlenia strony. */
+  recordVisit(hit: VisitHit): Promise<void>;
+  /** Odwiedziny z podanych dni (YYYY-MM-DD, od najstarszego) + najczęstsze strony i źródła z tych dni. */
+  visitStats(days: string[]): Promise<VisitStats>;
 }

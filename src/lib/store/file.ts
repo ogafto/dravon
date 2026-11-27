@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { Delivery, DeliveryAck, DeliveryInfo, Order, RecentPurchase, SavedCatalog, ShopSettings, Store } from "./types";
+import type { Delivery, DeliveryAck, DeliveryInfo, Order, RecentPurchase, SavedCatalog, ShopSettings, Store, VisitHit, VisitStats } from "./types";
+import { topCounts } from "./visits";
 
 type Data = {
   orders: Record<string, Order>;
@@ -8,6 +9,7 @@ type Data = {
   catalog?: SavedCatalog;
   settings?: ShopSettings;
   meta?: Record<string, string>;
+  visits?: Record<string, { views: number; visitors: string[]; pages: Record<string, number>; sources: Record<string, number> }>;
 };
 
 /**
@@ -188,6 +190,27 @@ export class FileStore implements Store {
     } catch {
       return null;
     }
+  }
+
+  recordVisit({ day, path, visitor, source }: VisitHit) {
+    return this.run((d) => {
+      const v = ((d.visits ??= {})[day] ??= { views: 0, visitors: [], pages: {}, sources: {} });
+      v.views++;
+      if (!v.visitors.includes(visitor)) v.visitors.push(visitor);
+      v.pages[path] = (v.pages[path] ?? 0) + 1;
+      if (source) v.sources[source] = (v.sources[source] ?? 0) + 1;
+    }, true);
+  }
+
+  visitStats(days: string[]) {
+    return this.run<VisitStats>((d) => {
+      const list = days.map((day) => d.visits?.[day]);
+      return {
+        days: days.map((day, i) => ({ day, views: list[i]?.views ?? 0, visitors: list[i]?.visitors.length ?? 0 })),
+        pages: topCounts(list.map((v) => v?.pages ?? {})),
+        sources: topCounts(list.map((v) => v?.sources ?? {})),
+      };
+    }, false);
   }
 
   listRecent(limit: number) {

@@ -11,11 +11,13 @@ import { PluginTab } from "./PluginTab";
 import { ProductsTab } from "./ProductsTab";
 import { SiteTab } from "./SiteTab";
 import { StartTab } from "./StartTab";
+import { StatsTab } from "./StatsTab";
 
 /** Zakładki panelu (user 27.11: czytelniej – ikonka i krótki opis każdej). */
 const TABS: readonly { id: string; label: string; desc: string; icon: IconName }[] = [
   { id: "start", label: "Start", desc: "Pierwsze kroki i stan sklepu", icon: "home" },
   { id: "zakupy", label: "Zakupy", desc: "Zamówienia i dostawy na serwer", icon: "cart" },
+  { id: "statystyki", label: "Statystyki", desc: "Ile osób odwiedza stronę", icon: "eye" },
   { id: "produkty", label: "Produkty i ceny", desc: "Produkty, ceny i komendy", icon: "chest" },
   { id: "tryby", label: "Tryby", desc: "Tryby serwera w sklepie", icon: "grid" },
   { id: "platnosci", label: "Płatności", desc: "Stripe i PaySafeCard", icon: "card" },
@@ -23,7 +25,7 @@ const TABS: readonly { id: string; label: string; desc: string; icon: IconName }
   { id: "strona", label: "Strona", desc: "Nazwa, adres, Discord i hasło", icon: "book" },
 ] as const;
 
-type Tab = "start" | "zakupy" | "produkty" | "tryby" | "platnosci" | "plugin" | "strona";
+type Tab = "start" | "zakupy" | "statystyki" | "produkty" | "tryby" | "platnosci" | "plugin" | "strona";
 
 /** Wspólny fetch panelu: JSON, komunikat błędu po polsku, wylogowanie przy 401. */
 export async function api<T>(url: string, init?: RequestInit): Promise<T> {
@@ -94,6 +96,7 @@ export function PanelApp() {
         </header>
       {tab === "start" && <StartTab go={(t) => setTab(t as Tab)} />}
       {tab === "zakupy" && <OrdersTab />}
+      {tab === "statystyki" && <StatsTab />}
       {tab === "produkty" && <ProductsTab />}
       {tab === "tryby" && <ModesTab />}
       {tab === "platnosci" && <PaymentsTab />}

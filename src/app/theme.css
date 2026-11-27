@@ -72,6 +72,8 @@
 .dc__chip,
 .dc__stat,
 .pnl-side__px,
+.pnl-stat,
+.pnl-chart__tip,
 .pnl-nav__item,
 .pnl-nav__icon,
 .navdrop__thumb,
@@ -2416,8 +2418,11 @@ html.is-scrolled .cat-bar {
   }
   }
 @media (max-width: 700px) {
+  /* user 27.11 (zrzut z Androida): DRAVON.PL zawsze w jednej linii – napis ma 4,34 em szerokości, miejsca jest 100vw − 72 px;
+     liczone od szerokości ekranu, więc powiększony tekst w ustawieniach telefonu też go nie złamie */
   .spot__brand {
-    font-size: 4.4rem;
+    font-size: min(4.4rem, calc((100vw - 80px) / 4.36));
+    white-space: nowrap;
   }
   .spot__renders {
     height: 330px;
@@ -5662,4 +5667,24 @@ body {
     transform 0.45s var(--icon-ease),
     opacity 0.2s,
     filter 0.2s;
+}
+
+/* wąskie telefony (Android 360 px, powiększony tekst – user 27.11): plakietka w hero w jednej linii,
+   zakładki kategorii 2×2 zamiast ściśniętego rzędu */
+@media (max-width: 480px) {
+  .spot__kicker {
+    max-width: 100%;
+    white-space: nowrap;
+    font-size: min(0.84rem, 3.3vw);
+  }
+  .shelf__tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .shelf__tab {
+    flex: none;
+    justify-content: flex-start;
+    min-width: 0;
+    white-space: nowrap;
+  }
 }
