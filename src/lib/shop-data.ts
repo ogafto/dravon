@@ -182,17 +182,19 @@ function odlamkiNaSztuki(modes: Mode[]): Mode[] {
 
 /**
  * User 27.11: nowe ceny kos i kluczy, Klucz Petów znika ze sklepu. Katalog z panelu ma jeszcze stare ceny domyślne –
- * podmieniamy tylko te, które wciąż są stare (cenę zmienioną później w panelu zostawiamy).
+ * podmieniamy tylko znane stare ceny (cenę ustawioną po tej zmianie w panelu zostawiamy).
  */
-const NOWE_CENY: Record<string, [stara: number, nowa: number]> = {
-  cc_kosa_1: [5, 20],
-  cc_kosa_2: [12, 30],
-  cc_kosa_3: [22, 50],
-  cc_kosa_4: [39, 70],
-  cc_kosa_5: [69, 100],
-  cc_klucz_vampira: [6, 15],
-  cc_klucz_kosmetyczna: [4, 10],
+const NOWE_CENY: Record<string, [stare: number[], nowa: number]> = {
+  // stare ceny domyślne i ceny wpisane wcześniej w panelu na dravon.pl
+  cc_kosa_1: [[5, 10], 20],
+  cc_kosa_2: [[12, 15], 30],
+  cc_kosa_3: [[22, 25], 50],
+  cc_kosa_4: [[39, 45], 70],
+  cc_kosa_5: [[69, 70], 100],
+  cc_klucz_vampira: [[6, 8], 15],
+  cc_klucz_kosmetyczna: [[4, 5], 10],
 };
+const staraCena = (v: { id: string; price: number }) => NOWE_CENY[v.id]?.[0].includes(v.price) ?? false;
 const BEZ_PRODUKTU = new Set(["cc_klucz_pety"]);
 function noweCeny(modes: Mode[]): Mode[] {
   return modes.map((m) =>
@@ -203,8 +205,8 @@ function noweCeny(modes: Mode[]): Mode[] {
           products: m.products
             .filter((p) => !p.variants.some((v) => BEZ_PRODUKTU.has(v.id)))
             .map((p) =>
-              p.variants.some((v) => NOWE_CENY[v.id]?.[0] === v.price)
-                ? { ...p, variants: p.variants.map((v) => (NOWE_CENY[v.id]?.[0] === v.price ? { ...v, price: NOWE_CENY[v.id][1] } : v)) }
+              p.variants.some(staraCena)
+                ? { ...p, variants: p.variants.map((v) => (staraCena(v) ? { ...v, price: NOWE_CENY[v.id][1] } : v)) }
                 : p,
             ),
         },
