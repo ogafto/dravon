@@ -31,7 +31,8 @@ export async function getSiteInfo(): Promise<SiteInfo> {
     name: pick(s.name, defaults.name),
     url: pick(s.url, process.env.NEXT_PUBLIC_SITE_URL, defaults.url).replace(/\/+$/, ""),
     serverIp: pick(s.serverIp, process.env.MC_SERVER_ADDRESS, defaults.serverIp),
-    version: pick(s.version, defaults.version),
+    // stare „1.21+” z panelu → aktualna wersja (serwer wpuszcza od 1.21.6)
+    version: pick(s.version && s.version !== "1.21+" ? s.version : undefined, defaults.version),
     tagline: pick(s.tagline, defaults.tagline),
     description: pick(s.description, defaults.description),
     // user 27.11: nowy główny Discord – stary link zapisany w panelu podmieniamy na nowy

@@ -58,20 +58,30 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `${upper} - %s`,
     },
     description: site.description,
+    // podgląd linku (Discord, Messenger…): krótki tytuł i duży baner 1200×630 w stylu hero (user 27.11)
     openGraph: {
       type: "website",
       locale: "pl_PL",
       siteName: site.name,
-      title: `${site.name} | ${site.tagline}`,
+      title: `${site.name} | Serwer Minecraft`,
       description: site.description,
-      images: [{ url: "/logo.png", width: 1761, height: 1350, alt: site.name }],
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: `${site.name}, serwer Minecraft` }],
     },
-    twitter: { card: "summary", images: ["/logo.png"] },
+    twitter: { card: "summary_large_image", title: `${site.name} | Serwer Minecraft`, description: site.description, images: ["/og.png"] },
+    // aktualne logo pod nowym adresem: Chrome trzymał w pamięci starą (fioletową) ikonkę z /icon.png
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/ikona.png", type: "image/png", sizes: "256x256" },
+      ],
+      apple: "/apple-icon.png",
+    },
   };
 }
 
 export const viewport: Viewport = {
-  themeColor: "#14060a",
+  // pasek przeglądarki na telefonie i kreska przy podglądzie linku na Discordzie – czerwień z góry strony
+  themeColor: "#a3192f",
   colorScheme: "dark",
 };
 

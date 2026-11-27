@@ -113,7 +113,7 @@ export async function POST(req: Request) {
         mode: mode.slug,
         variantId: id,
         productSlug: quote.slug,
-        name: `Ulepszenie ${quote.fromName} → ${quote.toName}`,
+        name: `Ulepszenie rangi ${quote.fromName} na ${quote.toName}`,
         variantLabel: `${quote.days} dni`,
         quantity: 1,
         unitPrice: quote.price,

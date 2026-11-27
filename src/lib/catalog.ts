@@ -27,7 +27,7 @@ export const fillTemplate = (template: string, nick: string, qty: number) =>
   template.replaceAll("{nick}", nick).replaceAll("{qty}", String(qty));
 
 /** Rangi i pieniądze (LuckPerms, Essentials) działają bez gracza online. */
-/** Komendy wydawane od razu, bez skrytki: rangi (sklepranga – AftoCore, user 24.11; LuckPerms) i pieniądze. Reszta (klucze, kosy, odłamki) → /odbierz. */
+/** Komendy wydawane od razu, bez skrytki: rangi (sklepranga – AftoCore, user 24.11; LuckPerms) i pieniądze. Reszta (klucze, kosy, odłamki) → /isodbierz. */
 export const isInstantCommand = (c: string) => /^\/?(sklepranga|lp|luckperms|eco|economy)\s/i.test(c.trim());
 
 /** Komendy wariantu podzielone na „od razu” i „do skrytki” (obsługuje też starszy zapis). */
@@ -35,7 +35,7 @@ export function splitCommands(product: Product, v: Variant): { instant: string[]
   if (v.instant?.length || v.stash?.length) return { instant: v.instant ?? [], stash: v.stash ?? [] };
   const all = (v.commands?.length ? v.commands : [v.command]).filter(Boolean);
   if (product.game?.delivery === "instant") return { instant: all, stash: [] };
-  // pakiety (user 24.11: „ranga + kosa”): każda komenda osobno – ranga od razu, przedmioty do skrytki /odbierz
+  // pakiety (user 24.11: „ranga + kosa”): każda komenda osobno – ranga od razu, przedmioty do skrytki /isodbierz
   const instant = all.filter(isInstantCommand), stash = all.filter((c) => !isInstantCommand(c));
   if (product.game?.delivery === "stash" && !instant.length) return { instant: [], stash: all };
   return { instant, stash };

@@ -5,9 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSite } from "./SiteProvider";
 import { formatPrice } from "@/lib/format";
 import { useCart } from "./CartProvider";
-import { HowToPlay } from "./PlayActions";
 import { PixelIcon } from "./PixelIcon";
-import { Character3D } from "./three/Character3D";
 
 const CONFETTI = Array.from({ length: 36 }, (_, i) => ({
   left: (i * 37) % 100,
@@ -30,6 +28,9 @@ type OrderInfo = {
 };
 
 type DeliveryState = "queued" | "received" | "claimed" | "blocked";
+
+/** Starsze zamówienia mają „Ulepszenie VIP → SVIP” – pokazujemy „Ulepszenie rangi VIP na SVIP” (user 27.11). */
+const nazwa = (n: string) => n.replace(/Ulepszenie (\S+) → (\S+)/, "Ulepszenie rangi $1 na $2");
 
 /** Napis przy dostawie: czeka na serwer → w skrytce (/isodbierz) → odebrane. */
 function deliveryLabel(d: NonNullable<OrderInfo["deliveries"]>[number]) {
@@ -183,22 +184,11 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
             />
           ))}
         </div>
-        {info.nick && (
-          <Character3D
-            skin={`https://mc-heads.net/skin/${encodeURIComponent(info.nick.replace(/^\./, ""))}`}
-            nameTag={info.nick}
-            waving
-            yaw={-0.3}
-            zoom={0.8}
-            className="result__char"
-            label={`Postać gracza ${info.nick}`}
-          />
-        )}
         <span className="chip">Płatność przyjęta</span>
         <h1>Dzięki, {info.nick}!</h1>
-        <p>
-          Zamówienie zostało opłacone. Rangi nadajemy automatycznie, a przedmioty czekają w skrytce. Wejdź na serwer i
-          wpisz <b>/odbierz</b>.
+        <p className="result__lead">
+          Zamówienie opłacone. Rangi nadajemy od razu, a przedmioty czekają w skrytce: wejdź na serwer i wpisz{" "}
+          <b>/isodbierz</b>.
         </p>
         {info.deliveries && info.deliveries.length > 0 ? (
           <ul className="result__lines">
@@ -206,7 +196,7 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
               const label = deliveryLabel(d);
               return (
                 <li key={i}>
-                  <span>{d.name}</span>
+                  <span>{nazwa(d.name)}</span>
                   <span className={`dstate dstate--${label.tone}`}>{label.text}</span>
                 </li>
               );
@@ -217,7 +207,7 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
             {info.lines.map((l, i) => (
               <li key={i}>
                 <span>
-                  {l.name} · {l.quantity > 1 ? `×${l.quantity}` : l.variantLabel}
+                  {nazwa(l.name)} · {l.quantity > 1 ? `×${l.quantity}` : l.variantLabel}
                 </span>
                 <span>{formatPrice(l.total)}</span>
               </li>
@@ -225,7 +215,6 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
           </ul>
         )}
         <div className="result__actions">
-          <HowToPlay className="btn btn-dark" label="Jak wejść na serwer?" />
           <Link href={shopHref} className="btn btn-primary">
             Wróć do sklepu <PixelIcon name="arrowRight" size={12} />
           </Link>

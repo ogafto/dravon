@@ -296,9 +296,9 @@ const skypvpProducts: Product[] = [
 ];
 
 /* ---------------------------------------------------------------- CasinoCash (id „coincash” zostaje – dostawy i plugin DravonSklep)
- * Wydanie przez DravonSklep (user 24.11: rangi od razu, do skrytki /odbierz tylko przedmioty):
+ * Wydanie przez DravonSklep (user 24.11: rangi od razu, do skrytki /isodbierz tylko przedmioty):
  *  rangi – /sklepranga (AftoCore: ranga od razu przez proxy; gracz offline → po wejściu; wyższa ranga → voucher),
- *  kosy – /dcadmin kosa, klucze – /dcadmin klucz (id skrzyń z casinocash/config.yml), odłamki – /dcadmin odlamki – skrytka /odbierz.
+ *  kosy – /dcadmin kosa, klucze – /dcadmin klucz (id skrzyń z casinocash/config.yml), odłamki – /dcadmin odlamki – skrytka /isodbierz.
  * Modele i tekstury renderów prosto z paczki gry (scripts/render/scene.js → packShot). Ceny: propozycja do akceptacji.
  */
 const ccRank = (key: "vip" | "svip" | "vampir", name: string, label: string, monthly: number, forever: number, extra: Partial<Product>): Product => ({
@@ -370,7 +370,7 @@ export const skypvpMode: Mode = {
   icon: "sword",
   render: asset("/renders/mode-skypvp.png"),
   status: "active",
-  version: "1.21+",
+  version: "1.21.6+",
   products: skypvpProducts,
 };
 
@@ -419,7 +419,7 @@ export const survivalMode: Mode = {
   icon: "grass",
   render: asset("/renders/mode-survival.png"),
   status: "soon",
-  version: "1.21+",
+  version: "1.21.6+",
   products: [],
 };
 
@@ -432,7 +432,7 @@ export const skypvpSoonMode: Mode = {
   icon: "sword",
   render: asset("/renders/mode-skypvp.png"),
   status: "soon",
-  version: "1.21+",
+  version: "1.21.6+",
   products: [],
 };
 

@@ -470,7 +470,7 @@ export function Checkout({ modes }: { modes: CartMode[] }) {
                         <div className="line__top">
                           <div>
                             <div className="line__name">
-                              {line.upgrade ? `Ulepszenie ${line.upgrade.fromName} → ${line.upgrade.toName}` : product.name}
+                              {line.upgrade ? `Ulepszenie rangi ${line.upgrade.fromName} na ${line.upgrade.toName}` : product.name}
                             </div>
                             <div className="line__variant">
                               <span className="line__mode">{m.name}</span>

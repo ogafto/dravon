@@ -14,7 +14,7 @@ export function OnlineKicker() {
   return (
     <p className="spot__kicker">
       <span className={`dot ${n === null ? "" : "dot-online dot-pulse"}`} />
-      {n === null ? "Minecraft 1.21+" : `${n.toLocaleString("pl-PL")} ${n === 1 ? "gracz" : "graczy"} online · Minecraft 1.21+`}
+      {n === null ? "Minecraft 1.21.6+" : `${n.toLocaleString("pl-PL")} ${n === 1 ? "gracz" : "graczy"} online · Minecraft 1.21.6+`}
     </p>
   );
 }

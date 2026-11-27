@@ -29,7 +29,7 @@ export function SiteTab() {
             <input value={site.serverIp} onChange={(e) => set("serverIp", e.target.value)} placeholder="dravon.pl" />
           </Field>
           <Field label="Wersja Minecrafta">
-            <input value={site.version} maxLength={20} onChange={(e) => set("version", e.target.value)} placeholder="1.21+" />
+            <input value={site.version} maxLength={20} onChange={(e) => set("version", e.target.value)} placeholder="1.21.6+" />
           </Field>
           <Field label="Link do Discorda">
             <input value={site.discord} onChange={(e) => set("discord", e.target.value)} placeholder="https://discord.gg/…" />

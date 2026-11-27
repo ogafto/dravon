@@ -89,7 +89,7 @@ export function ModesTab() {
           onClick={() =>
             update([
               ...modes,
-              { key: key(), name: "", short: "", description: "", version: "1.21+", status: "soon", icon: "grass", render: modes[0]?.render ?? "" },
+              { key: key(), name: "", short: "", description: "", version: "1.21.6+", status: "soon", icon: "grass", render: modes[0]?.render ?? "" },
             ])
           }
         >

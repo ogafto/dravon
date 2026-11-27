@@ -3,7 +3,7 @@ export const site = {
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://dravon.pl").replace(/\/$/, ""),
   serverIp: "dravon.pl",
   edition: "Java Edition",
-  version: "1.21+",
+  version: "1.21.6+",
   tagline: "Serwer Minecraft, na którym liczy się każda walka",
   description:
     "CasinoCash: własna wyspa z generatorami, pola do koszenia kosą, monety i skrzynie w Skarbcu. Zbierz ekipę, zgarnij rangę i zapisz swój nick w topkach.",

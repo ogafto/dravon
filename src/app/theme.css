@@ -5637,3 +5637,8 @@ body {
     animation: none;
   }
 }
+
+/* strona po opłaceniu (user 27.11): bez postaci i „Jak wejść na serwer?”, opis w dwóch liniach */
+.result .result__lead {
+  max-width: 560px;
+}

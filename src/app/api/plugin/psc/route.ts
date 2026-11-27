@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  *  GET  → zamówienia z kodami, których bot jeszcze nie pokazał na kanale sklepu
  *  POST { id, akcja: "zgloszone", wiadomosc } → bot wysłał kartę (nie pokazuj drugi raz)
  *  POST { id, akcja: "nadaj", kto }          → Właściciel sprawdził kody: zamówienie opłacone, dostawy do gry
- *                                               (rangi od razu, przedmioty w skrytce /odbierz) – jak po SimPay
+ *                                               (rangi od razu, przedmioty w skrytce /isodbierz) – jak po SimPay
  *  POST { id, akcja: "odrzuc", kto, powod }  → kody nieprawidłowe, zamówienie odrzucone
  */
 

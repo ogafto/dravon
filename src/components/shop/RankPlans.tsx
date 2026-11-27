@@ -69,7 +69,7 @@ export function RankPlans({ mode, plans }: { mode: string; plans: RankPlan[] }) 
       },
       1,
     );
-    cart.notify(`Dodano: ulepszenie ${mine.name} → ${toName}`, { href: "/koszyk", action: "Koszyk" });
+    cart.notify(`Dodano: ulepszenie rangi ${mine.name} na ${toName}`, { href: "/koszyk", action: "Koszyk" });
   };
 
   return (
