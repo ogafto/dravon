@@ -17,15 +17,25 @@ export type Character3DProps = {
   draggable?: boolean;
   /** Głowa i tułów śledzą kursor. */
   followCursor?: boolean;
+  /** Jak mocno postać patrzy za kursorem (1 = pełny obrót głowy, 0.3 = lekko). */
+  followStrength?: number;
   /** Macha ręką, gdy `true`. */
   waving?: boolean;
   /** Postać pada na bok jak po śmierci w grze. */
   fallen?: boolean;
   /** Poświata od tyłu w kolorze marki (krew). */
   rimLight?: string;
+  /** Poza: idle – oddech, wave – macha, stride – krok naprzód, spread – rozłożone ręce, proud – wyprostowany, rest – ręce przy ciele. */
+  pose?: Pose;
+  /** Zmiana wartości = szybki obrót postaci (np. przy zmianie slajdu). */
+  spinKey?: string | number;
+  /** Przesunięcie postaci w pionie (jednostki modelu, ujemne = niżej) – np. żeby ręka w górze mieściła się w kadrze. */
+  offsetY?: number;
   className?: string;
   label: string;
 };
+
+export type Pose = "idle" | "wave" | "stride" | "spread" | "proud" | "rest";
 
 /** Globalny stan kursora – jeden listener dla wszystkich postaci na stronie. */
 const pointer = { x: 0, y: 0, active: false };
@@ -57,9 +67,13 @@ export function Character3D({
   zoom = 0.85,
   draggable = true,
   followCursor = true,
+  followStrength = 1,
   waving = false,
   fallen = false,
   rimLight = "#ff4258",
+  pose = "idle",
+  spinKey,
+  offsetY = 0,
   className,
   label,
 }: Character3DProps) {
@@ -72,6 +86,9 @@ export function Character3D({
   wavingRef.current = waving;
   const fallenRef = useRef(fallen);
   fallenRef.current = fallen;
+  const poseRef = useRef<Pose>(pose);
+  poseRef.current = pose;
+  const spinRef = useRef(0);
 
   // inicjalizacja (raz)
   useEffect(() => {
@@ -113,6 +130,7 @@ export function Character3D({
       viewer.scene.add(rim2);
 
       viewer.playerWrapper.rotation.y = yaw;
+      viewer.playerWrapper.position.y = offsetY;
 
       // animacja: oddech + śledzenie kursora + machanie
       let headYaw = 0;
@@ -120,21 +138,73 @@ export function Character3D({
       let bodyYaw = 0;
       let wave = 0;
       let fall = 0;
+      // płynne przejście między pozami: każda kość dąży do wartości docelowej
+      const cur = { lax: 0, laz: 0, rax: 0, raz: 0, llx: 0, rlx: 0, lean: 0 };
+      let spin = 0;
+      let lastSpin = spinRef.current;
       viewer.animation = new sv.FunctionAnimation((player, progress) => {
         const t = progress * 2;
         const s = player.skin;
+        const p = poseRef.current;
 
-        // oddech / kołysanie
-        s.leftArm.rotation.z = Math.cos(t) * 0.03 + Math.PI * 0.02;
-        s.rightArm.rotation.z = Math.cos(t + Math.PI) * 0.03 - Math.PI * 0.02;
-        s.leftArm.rotation.x = 0;
+        // poza docelowa
+        const breath = Math.cos(t) * 0.03;
+        let lax = 0;
+        let laz = Math.PI * 0.02 + breath;
+        let rax = 0;
+        let raz = -Math.PI * 0.02 - breath;
+        let llx = 0;
+        let rlx = 0;
+        let lean = 0;
+        if (p === "stride") {
+          // krok naprzód w zwolnionym tempie: ręka wyciągnięta przed siebie, nogi w rozkroku
+          const sw = Math.sin(progress * 1.4) * 0.12;
+          rax = -0.95 + sw;
+          raz = -0.18;
+          lax = 0.62 - sw;
+          laz = 0.12;
+          rlx = 0.5 - sw;
+          llx = -0.5 + sw;
+          lean = 0.06;
+        } else if (p === "spread") {
+          // rozłożone ręce jak skrzydła płaszcza
+          laz = 0.62 + Math.sin(t) * 0.06;
+          raz = -0.62 - Math.sin(t) * 0.06;
+          lax = -0.12;
+          rax = -0.12;
+        } else if (p === "rest") {
+          // ręce przy ciele (karty rang, user 27.11: „nadal za bardzo rozłożone”)
+          laz = 0.07 + Math.sin(t) * 0.012;
+          raz = -0.07 - Math.sin(t) * 0.012;
+          lax = -0.03;
+          rax = -0.03;
+        } else if (p === "proud") {
+          laz = 0.16 + breath;
+          raz = -0.16 - breath;
+        } else if (p === "wave") {
+          lax = 0.08;
+        }
+        const k = 0.09;
+        cur.lax = lerp(cur.lax, lax, k);
+        cur.laz = lerp(cur.laz, laz, k);
+        cur.rax = lerp(cur.rax, rax, k);
+        cur.raz = lerp(cur.raz, raz, k);
+        cur.llx = lerp(cur.llx, llx, k);
+        cur.rlx = lerp(cur.rlx, rlx, k);
+        cur.lean = lerp(cur.lean, lean, k);
+        s.leftArm.rotation.x = cur.lax;
+        s.leftArm.rotation.z = cur.laz;
+        s.rightArm.rotation.z = cur.raz;
+        s.leftLeg.rotation.x = cur.llx;
+        s.rightLeg.rotation.x = cur.rlx;
+        s.body.rotation.x = cur.lean;
         player.position.y = Math.sin(t) * 0.15;
 
         // upadek (ekran śmierci)
         fall = lerp(fall, fallenRef.current ? 1 : 0, 0.05);
         player.rotation.z = fall * (Math.PI / 2);
         if (fall > 0.01) player.position.y -= fall * 6;
-        player.cape.rotation.x = Math.sin(t) * 0.04 + Math.PI * 0.07;
+        player.cape.rotation.x = Math.sin(t) * (p === "spread" ? 0.12 : 0.04) + Math.PI * (p === "spread" ? 0.12 : p === "stride" ? 0.1 : 0.07);
 
         // kursor → kąt głowy
         let ty = 0;
@@ -143,23 +213,31 @@ export function Character3D({
           const r = canvasRef.current.getBoundingClientRect();
           const cx = r.left + r.width / 2;
           const cy = r.top + r.height * 0.28;
-          ty = clamp((pointer.x - cx) / 600, -1, 1) * 0.75;
-          tp = clamp((pointer.y - cy) / 500, -1, 1) * 0.45;
+          ty = clamp((pointer.x - cx) / 600, -1, 1) * 0.75 * followStrength;
+          tp = clamp((pointer.y - cy) / 500, -1, 1) * 0.45 * followStrength;
         }
         headYaw = lerp(headYaw, ty, 0.08);
         headPitch = lerp(headPitch, tp, 0.08);
         bodyYaw = lerp(bodyYaw, ty * 0.35, 0.05);
         s.head.rotation.y = headYaw;
         s.head.rotation.x = headPitch;
-        player.rotation.y = bodyYaw;
 
-        // machanie prawą ręką
-        wave = lerp(wave, wavingRef.current ? 1 : 0, 0.12);
+        // obrót przy zmianie (spinKey): jeden pełny obrót z wyhamowaniem
+        if (spinRef.current !== lastSpin) {
+          lastSpin = spinRef.current;
+          spin = 1;
+        }
+        spin = Math.max(0, spin - 0.022);
+        const turn = spin > 0 ? (1 - Math.pow(1 - (1 - spin), 3)) * Math.PI * 2 : 0;
+        player.rotation.y = bodyYaw + turn;
+
+        // machanie prawą ręką (poza „wave” albo waving=true)
+        wave = lerp(wave, wavingRef.current || p === "wave" ? 1 : 0, 0.12);
         if (wave > 0.01) {
-          s.rightArm.rotation.x = lerp(0, Math.PI, wave);
-          s.rightArm.rotation.z = lerp(s.rightArm.rotation.z, Math.sin(progress * 9) * 0.45 - 0.1, wave);
+          s.rightArm.rotation.x = lerp(cur.rax, Math.PI, wave);
+          s.rightArm.rotation.z = lerp(cur.raz, Math.sin(progress * 9) * 0.45 - 0.1, wave);
         } else {
-          s.rightArm.rotation.x = 0;
+          s.rightArm.rotation.x = cur.rax;
         }
       });
       if (reduced) viewer.animation.paused = true;
@@ -205,6 +283,17 @@ export function Character3D({
     if (!viewer || !ready) return;
     import("skinview3d").then((sv) => applyNameTag(sv, viewer, nameTag, nameTagColor, prefix));
   }, [nameTag, nameTagColor, prefix, ready]);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || !ready) return;
+    if (cape) viewer.loadCape(cape).catch(() => undefined);
+    else viewer.resetCape();
+  }, [cape, ready]);
+
+  useEffect(() => {
+    if (spinKey !== undefined) spinRef.current += 1;
+  }, [spinKey]);
 
   return (
     <div

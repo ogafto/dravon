@@ -115,7 +115,7 @@ export async function testConnection(config: { apiKey: string; serviceId: string
       cache: "no-store",
       signal: AbortSignal.timeout(10_000),
     });
-    if (res.ok) return { ok: true, message: "Połączono z SimPay – klucz API i ID usługi są poprawne." };
+    if (res.ok) return { ok: true, message: "Połączono z SimPay. Klucz API i ID usługi są poprawne." };
     if (res.status === 401 || res.status === 403) return { ok: false, message: "SimPay odrzucił klucz API (sprawdź Bearer Token)." };
     if (res.status === 404) return { ok: false, message: "SimPay nie zna tej usługi (sprawdź ID usługi)." };
     const json = (await res.json().catch(() => null)) as { message?: string } | null;

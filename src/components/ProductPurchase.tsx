@@ -44,13 +44,13 @@ export function ProductPurchase({
       result === "replaced-rank"
         ? `Zamieniono rangę w koszyku na: ${product.name} (${variant.label})`
         : `Dodano: ${product.name}${product.stack ? ` ×${qty}` : ` (${variant.label})`}`,
-      { href: `/sklep/${mode}/koszyk`, action: "Koszyk" },
+      { href: "/koszyk", action: "Koszyk" },
     );
   };
 
   const onBuyNow = () => {
     addToCart();
-    router.push(`/sklep/${mode}/koszyk`);
+    router.push("/koszyk");
   };
 
   return (
@@ -120,7 +120,7 @@ export function ProductPurchase({
           <span>
             <PixelIcon name="shield" size={14} />
           </span>
-          Bezpieczne płatności SimPay: BLIK, przelew, karta
+          Bezpieczne płatności: BLIK, przelew, karta i PaySafeCard
         </li>
         <li>
           <span>

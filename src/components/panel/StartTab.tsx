@@ -34,23 +34,23 @@ export function StartTab({ go }: { go: (tab: string) => void }) {
       title: "Adres strony",
       text: (
         <>
-          Teraz: <code>{settings.site.url}</code>. Wpisz swoją domenę, np. <code>https://dravon.pl</code> – na nią SimPay odsyła gracza po płatności.
+          Teraz: <code>{settings.site.url}</code>. Wpisz swoją domenę, np. <code>https://dravon.pl</code>, na nią Stripe odsyła gracza po płatności.
         </>
       ),
       tab: "strona",
       button: "Ustaw w zakładce Strona",
     },
     {
-      done: !!pay.apiKey && !!pay.serviceId && !!pay.ipnKey,
-      title: "Płatności SimPay",
-      text: "Wklej 3 klucze z panelu SimPay i kliknij „Sprawdź połączenie”. Potem skopiuj adres IPN i wklej go w SimPay.",
+      done: !!pay.stripeSecretKey && !!pay.stripeWebhookSecret,
+      title: "Płatności Stripe",
+      text: "Wklej klucz tajny Stripe i kliknij „Sprawdź połączenie i metody”. Potem dodaj w Stripe webhook z adresem z zakładki Płatności i wklej jego sekret.",
       tab: "platnosci",
       button: "Przejdź do Płatności",
     },
     {
       done: settings.plugin.hasToken,
       title: "Token pluginu",
-      text: "Kliknij „Wygeneruj token”. Pod spodem pojawi się gotowa komenda – wklej ją w konsoli serwera.",
+      text: "Kliknij „Wygeneruj token”. Pod spodem pojawi się gotowa komenda, wklej ją w konsoli serwera.",
       tab: "plugin",
       button: "Przejdź do Serwer i plugin",
     },
@@ -86,7 +86,7 @@ export function StartTab({ go }: { go: (tab: string) => void }) {
         </div>
         <p className="pnl-muted">
           {ready === steps.length
-            ? "Wszystko ustawione – sklep działa. Gracz płaci na stronie, a po kilku sekundach dostaje produkt na serwerze."
+            ? "Wszystko ustawione, sklep działa. Gracz płaci na stronie, a po kilku sekundach dostaje produkt na serwerze."
             : "Zrób po kolei to, co ma czerwony krzyżyk. Każdy krok ma przycisk, który zabierze Cię we właściwe miejsce."}
         </p>
       </div>
@@ -109,10 +109,10 @@ export function StartTab({ go }: { go: (tab: string) => void }) {
       <div className="panel pnl-card">
         <h2>Jak to działa</h2>
         <ol className="pnl-steps">
-          <li>Gracz wybiera produkt na stronie i płaci przez SimPay (BLIK, przelew, karta).</li>
-          <li>SimPay potwierdza płatność stronie.</li>
+          <li>Gracz wybiera produkty na stronie i płaci: BLIK na stronie, karta i przelew przez Stripe, albo PaySafeCard.</li>
+          <li>Stripe potwierdza płatność stronie.</li>
           <li>Plugin na serwerze co kilka sekund sprawdza nowe zakupy.</li>
-          <li>Rangi nadaje od razu, przedmioty wkłada do skrytki – gracz wpisuje /isodbierz.</li>
+          <li>Rangi nadaje od razu, przedmioty wkłada do skrytki, gracz wpisuje /isodbierz.</li>
           <li>Wszystko widzisz w zakładce Zakupy.</li>
         </ol>
       </div>

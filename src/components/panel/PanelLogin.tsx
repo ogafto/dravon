@@ -30,7 +30,7 @@ export function PanelLogin({ configured }: { configured: boolean }) {
       <p>
         {configured
           ? "Zaloguj się, aby zarządzać sklepem."
-          : "Pierwsze uruchomienie – ustaw hasło do panelu (min. 10 znaków). Zapamiętaj je!"}
+          : "Pierwsze uruchomienie, ustaw hasło do panelu (min. 10 znaków). Zapamiętaj je!"}
       </p>
       <label className="pnl-field">
         <span>{configured ? "Hasło" : "Nowe hasło"}</span>

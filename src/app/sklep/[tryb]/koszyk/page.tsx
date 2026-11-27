@@ -1,27 +1,6 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { Checkout } from "@/components/Checkout";
-import { getShopMode } from "@/lib/shop-data";
-import { toPublicCatalog } from "@/lib/public-catalog";
+import { redirect } from "next/navigation";
 
-// produkty i ceny z panelu – zawsze aktualne
-export const dynamic = "force-dynamic";
-
-export async function generateMetadata({ params }: PageProps<"/sklep/[tryb]/koszyk">): Promise<Metadata> {
-  const mode = await getShopMode((await params).tryb);
-  return { title: mode ? `Koszyk (${mode.name})` : "Koszyk", robots: { index: false } };
-}
-
-export default async function CartPage({ params }: PageProps<"/sklep/[tryb]/koszyk">) {
-  const mode = await getShopMode((await params).tryb);
-  if (!mode || mode.status !== "active") notFound();
-
-  return (
-    <section className="section-tight" style={{ paddingTop: 36 }}>
-      <div className="container">
-        <h1 className="title-left page-title">Koszyk · {mode.name}</h1>
-        <Checkout mode={mode.slug} modeName={mode.name} catalog={toPublicCatalog(mode)} />
-      </div>
-    </section>
-  );
+/** Stary adres koszyka trybu – od 27.11 jeden wspólny koszyk dla wszystkich trybów. */
+export default function OldCartPage() {
+  redirect("/koszyk");
 }

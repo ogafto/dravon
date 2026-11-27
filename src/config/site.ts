@@ -6,12 +6,12 @@ export const site = {
   version: "1.21+",
   tagline: "Serwer Minecraft, na którym liczy się każda walka",
   description:
-    "CoinCash: własna wyspa z generatorami, pola do koszenia kosą, monety i skrzynie w Skarbcu. Zbierz ekipę, zgarnij rangę i zapisz swój nick w topkach.",
-  discord: "https://discord.gg/sPK2C73PBb",
+    "CasinoCash: własna wyspa z generatorami, pola do koszenia kosą, monety i skrzynie w Skarbcu. Zbierz ekipę, zgarnij rangę i zapisz swój nick w topkach.",
+  discord: "https://discord.gg/DPfUfn5mEv",
   email: "dravon.pl@gmail.com",
   credits: { label: "afto.works", href: "https://afto.works" },
   socials: [
-    { label: "Discord", href: "https://discord.gg/sPK2C73PBb" },
+    { label: "Discord", href: "https://discord.gg/DPfUfn5mEv" },
     // { label: "TikTok", href: "https://www.tiktok.com/@..." },
     // { label: "YouTube", href: "https://www.youtube.com/@..." },
   ],

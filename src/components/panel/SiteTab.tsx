@@ -37,7 +37,7 @@ export function SiteTab() {
           <Field label="E-mail kontaktowy">
             <input value={site.email} onChange={(e) => set("email", e.target.value)} />
           </Field>
-          <Field label="Adres strony" hint="Na niego SimPay wraca po płatności, np. https://dravon.pl">
+          <Field label="Adres strony" hint="Na niego Stripe wraca po płatności, np. https://dravon.pl">
             <input value={site.url} onChange={(e) => set("url", e.target.value)} />
           </Field>
           <Field label="Hasło serwera (pod tytułem)" wide>
@@ -49,7 +49,7 @@ export function SiteTab() {
         </div>
         <Message message={message} />
         <div className="pnl-actions">
-          <button className="btn btn-primary" disabled={busy} onClick={() => save("site", site, "Zapisano – strona już pokazuje nowe dane.")}>
+          <button className="btn btn-primary" disabled={busy} onClick={() => save("site", site, "Zapisano, strona już pokazuje nowe dane.")}>
             {busy ? "Zapisywanie…" : "Zapisz"}
           </button>
         </div>
@@ -77,7 +77,7 @@ export function SiteTab() {
               if (pw.next !== pw.repeat) return setPwMessage({ text: "Nowe hasła się różnią.", bad: true });
               const res = await save("password", { current: pw.current, next: pw.next }, "Hasło zmienione.");
               if (res) window.location.reload(); // nowe hasło = zaloguj się ponownie
-              else setPwMessage({ text: "Nie udało się zmienić hasła – sprawdź obecne hasło.", bad: true });
+              else setPwMessage({ text: "Nie udało się zmienić hasła, sprawdź obecne hasło.", bad: true });
             }}
           >
             Zmień hasło

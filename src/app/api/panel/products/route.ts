@@ -65,11 +65,11 @@ function cleanProduct(raw: Record<string, unknown>, usedSlugs: Set<string>, used
   const isStack = Number((raw.stack as { max?: unknown } | undefined)?.max) > 1;
   const variantsRaw = Array.isArray(raw.variants) ? (raw.variants as Record<string, unknown>[]) : [];
   if (!variantsRaw.length) throw new Invalid(`„${name}” musi mieć co najmniej jedną cenę (wariant).`);
-  if (variantsRaw.length > 6) throw new Invalid(`„${name}” – maksymalnie 6 wariantów.`);
+  if (variantsRaw.length > 6) throw new Invalid(`„${name}”, maksymalnie 6 wariantów.`);
   const variants: Variant[] = variantsRaw.map((v, i) => {
     const label = text(v.label, 30, "Nazwa wariantu", true);
     const price = Math.round(Number(v.price) * 100) / 100;
-    if (!Number.isFinite(price) || price < 1 || price > 10000) throw new Invalid(`„${name}” – cena musi być od 1 do 10000 zł.`);
+    if (!Number.isFinite(price) || price < 1 || price > 10000) throw new Invalid(`„${name}”, cena musi być od 1 do 10000 zł.`);
     const list = (x: unknown) =>
       (Array.isArray(x) ? x : typeof x === "string" ? x.split("\n") : [])
         .map((c) => String(c).trim().replace(/^\//, ""))
@@ -83,8 +83,8 @@ function cleanProduct(raw: Record<string, unknown>, usedSlugs: Set<string>, used
       else stash = old;
     }
     const commands = [...instant, ...stash];
-    if (!commands.length) throw new Invalid(`„${name} · ${label}” – wpisz komendę, którą serwer ma wykonać.`);
-    if (commands.length > 15 || commands.some((c) => c.length > 300)) throw new Invalid(`„${name}” – max 15 komend po 300 znaków.`);
+    if (!commands.length) throw new Invalid(`„${name} · ${label}”, wpisz komendę, którą serwer ma wykonać.`);
+    if (commands.length > 15 || commands.some((c) => c.length > 300)) throw new Invalid(`„${name}”, max 15 komend po 300 znaków.`);
     let id = text(v.id, 40, "id");
     if (!/^[a-z0-9_]{2,40}$/.test(id)) id = `${slug.replace(/-/g, "_")}${i ? `_${i + 1}` : ""}`.slice(0, 40);
     while (usedIds.has(id)) id = `${id}_x`.slice(-40);

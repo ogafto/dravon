@@ -95,10 +95,11 @@ export const categories: Category[] = [
   { id: "inne", name: "Inne", icon: "gem", description: "Przedmioty specjalne" },
 ];
 
+// user 27.11: VIP – skin Alexa, SVIP – skin Steve'a, Vampir – skin od usera
 const RANK_LOOK = {
-  vip: { skin: "/skins/vip.png", tag: "[VIP]", color: "#ffd23f" },
-  svip: { skin: "/skins/svip.png", tag: "[SVIP]", color: "#ff8a1f" },
-  vampir: { skin: "/skins/vampir.png", cape: "/skins/cape-vampir.png", tag: "[VAMPIR]", color: "#ff3b4e" },
+  vip: { skin: "/skins/ranga-vip.png", tag: "[VIP]", color: "#ffd23f" },
+  svip: { skin: "/skins/ranga-svip.png", tag: "[SVIP]", color: "#ff8a1f" },
+  vampir: { skin: "/skins/ranga-vampir.png", cape: "/skins/cape-vampir.png", tag: "[VAMPIR]", color: "#ff3b4e" },
 };
 
 const rank = (
@@ -157,7 +158,7 @@ const skypvpProducts: Product[] = [
   rank("vampir", "Ranga Vampir", "Vampir", 50, 130, {
     tagline: "Najwyższa ranga. Władca nocy.",
     description:
-      "Topowa ranga serwera Dravon.pl – dla tych, którzy chcą wszystkiego. Nadawana automatycznie po zaksięgowaniu płatności.",
+      "Topowa ranga serwera Dravon.pl dla tych, którzy chcą wszystkiego. Nadawana automatycznie po zaksięgowaniu płatności.",
     perks: ["Prefix **[VAMPIR]** przy nicku", "Przywileje rang **VIP** i **SVIP**", "Nadawana **automatycznie** po płatności", "**Największe** wsparcie serwera"],
   }),
   {
@@ -278,7 +279,7 @@ const skypvpProducts: Product[] = [
     render: asset("/renders/shard.png"),
     fx: "sparkle",
     tagline: "Rzadki materiał z mrocznego wymiaru.",
-    description: "Odłamek Vampira – przedmiot specjalny. Kupuj pojedynczo albo hurtem.",
+    description: "Odłamek Vampira, przedmiot specjalny. Kupuj pojedynczo albo hurtem.",
     perks: ["Przedmiot specjalny", "Od 1 do 100 sztuk naraz", "Dostawa automatyczna"],
     stack: { max: 100 },
     game: { delivery: "stash", icon: "AMETHYST_SHARD" },
@@ -294,8 +295,7 @@ const skypvpProducts: Product[] = [
   },
 ];
 
-/* ---------------------------------------------------------------- CoinCash (user 7.11 – zamiast SkyPvP; w grze tryb CasinoCash,
- * na stronie CoinCash: SimPay nie obsługuje płatności za hazard i kasyna – bez kasyna w nazwie, adresie i opisach)
+/* ---------------------------------------------------------------- CasinoCash (id „coincash” zostaje – dostawy i plugin DravonSklep)
  * Wydanie przez DravonSklep (user 24.11: rangi od razu, do skrytki /odbierz tylko przedmioty):
  *  rangi – /sklepranga (AftoCore: ranga od razu przez proxy; gracz offline → po wejściu; wyższa ranga → voucher),
  *  kosy – /dcadmin kosa, klucze – /dcadmin klucz (id skrzyń z casinocash/config.yml), odłamki – /dcadmin odlamki – skrytka /odbierz.
@@ -304,26 +304,18 @@ const skypvpProducts: Product[] = [
 const ccRank = (key: "vip" | "svip" | "vampir", name: string, label: string, monthly: number, forever: number, extra: Partial<Product>): Product => ({
   ...rank(key, name, label, monthly, forever, extra),
   game: { delivery: "instant", icon: "NAME_TAG", model: `dravon:voucher_${key}` },
-  variants: [
-    { id: `cc_${key}`, label: "30 dni", price: monthly, command: `sklepranga {nick} ${key} 30`, broadcast: `rangę ${label} na 30 dni` },
-    {
-      id: `cc_${key}_permanent`,
-      label: "Na zawsze",
-      price: forever,
-      command: `sklepranga {nick} ${key} zawsze`,
-      broadcast: `rangę ${label} na zawsze`,
-      badge: "Najlepsza wartość",
-    },
-  ],
+  // user 27.11: rangi tylko na 30 dni (bez „na zawsze”)
+  variants: [{ id: `cc_${key}`, label: "30 dni", price: monthly, command: `sklepranga {nick} ${key} 30`, broadcast: `rangę ${label} na 30 dni` }],
 });
 
 // kolory jak w grze (casinocash/config.yml → kosa.poziomy.*.kolor)
 const KOSY: [tier: number, name: string, area: string, price: number, fx: string, accent: string][] = [
-  [1, "Kosa Polna", "3x3", 5, "kłosy i złote iskry", "#facc15"],
-  [2, "Kosa Burzowa", "5x5", 12, "błyskawice nad polem", "#7dd3fc"],
-  [3, "Kosa Ognista", "7x7", 22, "płomienie przy każdym zamachu", "#ff7a18"],
-  [4, "Kosa Żniwiarza", "10x10", 39, "dusze unoszące się nad plonem", "#a78bfa"],
-  [5, "Kosa Smocza", "15x15", 69, "smoczy ogień i łuski", "#e879f9"],
+  // user 27.11: 20 / 30 / 50 / 70 / 100 zł
+  [1, "Kosa Polna", "3x3", 20, "kłosy i złote iskry", "#facc15"],
+  [2, "Kosa Burzowa", "5x5", 30, "błyskawice nad polem", "#7dd3fc"],
+  [3, "Kosa Ognista", "7x7", 50, "płomienie przy każdym zamachu", "#ff7a18"],
+  [4, "Kosa Żniwiarza", "10x10", 70, "dusze unoszące się nad plonem", "#a78bfa"],
+  [5, "Kosa Smocza", "15x15", 100, "smoczy ogień i łuski", "#e879f9"],
 ];
 
 const ccKosy: Product[] = KOSY.map(([tier, name, area, price, fx, accent]) => ({
@@ -335,7 +327,7 @@ const ccKosy: Product[] = KOSY.map(([tier, name, area, price, fx, accent]) => ({
   render: asset(`/renders/cc-kosa-${tier}.png`),
   fx: "glint",
   tagline: `Kosi pole ${area} jednym zamachem.`,
-  description: `${name} z trybu CoinCash: ścina plony na obszarze ${area}, a efekt to ${fx}. Trafia do skrytki /isodbierz – odbierasz ją w grze, kiedy chcesz.`,
+  description: `${name} z trybu CasinoCash: ścina plony na obszarze ${area}, a efekt to ${fx}. Trafia do skrytki /isodbierz, odbierasz ją w grze, kiedy chcesz.`,
   perks: [`Obszar koszenia **${area}**`, `Własny efekt: **${fx}**`, "Model 3D z paczki serwera", "Dostawa do skrytki **/isodbierz**"],
   highlight: tier === 3,
   game: { delivery: "stash", icon: "NETHERITE_HOE", model: `dravon:kosa_${tier}` },
@@ -344,10 +336,10 @@ const ccKosy: Product[] = KOSY.map(([tier, name, area, price, fx, accent]) => ({
 
 // kolory skrzyń z gry (casinocash/config.yml → skrzynki.*.kolor)
 const KLUCZE: [crate: string, slug: string, key: string, name: string, price: number, what: string, accent: string][] = [
-  ["vampira", "vampira", "Klucz Vampira", "Skrzynia Vampira", 6, "odłamki, vPLN i płaszcz wampira", "#ff4258"],
-  ["kosmetyczna", "kosmetyczna", "Klucz Kosmetyczny", "Skrzynia Kosmetyczna", 4, "skrzydła, czapki i inne kosmetyki", "#ff7ac8"],
+  // user 27.11: Vampira 15 zł, Kosmetyczny 10 zł, Dusz 5 zł, Epicki 3 zł za sztukę; bez Klucza Petów
+  ["vampira", "vampira", "Klucz Vampira", "Skrzynia Vampira", 15, "odłamki, vPLN i płaszcz wampira", "#ff4258"],
+  ["kosmetyczna", "kosmetyczna", "Klucz Kosmetyczny", "Skrzynia Kosmetyczna", 10, "skrzydła, czapki i inne kosmetyki", "#ff7ac8"],
   ["legendarna", "dusz", "Klucz Dusz", "Skrzynia Dusz", 5, "rzadkie nagrody i dużo vPLN", "#5ef0ff"],
-  ["pety", "pety", "Klucz Petów", "Skrzynia Petów", 5, "pety z umiejętnościami, odłamki i turbo", "#ff9a3c"],
   ["rzadka", "epicka", "Klucz Epicki", "Skrzynia Epicka", 3, "epickie przedmioty i dolarki", "#c084fc"],
 ];
 
@@ -360,7 +352,7 @@ const ccKlucze: Product[] = KLUCZE.map(([crate, slug, key, name, price, what, ac
   render: asset(`/renders/cc-klucz-${slug}.png`),
   fx: "glint",
   tagline: `Otwiera: ${name}.`,
-  description: `Klucz do skrzyni „${name}” w Skarbcu trybu CoinCash. W środku: ${what}. Kupujesz dowolną liczbę naraz.`,
+  description: `Klucz do skrzyni „${name}” w Skarbcu trybu CasinoCash. W środku: ${what}. Kupujesz dowolną liczbę naraz.`,
   perks: [`Otwiera **${name}**`, `W środku: ${what}`, "Od 1 do 100 sztuk naraz", "Dostawa do skrytki **/isodbierz**"],
   stack: { max: 100 },
   highlight: slug === "vampira",
@@ -368,7 +360,7 @@ const ccKlucze: Product[] = KLUCZE.map(([crate, slug, key, name, price, what, ac
   variants: [{ id: `cc_klucz_${slug}`, label: "1 szt.", price, command: `dcadmin klucz {nick} ${crate} {qty}`, broadcast: `${key} (x{qty})` }],
 }));
 
-/** Dawny tryb SkyPvP – zdjęty ze strony 7.11 (CoinCash), zostaje jako wzór produktów. */
+/** Dawny tryb SkyPvP – zdjęty ze strony 7.11 (CasinoCash), zostaje jako wzór produktów. */
 export const skypvpMode: Mode = {
   slug: "skypvp",
   name: "SkyPvP",
@@ -385,17 +377,17 @@ export const skypvpMode: Mode = {
 const coincashProducts: Product[] = [
   ccRank("vip", "Ranga VIP", "VIP", 10, 30, {
     tagline: "Wygodne komendy i teleporty bez czekania.",
-    description: "Pierwszy krok wyżej w trybie CoinCash. Dostajesz voucher rangi do skrytki /isodbierz – używasz go w grze i ranga wchodzi od razu.",
+    description: "Pierwszy krok wyżej w trybie CasinoCash. Dostajesz voucher rangi do skrytki /isodbierz, używasz go w grze i ranga wchodzi od razu.",
     perks: ["Odznaka **[VIP]** na czacie, w TAB i nad głową", "**/workbench**, **/enderchest**, **/hat**, **/feed**, **/back**", "Teleporty **bez odliczania**", "Rynek: **10 ofert** (gracz ma 5)"],
   }),
   ccRank("svip", "Ranga SVIP", "SVIP", 20, 55, {
     tagline: "Latanie, leczenie i kolory na czacie.",
-    description: "Wszystko z VIP i sporo więcej. Dostajesz voucher rangi do skrytki /isodbierz – używasz go w grze i ranga wchodzi od razu.",
+    description: "Wszystko z VIP i sporo więcej. Dostajesz voucher rangi do skrytki /isodbierz, używasz go w grze i ranga wchodzi od razu.",
     perks: ["Odznaka **[SVIP]** na czacie, w TAB i nad głową", "Wszystko z **VIP**", "**/fly**, **/heal** i przenośne stoły", "**Kolory** na czacie, rynek: **15 ofert**"],
   }),
   ccRank("vampir", "Ranga Vampir", "Vampir", 50, 130, {
     tagline: "Najwyższa ranga. Władca nocy.",
-    description: "Topowa ranga trybu CoinCash – wszystko z SVIP i najwięcej miejsca na rynku. Dostajesz voucher rangi do skrytki /isodbierz.",
+    description: "Topowa ranga trybu CasinoCash: wszystko z SVIP i najwięcej miejsca na rynku. Dostajesz voucher rangi do skrytki /isodbierz.",
     perks: ["Odznaka **[VAMPIR]** na czacie, w TAB i nad głową", "Wszystko z **VIP** i **SVIP**", "**Najwięcej** ofert na rynku", "**Największe** wsparcie serwera"],
   }),
   ...ccKosy,
@@ -403,44 +395,60 @@ const coincashProducts: Product[] = [
   {
     slug: "odlamki-vampira",
     name: "Odłamki Vampira",
-    accent: "#a78bfa",
+    accent: "#ff4258",
     category: "inne",
     image: asset("/renders/cc-odlamek.png"),
     render: asset("/renders/cc-odlamek.png"),
     fx: "sparkle",
-    tagline: "Rzadki materiał – wymienisz go na żetony.",
-    description: "Odłamki Vampira z trybu CoinCash. Zbierasz je, wymieniasz w sklepie żetonów (250 odłamków = 1 żeton) i ulepszasz nimi sprzęt.",
-    perks: ["Paczka = **100 odłamków**", "**250** odłamków = **1 żeton**", "Od 1 do 50 paczek naraz", "Dostawa do skrytki **/isodbierz**"],
-    stack: { max: 50 },
+    tagline: "Rzadki materiał, wymienisz go na żetony.",
+    description: "Odłamki Vampira z trybu CasinoCash. Zbierasz je, wymieniasz w sklepie żetonów (250 odłamków = 1 żeton) i ulepszasz nimi sprzęt.",
+    perks: ["Cena za **1 odłamek**", "**250** odłamków = **1 żeton**", "Od 1 do 100 sztuk naraz", "Dostawa do skrytki **/isodbierz**"],
+    stack: { max: 100 },
     game: { delivery: "stash", icon: "AMETHYST_SHARD", model: "dravon:odlamek" },
-    // {qty}00 = liczba paczek × 100 (np. 5 paczek → „dcadmin odlamki Nick 500”)
-    variants: [{ id: "cc_odlamki_100", label: "Paczka 100 szt.", price: 3, command: "dcadmin odlamki {nick} {qty}00", broadcast: "Odłamki Vampira (x{qty}00)" }],
+    // user 27.11: 3 zł za sztukę – {qty} = liczba odłamków
+    variants: [{ id: "cc_odlamek_1", label: "1 szt.", price: 3, command: "dcadmin odlamki {nick} {qty}", broadcast: "Odłamki Vampira (x{qty})" }],
   },
 ];
+
+/** Drugi tryb (user 15.11): Survival – na razie „Wkrótce”, produkty i status: "active" przed startem. */
+export const survivalMode: Mode = {
+  slug: "survival",
+  name: "Survival",
+  short: "Klasyczny survival z ekipą.",
+  description: "Klasyczny Survival na Dravonie. Start ogłosimy na Discordzie.",
+  icon: "grass",
+  render: asset("/renders/mode-survival.png"),
+  status: "soon",
+  version: "1.21+",
+  products: [],
+};
+
+/** Trzeci tryb (user 27.11): SkyPvP – „Wkrótce”, bez produktów (stare produkty SkyPvP zostają w skypvpMode jako wzór). */
+export const skypvpSoonMode: Mode = {
+  slug: "skypvp",
+  name: "SkyPvP",
+  short: "Latające wyspy, walka i skrzynie z nagrodami.",
+  description: "SkyPvP na Dravonie. Start ogłosimy na Discordzie.",
+  icon: "sword",
+  render: asset("/renders/mode-skypvp.png"),
+  status: "soon",
+  version: "1.21+",
+  products: [],
+};
 
 export const modes: Mode[] = [
   {
     slug: "coincash",
-    name: "CoinCash",
+    name: "CasinoCash",
     short: "Wyspy z generatorami, pola, kosy i skrzynie.",
     description:
-      "Tryb CoinCash: budujesz wyspę z generatorami, koszysz pola, zbierasz monety i otwierasz skrzynie w Skarbcu. Zakupy trafiają do skrytki /isodbierz chwilę po płatności.",
+      "Tryb CasinoCash: budujesz wyspę z generatorami, koszysz pola, zbierasz monety i otwierasz skrzynie w Skarbcu. Zakupy trafiają do skrytki /isodbierz chwilę po płatności.",
     icon: "gem",
     render: asset("/renders/mode-coincash.png"),
     status: "active",
     version: "1.21.11",
     products: coincashProducts,
   },
-  // Kolejny tryb – nazwę i produkty uzupełnij przed startem, potem ustaw status: "active".
-  {
-    slug: "wkrotce",
-    name: "???",
-    short: "Nowy tryb jest w przygotowaniu.",
-    description: "Pracujemy nad kolejnym trybem. Start ogłosimy na Discordzie.",
-    icon: "lock",
-    render: asset("/renders/mode-soon.png"),
-    status: "soon",
-    version: "1.21+",
-    products: [],
-  },
+  survivalMode,
+  skypvpSoonMode,
 ];

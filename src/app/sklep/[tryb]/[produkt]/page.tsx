@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
-import { asset } from "@/lib/asset";
-import Image from "next/image";
 import Link from "next/link";
-import { JoinCta } from "@/components/JoinCta";
 import { notFound } from "next/navigation";
-import { Particles } from "@/components/fx/Particles";
 import { ItemArt } from "@/components/ItemArt";
-import { ItemCard } from "@/components/ItemCard";
 import { PixelIcon } from "@/components/PixelIcon";
 import { ProductPurchase } from "@/components/ProductPurchase";
 import { Rich } from "@/components/Rich";
+import { OfferCard } from "@/components/shop/OfferCard";
 import { Character3D } from "@/components/three/Character3D";
 import { badgeFor } from "@/data/prefixes";
-import modele from "@/data/modele.json";
-import { PackModel3D } from "@/components/three/PackModel3D";
 import { getCategory, getProduct } from "@/lib/catalog";
-import { getShopMode } from "@/lib/shop-data";
 import { toPublicProduct } from "@/lib/public-catalog";
+import { getShopMode } from "@/lib/shop-data";
+import { trybUrl } from "@/lib/tryb-url";
 
 // produkty i ceny z panelu – zawsze aktualne
 export const dynamic = "force-dynamic";
@@ -33,6 +28,10 @@ export async function generateMetadata({ params }: PageProps<"/sklep/[tryb]/[pro
   };
 }
 
+/**
+ * Strona produktu (redesign 26.11): duża scena z postacią 3D rangi (z odznaką nad głową jak w grze) albo modelem
+ * przedmiotu z paczki, obok panel zakupu; pod spodem korzyści jako kafle i podobne produkty jako karty.
+ */
 export default async function ProductPage({ params, searchParams }: PageProps<"/sklep/[tryb]/[produkt]">) {
   const { tryb, produkt } = await params;
   const { wariant } = await searchParams;
@@ -41,77 +40,51 @@ export default async function ProductPage({ params, searchParams }: PageProps<"/
   if (!mode || !product || mode.status !== "active") notFound();
 
   const category = getCategory(product.category);
-  // żywy model 3D, gdy produkt ma model z paczki skopiowany na stronę (scripts/copy-modele.mjs)
-  const packModel = product.game?.model?.replace(/^dravon:/, "");
-  const model3d = packModel && (modele as string[]).includes(packModel) ? packModel : undefined;
+  const color = product.showcase?.color ?? product.accent ?? "#ff4258";
   const related = mode.products
     .filter((p) => p.slug !== product.slug)
     .sort((a, b) => Number(b.category === product.category) - Number(a.category === product.category))
-    .slice(0, 3);
+    .slice(0, 4);
 
   return (
     <>
-      <section className="section-tight">
+      <section className="pdp">
         <div className="container">
+          <Link href={`/#tryb-${mode.slug}`} className="spot__back pdp__back">
+            <PixelIcon name="arrowLeft" size={11} /> Sklep {mode.name} · {category.name}
+          </Link>
 
-          <div className="product-layout">
-            <div className="product-main">
-              <div className="stage-card" data-fx-host style={{ "--tier": product.showcase?.color ?? "var(--accent)" } as React.CSSProperties}>
-                <span className="stage-card__floor" aria-hidden />
-                <Particles className="stage-card__particles" count={18} />
-                <Image src={asset("/renders/pedestal.png")} alt="" width={640} height={640} className="stage-card__pedestal" priority />
-                {model3d ? (
-                  <PackModel3D
-                    model={model3d}
-                    fallback={product.render}
-                    color={product.showcase?.color ?? "#ff4258"}
-                    className="stage-card__model"
-                    label={`${product.name} – model 3D, przeciągnij, aby obrócić`}
-                  />
-                ) : (
-                  <ItemArt
-                    src={product.render}
-                    hoverSrc={product.renderHover}
-                    fx={product.fx}
-                    color={product.showcase?.color ?? "#ff5a72"}
-                    sizes="300px"
-                    priority
-                    alt={product.name}
-                    className={`stage-card__render ${product.category === "klucze" && product.fx === "glint" ? "stage-card__render--tall" : ""}`}
-                  />
-                )}
-              </div>
-
-              <div className="product-info">
-                <div className="box">
-                  <h2 className="box__title">Co otrzymujesz</h2>
-                  <ul className="perks" style={{ "--tier": product.showcase?.color ?? "var(--accent)" } as React.CSSProperties}>
-                    {product.perks.map((perk) => (
-                      <li key={perk}>
-                        <Rich text={perk} />
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="box__text">{product.description}</p>
-                </div>
-
-                {product.showcase && (
-                  <div className="box preview">
-                    <h2 className="box__title">Tak wygląda prefiks</h2>
-                    <Character3D
-                      skin="/skins/aftoxd.png"
-                      cape={product.showcase.cape}
-                      nameTag="DRAVON"
-                      prefix={badgeFor(product.showcase.tag).prefix}
-                      yaw={-0.45}
-                      zoom={0.82}
-                      rimLight={product.showcase.color}
-                      className="preview__char"
-                      label={`Postać z prefiksem ${product.showcase.tag}`}
-                    />
-                  </div>
-                )}
-              </div>
+          <div className="pdp__grid">
+            <div className="pdp__stage" data-fx-host style={{ "--tier": color } as React.CSSProperties}>
+              <span className="plan__px" aria-hidden />
+              <span className="spot__floor pdp__floor" aria-hidden />
+              {product.showcase ? (
+                <Character3D
+                  skin={product.showcase.skin}
+                  cape={product.showcase.cape}
+                  nameTag="DRAVON"
+                  prefix={badgeFor(product.showcase.tag).prefix}
+                  pose={product.showcase.cape ? "spread" : "proud"}
+                  yaw={-0.35}
+                  zoom={0.72}
+                  offsetY={-2}
+                  rimLight={color}
+                  className="pdp__char"
+                  label={`${product.name}, postać z odznaką ${product.showcase.tag}, przeciągnij, aby obrócić`}
+                />
+              ) : (
+                // user 27.11: przedmioty bez obracania – render z gry, unosi się, po najechaniu iskry w kolorze przedmiotu
+                <ItemArt
+                  src={product.render}
+                  hoverSrc={product.renderHover}
+                  fx={product.fx ?? "sparkle"}
+                  color={color}
+                  sizes="380px"
+                  priority
+                  alt={product.name}
+                  className="pdp__render"
+                />
+              )}
             </div>
 
             <ProductPurchase
@@ -121,27 +94,55 @@ export default async function ProductPage({ params, searchParams }: PageProps<"/
               initialVariant={typeof wariant === "string" ? wariant : undefined}
             />
           </div>
+
+          {product.perks.length > 0 && (
+            <div className="pdp__info" style={{ "--tier": color } as React.CSSProperties}>
+              <h2 className="pdp__h2" data-reveal>
+                {product.category === "rangi" ? "Ranga zawiera" : "Co otrzymujesz"}
+              </h2>
+              <ul className="pdp__perks">
+                {product.perks.map((perk, i) => (
+                  <li key={perk} data-reveal style={{ "--i": i } as React.CSSProperties}>
+                    <span className="plan__check" aria-hidden>
+                      <PixelIcon name="check" size={12} />
+                    </span>
+                    <span>
+                      <Rich text={perk} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {product.description && (
+                <p className="pdp__desc" data-reveal>
+                  {product.description}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {related.length > 0 && (
-        <section className="section-tight">
+        <section className="pdp-related">
           <div className="container">
-            <h2 className="title" data-reveal>Może Cię zainteresować</h2>
-            <div className="items" style={{ marginTop: 32 }}>
+            <header className="sec-head sec-head--left" data-reveal>
+              <h2 className="sec-head__title">Może Cię zainteresować</h2>
+            </header>
+            <div className="offers">
               {related.map((p, i) => (
-                <ItemCard key={p.slug} mode={mode} product={p} index={i} />
+                <OfferCard
+                  key={p.slug}
+                  mode={mode.slug}
+                  product={toPublicProduct(p)}
+                  href={`/sklep/${trybUrl(mode.slug)}/${p.slug}`}
+                  accent={p.accent ?? p.showcase?.color}
+                  index={i}
+                />
               ))}
-            </div>
-            <div className="center-cta">
-              <Link href={`/sklep/${mode.slug}`} className="btn btn-dark">
-                <PixelIcon name="arrowLeft" size={12} /> Wróć do sklepu
-              </Link>
             </div>
           </div>
         </section>
       )}
-      <JoinCta />
     </>
   );
 }

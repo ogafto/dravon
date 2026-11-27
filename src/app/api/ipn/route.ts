@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     }
   } else if (process.env.NODE_ENV === "production") {
     // Bez klucza każdy mógłby „opłacić” zamówienie fałszywym IPN. SimPay ponowi powiadomienie po konfiguracji.
-    console.error("[ipn] Brak klucza IPN (panel → Płatności) – powiadomienie odrzucone");
+    console.error("[ipn] Brak klucza IPN (panel → Płatności), powiadomienie odrzucone");
     return reject(500, "IPN_KEY_NOT_CONFIGURED");
   }
 

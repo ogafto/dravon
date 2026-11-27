@@ -305,6 +305,7 @@ async function loadSkin(url) {
 
 // rozmieszczenie ścian głowy w skórce (x, y)
 const HEAD = { top: [8, 0], bottom: [16, 0], right: [0, 8], front: [8, 8], left: [16, 8], back: [24, 8] };
+const HAT = { top: [40, 0], bottom: [48, 0], right: [32, 8], front: [40, 8], left: [48, 8], back: [56, 8] };
 
 /**
  * Hełm jak w grze: powłoka 10×10×10 (piksel większa z każdej strony),
@@ -344,7 +345,7 @@ function helmetTexture(palette, seed) {
 
 /* ---------------------------------------------------------------- modele */
 
-async function head({ skin, face, helmet, crown }) {
+async function head({ skin, face, helmet, crown, hat }) {
   const m = new Mesh();
   if (face) {
     m.texturedBox(-4, -4, -4, 4, 4, 4, [8, 8, 8], faceTexture(face, 4));
@@ -354,6 +355,13 @@ async function head({ skin, face, helmet, crown }) {
       const [ox, oy] = HEAD[f];
       return tex(ox + u, oy + v);
     });
+    // druga warstwa skina (włosy, uszy) – trochę większa, przezroczyste piksele pomijane
+    if (hat) {
+      m.texturedBox(-4.5, -4.5, -4.5, 4.5, 4.5, 4.5, [8, 8, 8], (f, u, v) => {
+        const [ox, oy] = HAT[f];
+        return tex(ox + u, oy + v);
+      });
+    }
   }
   if (helmet) {
     m.texturedBox(-5, -5, -5, 5, 5.2, 5, [10, 10, 10], helmetTexture(helmet, 9));
@@ -1398,7 +1406,8 @@ const ITEMS = {
   "rank-vip": async () => snapshot(await head({ face: "alex", helmet: ["#f7cd35", "#fff09a", "#c9921a", "#7d5206"] })),
   "rank-svip": async () => snapshot(await head({ face: "steve", helmet: ["#f28a25", "#ffc27a", "#c9620f", "#7a3606"] })),
   "rank-vampir": async () =>
-    snapshot(await head({ skin: "/public/skins/vampir.png", crown: ["#f2c230", "#ffe680", "#a8720f", "#e0213d"] }), { pad: 1.06 }),
+    // user 27.11: głowa w aktualnym skinie rangi Vampir (ten z kart rang) + korona
+    snapshot(await head({ skin: "/public/skins/ranga-vampir.png", hat: true, crown: ["#f2c230", "#ffe680", "#a8720f", "#e0213d"] }), { pad: 1.06 }),
   "key-normal": async () => keyShot3d("normal"),
   "key-vampir": async () => keyShot3d("vampir"),
   shard: async () => snapshot(crystalCluster({ base: "#6e0d1e", mid: "#c81a38", tip: "#ff5a72", hi: "#ffc2cc" }), { pitch: 0.42 }),
@@ -1411,18 +1420,20 @@ const ITEMS = {
   "chest-vampir": async () => chestPair("vampir", -0.75),
   "mode-skypvp": async () => snapshot(elytraSprite(), { yaw: 0.35, pitch: 0.2, pad: 1.04 }),
   "mode-soon": async () => snapshot(block({ top: mysteryDark, side: mysteryDark, seed: 13 })),
+  "mode-survival": async () => snapshot(block({ top: grassTop, side: grassSide, seed: 7 })),
   // CoinCash (user 7.11): modele prosto z paczki gry – kosy, klucze skrzyń, odłamek, moneta (ikona trybu)
   "mode-coincash": async () => packShot("coincash_monety", { yaw: 0, pitch: 0 }),  // user 7.11: stos monet bez żetonów (na stronie obraca się w 3D)
-  "cc-kosa-1": async () => packShot("kosa_1", { yaw: 0, pitch: 0 }),
-  "cc-kosa-2": async () => packShot("kosa_2", { yaw: 0, pitch: 0 }),
-  "cc-kosa-3": async () => packShot("kosa_3", { yaw: 0, pitch: 0 }),
-  "cc-kosa-4": async () => packShot("kosa_4", { yaw: 0, pitch: 0 }),
-  "cc-kosa-5": async () => packShot("kosa_5", { yaw: 0, pitch: 0 }),
-  "cc-klucz-vampira": async () => packShot("skrzynia_vampira_klucz", { yaw: 0, pitch: 0 }),
-  "cc-klucz-dusz": async () => packShot("skrzynia_dusz_klucz", { yaw: 0, pitch: 0 }),
-  "cc-klucz-kosmetyczna": async () => packShot("skrzynia_kosmetyczna_klucz", { yaw: 0, pitch: 0 }),
-  "cc-klucz-pety": async () => packShot("skrzynia_pety_klucz", { yaw: 0, pitch: 0 }),
-  "cc-klucz-epicka": async () => packShot("skrzynia_epicka_klucz", { yaw: 0, pitch: 0 }),
+  // user 26.11: modele, które są teraz w grze (kosy z Blockbencha, klucze do trumien, odłamek v2)
+  "cc-kosa-1": async () => packShot("kosa_polna", { yaw: 0, pitch: 0 }),
+  "cc-kosa-2": async () => packShot("kosa_burzowa", { yaw: 0, pitch: 0 }),
+  "cc-kosa-3": async () => packShot("kosa_ognista", { yaw: 0, pitch: 0 }),
+  "cc-kosa-4": async () => packShot("kosa_zniwiarza", { yaw: 0, pitch: 0 }),
+  "cc-kosa-5": async () => packShot("kosa_smocza", { yaw: 0, pitch: 0 }),
+  "cc-klucz-vampira": async () => packShot("klucz_vampira", { yaw: 0, pitch: 0 }),
+  "cc-klucz-dusz": async () => packShot("klucz_trumny_dusz", { yaw: 0, pitch: 0 }),
+  "cc-klucz-kosmetyczna": async () => packShot("klucz_trumny_kosmetyczna", { yaw: 0, pitch: 0 }),
+  "cc-klucz-pety": async () => packShot("klucz_trumny_pety", { yaw: 0, pitch: 0 }),
+  "cc-klucz-epicka": async () => packShot("klucz_trumny_epicka", { yaw: 0, pitch: 0 }),
   "cc-odlamek": async () => packShot("odlamek", { yaw: 0, pitch: 0 }),
 };
 

@@ -1,52 +1,11 @@
 /* =========================================================
    SKLEP, KOSZYK, PŁATNOŚCI, DOKUMENTY, 404
    ========================================================= */
-
-.crumbs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 26px;
-  font-size: 0.85rem;
-  color: var(--dim);
-}
-.crumbs a {
-  color: var(--muted);
-}
-.crumbs a:hover {
-  color: #fff;
-}
-.crumbs [aria-current] {
-  color: #fff;
-}
 .page-title {
   margin-bottom: 30px;
 }
 
 /* ---------- nagłówek sklepu trybu ---------- */
-.shop-head {
-  padding: 40px 0 34px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
-  border-bottom: 2px solid var(--line);
-}
-.shop-head__modes,
-.modes-bar__inner--page {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 14px;
-}
-.shop-head__modes .mode-tile {
-  box-shadow: none;
-}
-
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: 56px;
-}
 .tab {
   display: inline-flex;
   align-items: center;
@@ -66,12 +25,6 @@
 .tab:hover {
   color: #fff;
   background: var(--card-2);
-}
-.tab__img {
-  width: 26px;
-  height: 26px;
-  margin: -4px 0;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
 }
 .tab[aria-current="true"] {
   background: var(--accent);
@@ -103,62 +56,7 @@
 }
 
 /* ---------- strona produktu ---------- */
-.product-layout {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 28px;
-  align-items: start;
-}
-.product-main {
-  display: grid;
-  gap: 20px;
-}
-.stage-card {
-  --tier: var(--accent);
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  height: 420px;
-  background:
-    radial-gradient(ellipse 55% 45% at 50% 40%, color-mix(in srgb, var(--tier) 12%, transparent), transparent 70%),
-    linear-gradient(180deg, #121215 0%, #0c0c0e 100%);
-  box-shadow: inset 0 3px 0 var(--tier);
-}
 /* podłoga z kratki w perspektywie */
-.stage-card__floor {
-  position: absolute;
-  left: -50%;
-  right: -50%;
-  bottom: -10%;
-  height: 70%;
-  z-index: -2;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 2px, transparent 2px) 0 0 / 48px 48px,
-    linear-gradient(rgba(255, 255, 255, 0.07) 2px, transparent 2px) 0 0 / 48px 48px;
-  transform: perspective(420px) rotateX(62deg);
-  transform-origin: 50% 100%;
-  mask-image: linear-gradient(180deg, transparent 0%, black 45%, black 75%, transparent 100%);
-}
-.stage-card__particles {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-}
-.stage-card__pedestal {
-  position: absolute;
-  left: 50%;
-  bottom: 34px;
-  width: 300px;
-  height: auto;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 18px 20px rgba(0, 0, 0, 0.6));
-}
-.stage-card__render--tall {
-  width: 320px !important;
-  bottom: 110px !important;
-}
 /* żywy model 3D z paczki gry nad postumentem */
 .pack3d {
   position: relative;
@@ -190,52 +88,14 @@
 .pack3d.is-ready .pack3d__fallback {
   opacity: 0;
 }
-.stage-card__model {
-  position: absolute;
-  left: 50%;
-  bottom: 150px;
-  width: 330px;
-  height: 250px;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.55));
-}
-.stage-card__render {
-  position: absolute !important;
-  left: 50%;
-  bottom: 148px;
-  width: 240px;
-  transform: translateX(-50%);
-}
-.product-info {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-.product-info:has(.preview) {
-  grid-template-columns: 1.2fr 1fr;
-}
 .box {
   padding: 22px;
   background: var(--card);
   border-top: 3px solid var(--line-2);
 }
-.box__title {
-  margin-bottom: 16px;
-  font-size: 1.9rem;
-  text-transform: uppercase;
-}
-.box__text {
-  margin-top: 16px;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
 .preview {
   display: flex;
   flex-direction: column;
-}
-.preview__char {
-  flex: 1;
-  min-height: 280px;
 }
 
 .buy {
@@ -390,13 +250,6 @@
 .qty input::-webkit-outer-spin-button,
 .qty input::-webkit-inner-spin-button {
   -webkit-appearance: none;
-}
-.qty-sm button {
-  width: 32px;
-}
-.qty-sm input {
-  width: 44px;
-  font-size: 1.4rem;
 }
 .hint {
   font-size: 0.85rem;
@@ -620,18 +473,6 @@
   position: absolute;
   inset: 10px 0 28px;
 }
-.me__label {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 8px;
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
 .lines {
   display: grid;
   gap: 12px;
@@ -842,96 +683,11 @@
 }
 
 /* ---------- dokumenty ---------- */
-.legal-head {
-  padding-bottom: 0;
-}
-.legal-head__meta {
-  margin: 10px 0 24px;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-.legal-head .tabs {
-  justify-content: flex-start;
-  margin-bottom: 0;
-}
 .legal {
   display: grid;
   grid-template-columns: 270px 1fr;
   gap: 24px;
   align-items: start;
-}
-.legal__toc {
-  position: sticky;
-  top: calc(var(--nav-h) + 20px);
-  max-height: calc(100vh - var(--nav-h) - 40px);
-  overflow: auto;
-  padding: 18px;
-  background: var(--card);
-  border-top: 3px solid var(--line-2);
-}
-.legal__toc summary {
-  list-style: none;
-  pointer-events: none;
-}
-.legal__toc summary::-webkit-details-marker {
-  display: none;
-}
-.legal__toc h2 {
-  margin-bottom: 10px;
-  font-size: 1.6rem;
-  text-transform: uppercase;
-}
-.legal__toc ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 2px;
-}
-.legal__toc a {
-  display: block;
-  padding: 6px 8px;
-  font-size: 0.86rem;
-  color: var(--muted);
-  border-left: 2px solid transparent;
-}
-.legal__toc a:hover {
-  color: #fff;
-  border-left-color: var(--accent);
-  background: var(--card-2);
-}
-.legal__doc {
-  padding: 34px;
-  background: var(--card);
-  border-top: 3px solid var(--accent);
-}
-.legal__doc h2 {
-  margin: 34px 0 12px;
-  font-size: 2rem;
-  text-transform: uppercase;
-}
-.legal__doc section:first-child h2 {
-  margin-top: 0;
-}
-.legal__doc p,
-.legal__doc ul {
-  color: var(--muted);
-}
-.legal__doc p {
-  margin: 8px 0;
-}
-.legal__doc ul {
-  margin: 8px 0 12px;
-  padding-left: 20px;
-}
-.legal__doc li {
-  margin: 5px 0;
-}
-.legal__doc li::marker {
-  color: var(--accent);
-}
-.legal__doc strong {
-  color: #fff;
 }
 
 /* ---------- 404 ---------- */
@@ -951,14 +707,6 @@
   flex-direction: column;
   align-items: center;
   gap: 14px;
-}
-.death__char {
-  width: min(380px, 100%);
-  height: 220px;
-  margin-bottom: -20px;
-}
-.death__char canvas {
-  filter: sepia(1) saturate(4) hue-rotate(-40deg) brightness(0.85);
 }
 .death h1 {
   font-size: clamp(4rem, 12vw, 7rem);
@@ -988,43 +736,18 @@
 
 /* ---------- responsywność ---------- */
 @media (max-width: 960px) {
-  .product-layout,
   .checkout,
   .legal {
     grid-template-columns: 1fr;
   }
   .buy,
-  .summary,
-  .legal__toc {
+  .summary {
     position: static;
     max-height: none;
   }
   /* na telefonie/tablecie spis treści zwinięty – klik rozwija */
-  .legal__toc summary {
-    pointer-events: auto;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .legal__toc summary::after {
-    content: "+";
-    font-family: var(--font-display), monospace;
-    font-size: 1.8rem;
-    line-height: 1;
-    color: var(--muted);
-  }
-  .legal__toc[open] summary::after {
-    content: "−";
-  }
-  .legal__toc:not([open]) h2 {
-    margin-bottom: 0;
-  }
 }
 @media (max-width: 640px) {
-  .product-info:has(.preview) {
-    grid-template-columns: 1fr;
-  }
   .methods {
     grid-template-columns: 1fr;
   }
@@ -1043,25 +766,6 @@
   .line {
     grid-template-columns: 58px 1fr auto;
   }
-  .stage-card {
-    height: 330px;
-  }
-  .stage-card__pedestal {
-    width: 230px;
-    bottom: 26px;
-  }
-  .stage-card__render {
-    width: 180px;
-    bottom: 112px;
-  }
-  .stage-card__model {
-    width: 230px;
-    height: 180px;
-    bottom: 128px;
-  }
-  .legal__doc {
-    padding: 22px 16px;
-  }
   .result {
     padding: 32px 18px;
   }
@@ -1074,77 +778,7 @@
 /* =========================================================
    SKLEP TRYBU (user 7.11 – „efekt wow”): nagłówek trybu, przypięty pasek kategorii, sekcje
    ========================================================= */
-.mode-hero {
-  position: relative;
-  overflow: hidden;
-  padding: 26px 0 10px;
-  border-bottom: 2px solid var(--line);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 70%);
-}
-.mode-hero__particles {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: 0.6;
-}
-.mode-hero__grid {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  align-items: center;
-  gap: 32px;
-  min-height: 340px;
-}
-.mode-hero__title {
-  margin: 0 0 16px;
-  font-size: clamp(3.6rem, 9vw, 7.4rem);
-  line-height: 0.88;
-  text-transform: uppercase;
-  text-shadow: 0 6px 0 rgba(0, 0, 0, 0.35);
-}
-.mode-hero__title .drop {
-  display: inline-block;
-  animation: block-fall 0.7s cubic-bezier(0.3, 1.3, 0.6, 1) both;
-  animation-delay: calc(0.08s + var(--i) * 0.05s);
-}
-.mode-hero__title .is-accent {
-  color: var(--gold);
-}
-.mode-hero__lead {
-  max-width: 540px;
-  color: var(--muted);
-  font-size: 1.04rem;
-}
-.mode-hero__art {
-  position: relative;
-  height: 340px;
-  display: grid;
-  place-items: center;
-}
-.mode-hero__model {
-  position: relative;
-  width: 400px !important;
-  height: 330px !important;
-  object-fit: contain;
-  filter: drop-shadow(0 24px 22px rgba(0, 0, 0, 0.55));
-  animation: in-pop 0.8s var(--ease-soft) 0.3s backwards;
-}
 /* kratka podłogi w perspektywie pod monetą (jak na stronie produktu) */
-.mode-hero__floor {
-  position: absolute;
-  left: -40%;
-  right: -40%;
-  bottom: -18%;
-  height: 62%;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 2px, transparent 2px) 0 0 / 44px 44px,
-    linear-gradient(rgba(255, 255, 255, 0.06) 2px, transparent 2px) 0 0 / 44px 44px;
-  transform: perspective(420px) rotateX(64deg);
-  transform-origin: 50% 100%;
-  mask-image: radial-gradient(ellipse 50% 70% at 50% 60%, black 20%, transparent 75%);
-}
 /* przypięty pasek kategorii (pod navbarem) */
 .cat-bar {
   position: sticky;
@@ -1232,57 +866,10 @@
 .shop-list .cat-group + .cat-group {
   margin-top: 72px;
 }
-.cat-head {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.cat-head__name {
-  font-size: clamp(2.4rem, 4vw, 3.1rem);
-  text-transform: uppercase;
-}
-.cat-head__line {
-  flex: 1;
-  height: 2px;
-  background: linear-gradient(90deg, var(--line-2), transparent);
-}
 
 /* karty: treść pod renderem, plakietka obszaru kosy, pasek poziomu; krawędź po najechaniu w kolorze przedmiotu */
 .items .item:hover {
   box-shadow: inset 0 3px 0 var(--tint, var(--accent));
-}
-.item__body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-.item__area {
-  margin-bottom: 8px;
-  padding: 4px 8px 6px;
-  background: var(--gold);
-  color: #1d1404;
-  font-family: var(--font-display), monospace;
-  font-size: 1.15rem;
-  line-height: 1;
-  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25);
-}
-.item__tier {
-  display: flex;
-  gap: 4px;
-  margin-top: 12px;
-}
-.item__tier i {
-  width: 16px;
-  height: 6px;
-  background: var(--card-3);
-}
-.item__tier i.on {
-  background: var(--gold);
-}
-.item:hover .item__tier i.on {
-  background: #ffe07a;
 }
 @media (min-width: 961px) {
   .items[data-cols="5"],
@@ -1300,79 +887,15 @@
   .items[data-cols="4"] .item {
     padding: 0 14px 18px;
   }
-  .items[data-cols="5"] .item__render {
-    width: 150px;
-    margin-top: -78px;
-  }
-  .items[data-cols="5"] .item__name {
-    font-size: 1.85rem;
-  }
-  .items[data-cols="5"] .item__desc {
-    font-size: 0.86rem;
-  }
-  .items[data-cols="5"] .price-btn {
-    font-size: 1.75rem;
-  }
   /* jedyny przedmiot w kategorii – poziomy pasek: render | nazwa i paczka | cena */
   .items[data-cols="wide"] {
     grid-template-columns: 1fr;
     padding-top: 26px;
   }
-  .item--wide {
-    flex-direction: row;
-    align-items: center;
-    gap: 28px;
-    padding: 18px 28px 18px 18px;
-    text-align: left;
-  }
-  .item--wide .item__render {
-    flex: none;
-    width: 150px;
-    margin: -10px 0 -6px;
-  }
-  .item--wide .item__body {
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-  }
-  .item--wide .item__area {
-    order: 2;
-    margin: 0;
-  }
-  .item--wide .item__name {
-    order: 1;
-    font-size: 2.6rem;
-  }
-  .item--wide .item__foot {
-    order: 3;
-    flex: none;
-    width: 300px;
-    margin: 0 0 0 auto;
-    padding: 0;
-  }
 }
 @media (max-width: 960px) {
-  .mode-hero__grid {
-    grid-template-columns: 1fr;
-    min-height: 0;
-  }
-  .mode-hero__art {
-    order: -1;
-    height: 220px;
-  }
-  .mode-hero__model {
-    width: 280px !important;
-    height: 220px !important;
-  }
   .cat-bar__inner {
     justify-content: flex-start;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .mode-hero__title .drop,
-  .mode-hero__floor,
-  .mode-hero__model {
-    animation: none;
   }
 }
 

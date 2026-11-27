@@ -148,11 +148,11 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
       return { ...rest, label: v.label || (stack ? "1 szt." : "Standard"), command: instant[0] ?? stash[0] ?? "", instant, stash };
     });
     if (variants.some((v) => !(v.price >= 1))) return setError("Krok 3: cena musi wynosić co najmniej 1 zł.");
-    if (variants.some((v) => !v.command)) return setError("Krok 4: wpisz komendę – bez niej gracz nic nie dostanie.");
+    if (variants.some((v) => !v.command)) return setError("Krok 4: wpisz komendę, bez niej gracz nic nie dostanie.");
     const all = variants.flatMap((v) => [...v.instant, ...v.stash]);
     if (all.some((c) => c.startsWith("KOMENDA DO"))) return setError("Krok 4: zamień „KOMENDA DO …” na prawdziwą komendę z serwera.");
-    if (all.some((c) => !c.includes("{nick}")) && !confirm("Któraś komenda nie ma {nick} – serwer nie będzie wiedział, komu dać produkt. Zapisać mimo to?")) return;
-    if (stack && !all.some((c) => c.includes("{qty}")) && !confirm("Gracz wybiera ilość suwakiem, ale komenda nie ma {qty} – zawsze dostanie tyle samo. Zapisać mimo to?")) return;
+    if (all.some((c) => !c.includes("{nick}")) && !confirm("Któraś komenda nie ma {nick}, serwer nie będzie wiedział, komu dać produkt. Zapisać mimo to?")) return;
+    if (stack && !all.some((c) => c.includes("{qty}")) && !confirm("Gracz wybiera ilość suwakiem, ale komenda nie ma {qty}, zawsze dostanie tyle samo. Zapisać mimo to?")) return;
     onSave({ ...p, variants });
   }
 
@@ -231,7 +231,7 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
                 <textarea rows={2} value={p.description} onChange={(e) => set("description", e.target.value)} maxLength={1000} />
               </label>
               <label className="pnl-field">
-                <span>Co daje – każda rzecz w nowej linii (opcjonalnie)</span>
+                <span>Co daje, każda rzecz w nowej linii (opcjonalnie)</span>
                 <textarea
                   rows={3}
                   value={p.perks.join("\n")}
@@ -305,7 +305,7 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
 
         <section className="pnl-step">
           <h3>
-            <span>4</span> Co dostaje gracz – komendy z serwera
+            <span>4</span> Co dostaje gracz, komendy z serwera
           </h3>
           <p className="pnl-muted">
             Wpisz komendę tak jak w konsoli serwera (bez „/”). Kliknij <b>+ nick</b>
@@ -322,14 +322,14 @@ export function ProductEditor({ product, isNew, categories, gallery, onSave, onC
               {p.variants.length > 1 && <b className="pnl-commands__title">{v.label || `Opcja ${i + 1}`}</b>}
               {(
                 [
-                  showInstant && { field: "instant" as const, title: "⚡ Od razu po zapłacie", hint: "rangi, pieniądze – działa nawet, gdy gracza nie ma na serwerze" },
-                  showStash && { field: "stash" as const, title: "📦 Do skrytki /isodbierz", hint: "przedmioty, klucze – gracz odbiera, gdy ma miejsce w ekwipunku" },
+                  showInstant && { field: "instant" as const, title: "⚡ Od razu po zapłacie", hint: "rangi, pieniądze, działa nawet, gdy gracza nie ma na serwerze" },
+                  showStash && { field: "stash" as const, title: "📦 Do skrytki /isodbierz", hint: "przedmioty, klucze, gracz odbiera, gdy ma miejsce w ekwipunku" },
                 ].filter(Boolean) as { field: "instant" | "stash"; title: string; hint: string }[]
               ).map(({ field, title, hint }) => (
                 <div key={field} className="pnl-cmd">
                   <div className="pnl-cmd__head">
                     <span>
-                      <b>{title}</b> <small>– {hint}</small>
+                      <b>{title}</b> <small>{hint}</small>
                     </span>
                     <span className="pnl-chips">
                       <button type="button" onClick={() => insert(i, field, "{nick}")}>

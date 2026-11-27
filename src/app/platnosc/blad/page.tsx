@@ -12,7 +12,7 @@ export default async function FailurePage({ searchParams }: PageProps<"/platnosc
   const order = typeof zamowienie === "string" && /^[a-z0-9-]{8,80}$/i.test(zamowienie)
     ? await getStore().getOrder(zamowienie)
     : null;
-  const retryHref = order ? `/sklep/${order.mode}/koszyk` : "/sklep";
+  const retryHref = "/koszyk";
 
   return (
     <section className="section">
@@ -24,7 +24,7 @@ export default async function FailurePage({ searchParams }: PageProps<"/platnosc
           <span className="chip">Płatność przerwana</span>
           <h1>Coś poszło nie tak</h1>
           <p>
-            Płatność została anulowana albo odrzucona przez bank. Twój koszyk nadal czeka – możesz spróbować ponownie lub
+            Płatność została anulowana albo odrzucona przez bank. Twój koszyk nadal czeka, możesz spróbować ponownie lub
             wybrać inną metodę płatności.
           </p>
           <div className="result__actions">

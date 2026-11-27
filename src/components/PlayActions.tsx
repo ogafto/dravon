@@ -67,32 +67,3 @@ export function HowToPlay({ label = "Jak grać?", className = "btn btn-dark" }: 
     </>
   );
 }
-
-/** Zestaw przycisków z hero: GRAJ (kopiuje IP), Discord, Jak grać? */
-export function PlayActions() {
-  const site = useSite();
-  const [copied, setCopied] = useState(false);
-  return (
-    <>
-      <div className="hero__actions">
-        <button
-          type="button"
-          className={`btn btn-lg ${copied ? "btn-green" : "btn-primary"}`}
-          onClick={async () => {
-            await copyIp(site.serverIp);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2400);
-          }}
-        >
-          {copied ? "Skopiowano IP" : "Graj"} <PixelIcon name={copied ? "check" : "arrowRight"} size={16} />
-        </button>
-        <a href={site.discord} target="_blank" rel="noreferrer" className="btn btn-discord btn-icon" aria-label="Discord">
-          <PixelIcon name="discord" size={30} />
-        </a>
-      </div>
-      <p className="hero__copied" aria-live="polite">
-        {copied ? `Adres ${site.serverIp} jest w schowku – wklej go w grze` : ""}
-      </p>
-    </>
-  );
-}

@@ -30,7 +30,7 @@ export function PluginTab() {
 
   async function generate() {
     if (settings!.plugin.hasToken && !confirm("Nowy token odłączy serwery ze starym tokenem, dopóki go nie wpiszesz w ich config. Kontynuować?")) return;
-    const res = await save("token", {}, "Wygenerowano nowy token – wklej go w config pluginu.");
+    const res = await save("token", {}, "Wygenerowano nowy token, wklej go w config pluginu.");
     if (res?.token) setNewToken(String(res.token));
   }
 
@@ -72,10 +72,10 @@ export function PluginTab() {
               </button>
             </div>
           ) : (
-            <input readOnly value={settings.plugin.hasToken ? `${settings.plugin.token} (ukryty)` : "brak – wygeneruj"} />
+            <input readOnly value={settings.plugin.hasToken ? `${settings.plugin.token} (ukryty)` : "brak, wygeneruj"} />
           )}
         </Field>
-        {newToken && <p className="pnl-error">Skopiuj token teraz – po odświeżeniu strony nie będzie go widać.</p>}
+        {newToken && <p className="pnl-error">Skopiuj token teraz, po odświeżeniu strony nie będzie go widać.</p>}
         <div className="pnl-actions">
           <button className="btn btn-dark" onClick={generate} disabled={busy}>
             {settings.plugin.hasToken ? "Wygeneruj nowy token" : "Wygeneruj token"}
@@ -84,18 +84,18 @@ export function PluginTab() {
       </div>
 
       <div className="panel pnl-card">
-        <h2>Podłącz serwer – jedna komenda</h2>
+        <h2>Podłącz serwer, jedna komenda</h2>
         <ol className="pnl-steps">
           <li>Wgraj plugin <b>DravonSklep</b> do folderu <code>plugins</code> serwera i uruchom serwer.</li>
           <li>
-            {newToken ? "Skopiuj komendę swojego trybu poniżej." : "Kliknij wyżej „Wygeneruj token” – komendy poniżej same się uzupełnią."}
+            {newToken ? "Skopiuj komendę swojego trybu poniżej." : "Kliknij wyżej „Wygeneruj token”, komendy poniżej same się uzupełnią."}
           </li>
           <li>
             Wklej ją w <b>konsoli serwera</b> tego trybu i naciśnij Enter. Plugin odpisze <b>„✔ Połączono!”</b>.
           </li>
         </ol>
         <p className="pnl-muted">
-          Jeden token jest dla wszystkich serwerów – każdy serwer różni się tylko nazwą trybu na końcu komendy. Po wygenerowaniu nowego
+          Jeden token jest dla wszystkich serwerów, każdy serwer różni się tylko nazwą trybu na końcu komendy. Po wygenerowaniu nowego
           tokenu wklej nową komendę na każdym serwerze.
         </p>
         {settings.servers.map((s) => {
@@ -128,7 +128,7 @@ export function PluginTab() {
                 onChange={(e) => {
                   const announce = { ...settings.announce, [o.id]: e.target.checked };
                   setSettings({ ...settings, announce });
-                  save("announce", announce, "Zapisano – serwer zmieni to w kilka sekund.");
+                  save("announce", announce, "Zapisano, serwer zmieni to w kilka sekund.");
                 }}
               />
               <b>{o.label}</b>
@@ -192,7 +192,7 @@ export function PluginTab() {
               const { token, hasToken, ...rest } = look;
               void token;
               void hasToken;
-              save("plugin", rest, "Zapisano – serwer zmieni to w kilka sekund.");
+              save("plugin", rest, "Zapisano, serwer zmieni to w kilka sekund.");
             }}
           >
             {busy ? "Zapisywanie…" : "Zapisz wygląd i Discord"}

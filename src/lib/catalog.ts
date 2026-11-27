@@ -1,3 +1,4 @@
+import modele from "@/data/modele.json";
 import { categories, modes, type CategoryId, type Mode, type Product, type Variant } from "@/data/shop";
 
 export const getMode = (slug: string): Mode | undefined => modes.find((m) => m.slug === slug);
@@ -38,4 +39,10 @@ export function splitCommands(product: Product, v: Variant): { instant: string[]
   const instant = all.filter(isInstantCommand), stash = all.filter((c) => !isInstantCommand(c));
   if (product.game?.delivery === "stash" && !instant.length) return { instant: [], stash: all };
   return { instant, stash };
+}
+
+/** Model z paczki gry skopiowany na stronę (scripts/copy-modele.mjs) – żywy 3D na kartach i stronie produktu. */
+export function packModelFor(product: Product): string | undefined {
+  const id = product.game?.model?.replace(/^dravon:/, "");
+  return id && (modele as string[]).includes(id) ? id : undefined;
 }

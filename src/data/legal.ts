@@ -7,7 +7,7 @@ export type LegalDoc = { title: string; updated: string; sections: LegalSection[
 
 export const terms: LegalDoc = {
   "title": "Regulamin Sklepu Serwera Dravon.pl",
-  "updated": "Ostatnia aktualizacja: 17 sierpnia 2026 r. | Sprzedaż usług i świadczeń cyfrowych",
+  "updated": "Ostatnia aktualizacja: 27 listopada 2026 r. | Sprzedaż usług i świadczeń cyfrowych",
   "sections": [
     {
       "heading": "§1. Postanowienia ogólne",
@@ -18,7 +18,7 @@ export const terms: LegalDoc = {
         },
         {
           "type": "p",
-          "text": "2. Sprzedawcą jest **Dawid Kompalik**, e-mail: **dravon.pl@gmail.com** (dalej: „Sprzedawca”). Przed uruchomieniem sprzedaży dane te należy uzupełnić zgodnie z rzeczywistym statusem prawnym podmiotu."
+          "text": "2. Sprzedawcą jest **Wojciech Lubojański**, ul. Stalowa 92/5a, 53-440 Wrocław, prowadzący działalność nierejestrowaną w rozumieniu art. 5 ustawy Prawo przedsiębiorców, e-mail: **lubojanskiwojciech1@gmail.com** (dalej: „Sprzedawca”)."
         },
         {
           "type": "p",
@@ -35,23 +35,23 @@ export const terms: LegalDoc = {
       "items": [
         {
           "type": "p",
-          "text": "1. **Klient** – osoba fizyczna, osoba prawna lub jednostka organizacyjna dokonująca zakupu."
+          "text": "1. **Klient**: osoba fizyczna, osoba prawna lub jednostka organizacyjna dokonująca zakupu."
         },
         {
           "type": "p",
-          "text": "2. **Konsument** – osoba fizyczna dokonująca czynności prawnej niezwiązanej bezpośrednio z jej działalnością gospodarczą lub zawodową, a także podmiot korzystający z ochrony konsumenckiej w zakresie przewidzianym prawem."
+          "text": "2. **Konsument**: osoba fizyczna dokonująca czynności prawnej niezwiązanej bezpośrednio z jej działalnością gospodarczą lub zawodową, a także podmiot korzystający z ochrony konsumenckiej w zakresie przewidzianym prawem."
         },
         {
           "type": "p",
-          "text": "3. **Produkt cyfrowy / Usługa cyfrowa** – świadczenie dostarczane w formie cyfrowej, w szczególności wirtualna ranga, uprawnienie, funkcja lub pakiet na Serwerze."
+          "text": "3. **Produkt cyfrowy / Usługa cyfrowa**: świadczenie dostarczane w formie cyfrowej, w szczególności wirtualna ranga, uprawnienie, funkcja lub pakiet na Serwerze."
         },
         {
           "type": "p",
-          "text": "4. **Zamówienie** – oświadczenie Klienta zmierzające do zawarcia umowy sprzedaży lub świadczenia usługi."
+          "text": "4. **Zamówienie**: oświadczenie Klienta zmierzające do zawarcia umowy sprzedaży lub świadczenia usługi."
         },
         {
           "type": "p",
-          "text": "5. **Operator płatności** – zewnętrzny dostawca obsługujący płatność wybraną przez Klienta."
+          "text": "5. **Operator płatności**: zewnętrzny dostawca obsługujący płatność wybraną przez Klienta."
         }
       ]
     },
@@ -85,7 +85,7 @@ export const terms: LegalDoc = {
         },
         {
           "type": "p",
-          "text": "2. Dostępne metody płatności są prezentowane podczas składania zamówienia. Płatności mogą być obsługiwane przez zewnętrznych operatorów."
+          "text": "2. Dostępne metody płatności są prezentowane podczas składania zamówienia. Płatności BLIK, kartą, przelewem i innymi metodami obsługuje **Stripe Payments Europe, Limited** z siedzibą w Dublinie (Irlandia). Kod BLIK Klient wpisuje bezpośrednio na stronie Sklepu, pozostałe metody są dostępne na stronie płatności Stripe. Sklep przyjmuje także kody PaySafeCard, które Sprzedawca weryfikuje po złożeniu zamówienia."
         },
         {
           "type": "p",
@@ -165,11 +165,11 @@ export const terms: LegalDoc = {
         },
         {
           "type": "p",
-          "text": "2. Reklamację można złożyć na adres **dravon.pl@gmail.com** lub przez oficjalny system zgłoszeń, jeżeli taki kanał został udostępniony."
+          "text": "2. Reklamację można złożyć na adres **lubojanskiwojciech1@gmail.com** lub przez oficjalny system zgłoszeń, jeżeli taki kanał został udostępniony."
         },
         {
           "type": "p",
-          "text": "3. Zgłoszenie powinno zawierać co najmniej nick, identyfikator lub numer zamówienia, opis problemu oraz – jeżeli jest dostępny – dowód płatności."
+          "text": "3. Zgłoszenie powinno zawierać co najmniej nick, identyfikator lub numer zamówienia, opis problemu oraz, jeżeli jest dostępny, dowód płatności."
         },
         {
           "type": "p",
@@ -246,7 +246,7 @@ export const terms: LegalDoc = {
 
 export const privacy: LegalDoc = {
   "title": "Polityka Prywatności i Ochrony Danych Osobowych",
-  "updated": "Ostatnia aktualizacja: 17 sierpnia 2026 r.",
+  "updated": "Ostatnia aktualizacja: 27 listopada 2026 r.",
   "sections": [
     {
       "heading": "§1. Informacje ogólne",
@@ -270,11 +270,11 @@ export const privacy: LegalDoc = {
       "items": [
         {
           "type": "p",
-          "text": "1. Administratorem danych osobowych jest **Dawid Kompalik**."
+          "text": "1. Administratorem danych osobowych jest **Wojciech Lubojański**, ul. Stalowa 92/5a, 53-440 Wrocław."
         },
         {
           "type": "p",
-          "text": "2. Kontakt w sprawach związanych z ochroną danych osobowych: **dravon.pl@gmail.com**."
+          "text": "2. Kontakt w sprawach związanych z ochroną danych osobowych: **lubojanskiwojciech1@gmail.com**."
         },
         {
           "type": "p",
@@ -340,23 +340,23 @@ export const privacy: LegalDoc = {
         },
         {
           "type": "bullet",
-          "text": "**zawarcie i wykonanie umowy** – art. 6 ust. 1 lit. b RODO, w szczególności obsługa zamówień, realizacja usług cyfrowych i kontakt dotyczący zamówienia;"
+          "text": "**zawarcie i wykonanie umowy**: art. 6 ust. 1 lit. b RODO, w szczególności obsługa zamówień, realizacja usług cyfrowych i kontakt dotyczący zamówienia;"
         },
         {
           "type": "bullet",
-          "text": "**realizacja obowiązków prawnych** – art. 6 ust. 1 lit. c RODO, w szczególności obowiązki podatkowe, rachunkowe i związane z obsługą praw konsumenta;"
+          "text": "**realizacja obowiązków prawnych**: art. 6 ust. 1 lit. c RODO, w szczególności obowiązki podatkowe, rachunkowe i związane z obsługą praw konsumenta;"
         },
         {
           "type": "bullet",
-          "text": "**prawnie uzasadniony interes Administratora** – art. 6 ust. 1 lit. f RODO, m.in. bezpieczeństwo infrastruktury, przeciwdziałanie nadużyciom, dochodzenie lub obrona roszczeń oraz zapewnienie ciągłości działania usług;"
+          "text": "**prawnie uzasadniony interes Administratora**: art. 6 ust. 1 lit. f RODO, m.in. bezpieczeństwo infrastruktury, przeciwdziałanie nadużyciom, dochodzenie lub obrona roszczeń oraz zapewnienie ciągłości działania usług;"
         },
         {
           "type": "bullet",
-          "text": "**zgoda** – art. 6 ust. 1 lit. a RODO, jeżeli przetwarzanie wymaga zgody, np. w zakresie wybranych technologii analitycznych lub marketingowych;"
+          "text": "**zgoda**: art. 6 ust. 1 lit. a RODO, jeżeli przetwarzanie wymaga zgody, np. w zakresie wybranych technologii analitycznych lub marketingowych;"
         },
         {
           "type": "bullet",
-          "text": "**ustalenie, dochodzenie lub obrona roszczeń** – w zakresie, w którym podstawę stanowi prawnie uzasadniony interes Administratora."
+          "text": "**ustalenie, dochodzenie lub obrona roszczeń**: w zakresie, w którym podstawę stanowi prawnie uzasadniony interes Administratora."
         }
       ]
     },
@@ -386,7 +386,7 @@ export const privacy: LegalDoc = {
         },
         {
           "type": "p",
-          "text": "2. Płatności mogą być obsługiwane przez niezależnych operatorów płatności. Operator może przetwarzać dane zgodnie z własną polityką prywatności oraz wymaganiami dotyczącymi bezpieczeństwa transakcji."
+          "text": "2. Płatności obsługuje **Stripe Payments Europe, Limited** (Dublin, Irlandia) jako niezależny operator płatności. Stripe przetwarza dane płatnicze zgodnie z własną polityką prywatności oraz wymaganiami dotyczącymi bezpieczeństwa transakcji; Sprzedawca nie otrzymuje danych kart płatniczych."
         },
         {
           "type": "p",
@@ -458,7 +458,7 @@ export const privacy: LegalDoc = {
       "items": [
         {
           "type": "p",
-          "text": "1. Osobie, której dane dotyczą, przysługuje – w zakresie przewidzianym RODO – prawo do:"
+          "text": "1. Osobie, której dane dotyczą, przysługuje, w zakresie przewidzianym RODO, prawo do:"
         },
         {
           "type": "bullet",
@@ -516,7 +516,7 @@ export const privacy: LegalDoc = {
       "items": [
         {
           "type": "p",
-          "text": "1. Strona może wykorzystywać pliki cookies oraz podobne technologie w celu zapewnienia prawidłowego działania strony, utrzymania sesji, zapamiętywania ustawień, zapewnienia bezpieczeństwa oraz – jeżeli zostały wdrożone i użytkownik wyrazi odpowiednią zgodę – prowadzenia analityki lub działań marketingowych."
+          "text": "1. Strona może wykorzystywać pliki cookies oraz podobne technologie w celu zapewnienia prawidłowego działania strony, utrzymania sesji, zapamiętywania ustawień, zapewnienia bezpieczeństwa oraz, jeżeli zostały wdrożone i użytkownik wyrazi odpowiednią zgodę, prowadzenia analityki lub działań marketingowych."
         },
         {
           "type": "p",
@@ -545,7 +545,7 @@ export const privacy: LegalDoc = {
         },
         {
           "type": "p",
-          "text": "3. W przypadku naruszenia ochrony danych Administrator podejmuje działania wymagane przez RODO, w tym – jeżeli zachodzą przesłanki – zgłoszenie naruszenia organowi nadzorczemu oraz zawiadomienie osób, których naruszenie dotyczy."
+          "text": "3. W przypadku naruszenia ochrony danych Administrator podejmuje działania wymagane przez RODO, w tym, jeżeli zachodzą przesłanki, zgłoszenie naruszenia organowi nadzorczemu oraz zawiadomienie osób, których naruszenie dotyczy."
         }
       ]
     },
@@ -558,7 +558,7 @@ export const privacy: LegalDoc = {
         },
         {
           "type": "p",
-          "text": "2. Jeżeli w ramach usług wykorzystywane są narzędzia analityczne lub profilujące, ich zakres, cel i podstawa prawna zostaną odpowiednio opisane oraz – jeżeli jest to wymagane – poprzedzone uzyskaniem zgody."
+          "text": "2. Jeżeli w ramach usług wykorzystywane są narzędzia analityczne lub profilujące, ich zakres, cel i podstawa prawna zostaną odpowiednio opisane oraz, jeżeli jest to wymagane, poprzedzone uzyskaniem zgody."
         }
       ]
     },
@@ -597,7 +597,7 @@ export const privacy: LegalDoc = {
       "items": [
         {
           "type": "p",
-          "text": "1. Wnioski dotyczące realizacji praw, pytań dotyczących przetwarzania danych oraz zgłoszenia dotyczące prywatności należy kierować na: **dravon.pl@gmail.com**."
+          "text": "1. Wnioski dotyczące realizacji praw, pytań dotyczących przetwarzania danych oraz zgłoszenia dotyczące prywatności należy kierować na: **lubojanskiwojciech1@gmail.com**."
         },
         {
           "type": "p",

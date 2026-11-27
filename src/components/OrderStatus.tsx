@@ -19,10 +19,11 @@ const CONFETTI = Array.from({ length: 36 }, (_, i) => ({
 
 type OrderInfo = {
   status: "pending" | "paid" | "failed" | "amount_mismatch" | "psc_pending" | "rejected" | "not_found";
-  payment?: "simpay" | "paysafecard";
+  payment?: "simpay" | "paysafecard" | "stripe";
   reason?: string;
   nick?: string;
   mode?: string;
+  modes?: string[];
   amount?: number;
   lines?: { name: string; variantLabel: string; quantity: number; total: number }[];
   deliveries?: { name: string; quantity: number; kind?: "instant" | "stash"; state: DeliveryState }[];
@@ -33,7 +34,7 @@ type DeliveryState = "queued" | "received" | "claimed" | "blocked";
 /** Napis przy dostawie: czeka na serwer → w skrytce (/isodbierz) → odebrane. */
 function deliveryLabel(d: NonNullable<OrderInfo["deliveries"]>[number]) {
   if (d.state === "claimed") return { text: d.kind === "instant" ? "Nadane" : "Odebrane", tone: "ok" };
-  if (d.state === "blocked") return { text: "Wstrzymane – napisz do nas", tone: "bad" };
+  if (d.state === "blocked") return { text: "Wstrzymane, napisz do nas", tone: "bad" };
   if (d.state === "received") return { text: d.kind === "stash" ? "W skrytce · /isodbierz" : "Nadawanie…", tone: "info" };
   return { text: "Czeka na serwer", tone: "wait" };
 }
@@ -42,7 +43,7 @@ const deliveryDone = (info: OrderInfo) =>
   !!info.deliveries?.length && info.deliveries.every((d) => d.state === "claimed" || d.state === "blocked");
 
 const PSC_POLL_MS = 10_000;
-const MAX_PSC_POLLS = 360; // kody paysafecard sprawdza człowiek – czekamy do godziny
+const MAX_PSC_POLLS = 360; // kody PaySafeCard sprawdza człowiek – czekamy do godziny
 const POLL_MS = 3000;
 const MAX_POLLS = 40; // ~2 minuty na potwierdzenie płatności
 const DELIVERY_POLL_MS = 5000;
@@ -108,11 +109,13 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
   useEffect(() => {
     if (info?.status === "paid" && info.mode && cart.ready && !cleared.current) {
       cleared.current = true;
-      cart.clear(info.mode);
+      // wspólny koszyk: czyścimy wszystkie tryby z zamówienia
+      for (const m of info.modes ?? [info.mode]) cart.clear(m);
     }
   }, [info, cart]);
 
-  const shopHref = info?.mode ? `/sklep/${info.mode}` : "/sklep";
+  // user 27.11: sklep jest tylko na stronie głównej
+  const shopHref = "/#tryby";
 
   if (!info || info.status === "pending") {
     return (
@@ -123,8 +126,8 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
         <h1>{timedOut ? "Płatność w toku" : "Czekamy na potwierdzenie"}</h1>
         <p>
           {timedOut
-            ? "SimPay jeszcze nie potwierdził płatności – przy przelewach bywa to kilka minut. Nie musisz nic robić: przedmioty dotrą automatycznie po zaksięgowaniu."
-            : "Odbieramy potwierdzenie z SimPay. To zwykle trwa kilka sekund – nie zamykaj tej strony."}
+            ? "Operator płatności jeszcze jej nie potwierdził. Przy przelewach bywa to kilka minut. Nie musisz nic robić: przedmioty dotrą automatycznie po zaksięgowaniu."
+            : "Odbieramy potwierdzenie płatności. To zwykle trwa kilka sekund, nie zamykaj tej strony."}
         </p>
         {!timedOut && (
           <div className="loadbar" aria-hidden>
@@ -194,7 +197,7 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
         <span className="chip">Płatność przyjęta</span>
         <h1>Dzięki, {info.nick}!</h1>
         <p>
-          Zamówienie zostało opłacone. Rangi nadajemy automatycznie, a przedmioty czekają w skrytce – wejdź na serwer i
+          Zamówienie zostało opłacone. Rangi nadajemy automatycznie, a przedmioty czekają w skrytce. Wejdź na serwer i
           wpisz <b>/odbierz</b>.
         </p>
         {info.deliveries && info.deliveries.length > 0 ? (
@@ -245,11 +248,11 @@ export function OrderStatus({ orderId }: { orderId?: string }) {
           : info.status === "rejected"
             ? `Płatność nie została potwierdzona${info.reason ? `: ${info.reason}` : "."} Jeśli to pomyłka, napisz do nas na Discordzie.`
           : info.status === "amount_mismatch"
-            ? "Kwota płatności nie zgadza się z zamówieniem. Skontaktuj się z nami – wyjaśnimy to ręcznie."
-            : "Płatność została odrzucona lub anulowana. Nic nie zostało pobrane – możesz spróbować ponownie."}
+            ? "Kwota płatności nie zgadza się z zamówieniem. Skontaktuj się z nami, wyjaśnimy to ręcznie."
+            : "Płatność została odrzucona lub anulowana. Nic nie zostało pobrane, możesz spróbować ponownie."}
       </p>
       <div className="result__actions">
-        <Link href={info.mode ? `/sklep/${info.mode}/koszyk` : "/sklep"} className="btn btn-primary">
+        <Link href="/koszyk" className="btn btn-primary">
           Spróbuj ponownie
         </Link>
         <a href={site.discord} target="_blank" rel="noreferrer" className="btn btn-dark">

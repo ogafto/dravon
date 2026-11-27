@@ -96,7 +96,7 @@ export function ProductsTab() {
       setProducts(d.products);
       setModes((ms) => ms?.map((m) => (m.slug === modeSlug ? { ...m, products: d.products } : m)) ?? ms);
       setDirty(false);
-      setMessage({ text: "Zapisano – zmiany są już widoczne w sklepie." });
+      setMessage({ text: "Zapisano, zmiany są już widoczne w sklepie." });
     } catch (e) {
       setMessage({ text: (e as Error).message, bad: true });
     }
@@ -180,7 +180,7 @@ export function ProductsTab() {
           onSave={(p) => {
             update(editing.index < 0 ? [...products, p] : products.map((x, i) => (i === editing.index ? p : x)));
             setEditing(null);
-            setMessage({ text: "Zmieniono – kliknij „Zapisz zmiany”, żeby pokazać to w sklepie." });
+            setMessage({ text: "Zmieniono, kliknij „Zapisz zmiany”, żeby pokazać to w sklepie." });
           }}
         />
       )}

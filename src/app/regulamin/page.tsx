@@ -4,7 +4,7 @@ import { terms } from "@/data/legal";
 
 export const metadata: Metadata = {
   title: "Regulamin",
-  description: "Regulamin sklepu serwera Dravon.pl – zasady zakupów, płatności, realizacji i reklamacji.",
+  description: "Regulamin sklepu serwera Dravon.pl: zasady zakupów, płatności, realizacji i reklamacji.",
 };
 
 export default function TermsPage() {

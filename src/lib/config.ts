@@ -34,7 +34,8 @@ export async function getSiteInfo(): Promise<SiteInfo> {
     version: pick(s.version, defaults.version),
     tagline: pick(s.tagline, defaults.tagline),
     description: pick(s.description, defaults.description),
-    discord: pick(s.discord, defaults.discord),
+    // user 27.11: nowy główny Discord – stary link zapisany w panelu podmieniamy na nowy
+    discord: pick(s.discord && !/sPK2C73PBb/.test(s.discord) ? s.discord : undefined, defaults.discord),
     email: pick(s.email, defaults.email),
   };
 }
@@ -47,6 +48,9 @@ export async function getPayments() {
     ipnKey: pick(p.ipnKey, process.env.SIMPAY_IPN_KEY),
     // domyślnie sprawdzamy IP nadawcy powiadomień (lista z SimPay); wyłączenie tylko świadomie w panelu
     verifyIp: p.verifyIp ?? process.env.SIMPAY_VERIFY_IP !== "false",
+    // Stripe (user 27.11): klucze z panelu, a gdy puste – ze zmiennych środowiska
+    stripeSecretKey: pick(p.stripeSecretKey, process.env.STRIPE_SECRET_KEY),
+    stripeWebhookSecret: pick(p.stripeWebhookSecret, process.env.STRIPE_WEBHOOK_SECRET),
   };
 }
 

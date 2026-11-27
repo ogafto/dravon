@@ -58,11 +58,13 @@ if (onlyPack || !names.length) {
   const A = join(PACK, "assets", "dravon");
   for (const d of ["models/item", "textures/item", "items"]) await mkdir(join(A, d), { recursive: true });
   await writeFile(
+    // gra 1.21.4 (format 46) – 26.x: stare pola pack_format + supported_formats dla gry do 1.21.8, min/max_format dla nowszych
     join(PACK, "pack.mcmeta"),
-    JSON.stringify({ pack: { pack_format: 46, supported_formats: [46, 99], description: "§5Dravon.pl §7– przedmioty ze sklepu" } }, null, 2),
+    JSON.stringify({ pack: { description: "§cDravon.pl §7– GUI i przedmioty", pack_format: 46, supported_formats: [46, 99], min_format: 46, max_format: 99 } }, null, 2),
   );
   for (const name of await page.evaluate(() => window.EXPORT_NAMES)) {
-    const { model, texture } = await page.evaluate((n) => window.exportItem(n), name);
+    const { model, texture, info } = await page.evaluate((n) => window.exportItem(n), name);
+    if (info) console.log("   info", name, JSON.stringify(info));
     await writeFile(join(A, "models/item", `${name}.json`), model);
     await writeFile(join(A, "textures/item", `${name}.png`), Buffer.from(texture.split(",")[1], "base64"));
     await writeFile(

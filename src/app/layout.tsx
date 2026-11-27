@@ -1,16 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import { CartProvider } from "@/components/CartProvider";
 import { RevealObserver } from "@/components/fx/RevealObserver";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { TabTitle } from "@/components/TabTitle";
 import { SiteProvider } from "@/components/SiteProvider";
 import { site as defaults } from "@/config/site";
 import { getSiteInfo } from "@/lib/config";
 import { getModes } from "@/lib/shop-data";
+import { MODE_EXTRA } from "@/data/mode-extra";
 import "./globals.css";
 import "./shop.css";
+import "./theme.css";
 
 // Minercraftory (CC BY-SA 3.0, GrandChaos9000) z dorobionymi polskimi znakami – patrz src/fonts/Minercraftory-LICENSE.txt
 const display = localFont({
@@ -24,6 +27,14 @@ const display = localFont({
 const mc = localFont({
   src: "../fonts/Minecraft.woff2",
   variable: "--font-mc",
+  display: "swap",
+});
+
+// nagłówki, przyciski i ceny (redesign 26.11 – grube, geometryczne litery jak we wzorze)
+const head = Plus_Jakarta_Sans({
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-head",
   display: "swap",
 });
 
@@ -51,7 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "pl_PL",
       siteName: site.name,
-      title: `${site.name} – ${site.tagline}`,
+      title: `${site.name} | ${site.tagline}`,
       description: site.description,
       images: [{ url: "/logo.png", width: 1761, height: 1350, alt: site.name }],
     },
@@ -60,24 +71,31 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0c0c0e",
+  themeColor: "#14060a",
   colorScheme: "dark",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [site, modes] = await Promise.all([getSiteInfo(), getModes()]);
   const shopModes = modes.filter((m) => m.status === "active").map((m) => m.slug);
+  // warianty, które da się kupić (koszyk wyrzuca resztę)
+  const known = Object.fromEntries(
+    modes.filter((m) => m.status === "active").map((m) => [m.slug, m.products.filter((p) => !p.hidden).flatMap((p) => p.variants.map((v) => v.id))]),
+  );
+  // lista trybów pod „Sklep” w pasku (ikonki z lobby)
+  const navModes = modes.map((m) => ({ slug: m.slug, name: m.name, soon: m.status === "soon", icon: MODE_EXTRA[m.slug]?.icon }));
   return (
-    <html lang="pl" data-scroll-behavior="smooth" className={`${display.variable} ${mc.variable} ${body.variable}`} suppressHydrationWarning>
+    <html lang="pl" data-scroll-behavior="smooth" className={`${display.variable} ${mc.variable} ${head.variable} ${body.variable}`} suppressHydrationWarning>
       <head>
         {/* animacje wejścia działają tylko z JS – bez niego treść jest od razu widoczna */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
       </head>
       <body>
         <RevealObserver />
+        <TabTitle />
         <SiteProvider site={{ ...site, edition: defaults.edition }}>
-        <CartProvider>
-          <Navbar shopModes={shopModes} />
+        <CartProvider known={known}>
+          <Navbar shopModes={shopModes} navModes={navModes} />
           <main>{children}</main>
           <Footer />
         </CartProvider>

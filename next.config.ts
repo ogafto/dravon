@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // user 27.11: tytuł karty („DRAVON.PL - Koszyk”) od razu w <head> dla każdej przeglądarki, nie dosyłany później
+  htmlLimitedBots: /.*/,
   // osobny folder builda (np. do nagrań) bez kolizji z działającym `next dev`
   distDir: process.env.NEXT_DIST_DIR || ".next",
 
@@ -27,12 +29,8 @@ const nextConfig: NextConfig = {
       { source: "/sklep.html", destination: "/sklep", permanent: true },
       { source: "/dokumenty", destination: "/regulamin", permanent: true },
       { source: "/dokumenty.html", destination: "/regulamin", permanent: true },
-      { source: "/sklep/survival/:path*", destination: "/sklep/coincash/:path*", permanent: false },
-      // 7.11: SkyPvP → CasinoCash → CoinCash (SimPay nie obsługuje kasyn – bez „casino” w adresie)
-      { source: "/sklep/skypvp/:path*", destination: "/sklep/coincash/:path*", permanent: false },
-      { source: "/sklep/casinocash/:path*", destination: "/sklep/coincash/:path*", permanent: false },
-      { source: "/sklep/skypvp", destination: "/sklep/coincash", permanent: false },
-      { source: "/sklep/casinocash", destination: "/sklep/coincash", permanent: false },
+      { source: "/sklep/coincash/:path*", destination: "/sklep/casinocash/:path*", permanent: false },
+      { source: "/sklep/coincash", destination: "/sklep/casinocash", permanent: false },
     ];
   },
 

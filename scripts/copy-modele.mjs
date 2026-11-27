@@ -17,9 +17,21 @@ const MODELE = [
   "coincash_monety", // ikona trybu CoinCash: stos monet i sztabek (kantor_monety bez żetonów), obraca się na stronie
 ];
 
+/**
+ * Model, który gracz widzi teraz w grze: items/<nazwa>.json → model 3D (fallback po wyborze kontekstu – ikona GUI
+ * kosy albo wersja „none” klucza to osobne modele). Bez pliku w items – model o tej samej nazwie.
+ */
+async function aktualny(name) {
+  const item = await readFile(join(A, "items", `${name}.json`), "utf8").then(JSON.parse, () => null);
+  const m = item?.model;
+  const id = m?.type === "minecraft:select" ? m.fallback?.model : m?.type === "minecraft:model" ? m.model : null;
+  return id ? id.replace(/^dravon:item\//, "") : name;
+}
+
 await mkdir(OUT, { recursive: true });
 for (const name of MODELE) {
-  const def = JSON.parse(await readFile(join(A, "models", "item", `${name}.json`), "utf8"));
+  const zrodlo = await aktualny(name);
+  const def = JSON.parse(await readFile(join(A, "models", "item", `${zrodlo}.json`), "utf8"));
   const textures = {};
   for (const [key, id] of Object.entries(def.textures ?? {})) {
     if (typeof id !== "string" || id.startsWith("#")) { textures[key] = id; continue; }
@@ -33,6 +45,6 @@ for (const name of MODELE) {
   }
   const out = { textures, elements: def.elements ?? [], display: { gui: def.display?.gui } };
   await writeFile(join(OUT, `${name}.json`), JSON.stringify(out));
-  console.log("✓", name);
+  console.log("✓", name, zrodlo !== name ? `(${zrodlo})` : "");
 }
 await writeFile(join(ROOT, "src", "data", "modele.json"), JSON.stringify(MODELE, null, 2) + "\n");

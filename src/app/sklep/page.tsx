@@ -1,31 +1,6 @@
-import type { Metadata } from "next";
-import { JoinCta } from "@/components/JoinCta";
-import { ModeTile } from "@/components/ModeTile";
-import { getShopModes } from "@/lib/shop-data";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export const metadata: Metadata = {
-  title: "Sklep",
-  description: "Sklep serwera Dravon.pl. Wybierz tryb gry i kup rangi, klucze oraz pakiety z automatyczną dostawą.",
-};
-
-export default async function ShopPage() {
-  const modes = await getShopModes();
-  return (
-    <>
-    <section className="section">
-      <div className="container">
-        <h1 className="title" data-reveal>Wybierz tryb</h1>
-        <p className="title-sub" data-reveal>Przedmioty są przypisane do trybu, na którym grasz.</p>
-        <div className="modes-bar__inner modes-bar__inner--page">
-          {modes.map((mode) => (
-            <ModeTile key={mode.slug} mode={mode} />
-          ))}
-        </div>
-      </div>
-    </section>
-    <JoinCta />
-    </>
-  );
+/** User 27.11: sklep jest tylko na stronie głównej (wybór trybu i produkty) – stary adres tam przenosi. */
+export default function ShopPage() {
+  redirect("/#tryby");
 }

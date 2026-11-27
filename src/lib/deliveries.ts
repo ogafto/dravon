@@ -9,9 +9,12 @@ import type { Delivery, DeliveryKind, Order } from "@/lib/store";
  * rangi i pieniądze od razu (instant), przedmioty do skrytki /isodbierz (stash).
  */
 export async function buildDeliveries(order: Order): Promise<Delivery[]> {
-  const mode = (await getModes()).find((m) => m.slug === order.mode);
+  const modes = await getModes();
   const time = Math.floor(Date.now() / 1000);
   return order.lines.flatMap((line) => {
+    // wspólny koszyk (user 27.11): każda pozycja trafia na serwer swojego trybu
+    const modeId = line.mode ?? order.mode;
+    const mode = modes.find((m) => m.slug === modeId);
     // 1) kopia z chwili zakupu, 2) aktualny katalog (zamówienia sprzed panelu)
     let game = line.game;
     if (!game && mode) {
@@ -27,7 +30,7 @@ export async function buildDeliveries(order: Order): Promise<Delivery[]> {
       }
     }
     if (!game) {
-      console.error(`[ipn] Brak produktu ${line.variantId} dla zamówienia ${order.id} – dostawa pominięta`);
+      console.error(`[ipn] Brak produktu ${line.variantId} dla zamówienia ${order.id}, dostawa pominięta`);
       return [];
     }
     let { instant = [], stash = [] } = game;
@@ -54,7 +57,7 @@ export async function buildDeliveries(order: Order): Promise<Delivery[]> {
       command: part.commands[0],
       broadcast_name: fillTemplate(broadcast, order.nick, line.quantity),
       time,
-      mode: order.mode,
+      mode: modeId,
       order_id: order.id,
       kind: part.kind,
       commands: part.commands,

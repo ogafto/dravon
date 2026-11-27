@@ -5,7 +5,18 @@ import { api } from "./PanelApp";
 
 export type PanelSettings = {
   site: { name: string; url: string; serverIp: string; version: string; tagline: string; description: string; discord: string; email: string };
-  payments: { apiKey: string; serviceId: string; ipnKey: string; verifyIp: boolean; ipnUrl: string };
+  payments: {
+    apiKey: string;
+    serviceId: string;
+    ipnKey: string;
+    verifyIp: boolean;
+    ipnUrl: string;
+    /** Stripe (od 27.11): zamaskowane klucze, tryb test/live, adres webhooka do wklejenia w Stripe */
+    stripeSecretKey: string;
+    stripeWebhookSecret: string;
+    stripeMode: "test" | "live" | "";
+    webhookUrl: string;
+  };
   plugin: {
     token: string;
     hasToken: boolean;

@@ -33,6 +33,10 @@ export async function GET(req: Request) {
       ipnKey: mask(payments.ipnKey),
       verifyIp: payments.verifyIp,
       ipnUrl: `${(raw.site?.url || process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin).replace(/\/+$/, "")}/api/ipn`,
+      stripeSecretKey: mask(payments.stripeSecretKey),
+      stripeWebhookSecret: mask(payments.stripeWebhookSecret),
+      stripeMode: payments.stripeSecretKey.startsWith("sk_live") || payments.stripeSecretKey.startsWith("rk_live") ? "live" : payments.stripeSecretKey ? "test" : "",
+      webhookUrl: `${(raw.site?.url || process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin).replace(/\/+$/, "")}/api/stripe/webhook`,
     },
     plugin: { ...plugin, token: mask(plugin.token), hasToken: !!plugin.token },
     announce,
@@ -86,11 +90,17 @@ export async function PUT(req: Request) {
       break;
     }
     case "payments": {
+      const sk = str(d.stripeSecretKey, 300) || undefined;
+      const wh = str(d.stripeWebhookSecret, 300) || undefined;
+      if (sk && !/^(sk|rk)_(test|live)_/.test(sk)) return fail("Klucz tajny Stripe zaczyna się od sk_live_ albo sk_test_ (Developers, API keys).");
+      if (wh && !wh.startsWith("whsec_")) return fail("Sekret webhooka zaczyna się od whsec_ (Developers, Webhooks, Signing secret).");
       const p = clean({
         apiKey: str(d.apiKey, 200) || undefined,
         serviceId: str(d.serviceId, 60),
         ipnKey: str(d.ipnKey, 200) || undefined,
         verifyIp: bool(d.verifyIp),
+        stripeSecretKey: sk,
+        stripeWebhookSecret: wh,
       });
       await updateSettings((s) => ({ ...s, payments: { ...s.payments, ...p } }));
       break;

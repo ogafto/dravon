@@ -10,7 +10,10 @@ import type * as THREE from "three";
  * motion="turn" – ikona trybu (stos monet): stoi lekko z góry i nie zużywa klatek; po najechaniu jeden płynny obrót z podskokiem;
  * motion="spin" – moneta: stoi przodem i lekko się kołysze, co kilka sekund szybki obrót jak podrzucona
  * moneta, po najechaniu na kafel kręci się bez przerwy.
+ * motion="card" – karta przedmiotu: stoi jak w ekwipunku gry, po najechaniu na kartę płynnie się obraca, po zjechaniu wraca.
  * Poza ekranem stoi. Do czasu wczytania (i bez WebGL) widać statyczny render – potem płynne przenikanie.
+ * Wszystkie modele na stronie rysuje jeden wspólny renderer WebGL (przeglądarka ma limit kontekstów – kart jest kilkanaście),
+ * a każdy model kopiuje swoją klatkę do własnego płótna 2D.
  */
 export type PackModel3DProps = {
   model: string;
@@ -18,7 +21,7 @@ export type PackModel3DProps = {
   fallback: string;
   /** Kolor poświaty od tyłu (np. kolor rangi). */
   color?: string;
-  motion?: "sway" | "spin" | "turn";
+  motion?: "sway" | "spin" | "turn" | "card";
   /** Obracanie myszką / palcem (wyłączone np. w kafelku, który jest linkiem). */
   draggable?: boolean;
   /** Rozmiar obrazka zastępczego dla next/image. */
@@ -37,6 +40,40 @@ type Element = {
 type ModelDef = { textures: Record<string, string>; elements: Element[]; display?: { gui?: { rotation?: number[] } } };
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+/** Jeden renderer WebGL na całą stronę; rysuje w lewym dolnym rogu wspólnego płótna, skąd klatka trafia do płótna 2D modelu. */
+let shared: { renderer: THREE.WebGLRenderer; w: number; h: number } | null | undefined;
+function sharedRenderer(T: typeof import("three")) {
+  if (shared !== undefined) return shared;
+  try {
+    const renderer = new T.WebGLRenderer({ canvas: document.createElement("canvas"), alpha: true, antialias: true, powerPreference: "low-power" });
+    renderer.setPixelRatio(1);
+    renderer.outputColorSpace = T.SRGBColorSpace;
+    renderer.setClearColor(0x000000, 0);
+    renderer.autoClear = false;
+    shared = { renderer, w: 0, h: 0 };
+  } catch {
+    shared = null; // brak WebGL – zostają statyczne rendery
+  }
+  return shared;
+}
+function drawShared(T: typeof import("three"), scene: THREE.Scene, camera: THREE.Camera, ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const s = shared;
+  if (!s || w < 1 || h < 1) return;
+  if (w > s.w || h > s.h) {
+    s.w = Math.max(s.w, w);
+    s.h = Math.max(s.h, h);
+    s.renderer.setSize(s.w, s.h, false);
+  }
+  const r = s.renderer;
+  r.setViewport(0, 0, w, h);
+  r.setScissor(0, 0, w, h);
+  r.setScissorTest(true);
+  r.clear();
+  r.render(scene, camera);
+  ctx.clearRect(0, 0, w, h);
+  ctx.drawImage(r.domElement, 0, s.h - h, w, h, 0, 0, w, h);
+}
 
 export function PackModel3D({
   model,
@@ -59,6 +96,7 @@ export function PackModel3D({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const spin = motion === "spin";
     const turn = motion === "turn";
+    const card = motion === "card";
     const TILT = 0.5; // podstawka: widok lekko z góry (rad)
 
     (async () => {
@@ -70,14 +108,13 @@ export function PackModel3D({
       const canvas = canvasRef.current;
       if (disposed || !def || !wrap || !canvas) return;
 
-      let renderer: THREE.WebGLRenderer;
-      try {
-        renderer = new T.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "low-power" });
-      } catch {
-        return; // brak WebGL – zostaje statyczny render
-      }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // płynność (7.11): mniej pikseli na Retinie
-      renderer.outputColorSpace = T.SRGBColorSpace;
+      if (!sharedRenderer(T)) return; // brak WebGL – zostaje statyczny render
+      const ctx2d = canvas.getContext("2d");
+      if (!ctx2d) return;
+      const ctx: CanvasRenderingContext2D = ctx2d;
+      const dpr = Math.min(window.devicePixelRatio, 1.5); // płynność (7.11): mniej pikseli na Retinie
+      let pxW = 0;
+      let pxH = 0;
 
       const scene = new T.Scene();
       const camera = new T.PerspectiveCamera(28, 1, 0.1, 2000);
@@ -92,7 +129,6 @@ export function PackModel3D({
       const { mesh, dispose } = await buildModel(T, def);
       if (disposed) {
         dispose();
-        renderer.dispose();
         return;
       }
 
@@ -118,7 +154,10 @@ export function PackModel3D({
       const resize = () => {
         const { width, height } = wrap.getBoundingClientRect();
         if (width < 1 || height < 1) return;
-        renderer.setSize(width, height, false);
+        pxW = Math.round(width * dpr);
+        pxH = Math.round(height * dpr);
+        canvas.width = pxW;
+        canvas.height = pxH;
         camera.aspect = width / height;
         const tan = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
         const dist = Math.max(size.y / 2 / tan, size.x / 2 / (tan * camera.aspect)) + size.z / 2;
@@ -127,7 +166,10 @@ export function PackModel3D({
         camera.updateProjectionMatrix();
       };
       resize();
-      const ro = new ResizeObserver(resize);
+      const ro = new ResizeObserver(() => {
+        resize();
+        if (!raf) raf = requestAnimationFrame(frame);
+      });
       ro.observe(wrap);
 
       // przeciąganie z bezwładnością; po puszczeniu model wraca do swojego ruchu
@@ -237,14 +279,21 @@ export function PackModel3D({
           const sway = Math.sin(t * 1.3) * 0.32;
           pivot.rotation.set(0.12 + pitch, reduced ? 0.3 : base + flip + sway + yaw, 0);
           pivot.position.y = reduced ? 0 : Math.sin(t * 2) * radius * 0.04;
+        } else if (card) {
+          // stoi jak w ekwipunku; najechanie – płynny obrót wokół pionu, zjechanie – wraca przodem do najbliższego pełnego obrotu
+          if (reduced) base = 0;
+          else if (boost > 0.02) base += dt * 2.6 * boost;
+          else base = lerp(base, Math.round(base / TAU) * TAU, 1 - Math.pow(0.01, dt));
+          pivot.rotation.set(pitch, base + yaw, 0);
+          pivot.position.y = boost * Math.sin(t * 3) * radius * 0.03;
         } else {
           const sway = reduced ? 0 : Math.sin(t * 0.9) * 0.3;
           pivot.rotation.set(pitch + (reduced ? 0 : Math.sin(t * 0.7) * 0.06), yaw + sway, 0);
           pivot.position.y = reduced ? 0 : Math.sin(t * 1.6) * radius * 0.035;
         }
-        renderer.render(scene, camera);
-        const settled = !dragging && Math.abs(vYaw) < 1e-4 && Math.abs(pitch) < 1e-3 && (spin || turn || Math.abs(yaw) < 1e-3);
-        const moving = turn ? hoverAt >= 0 : !reduced;
+        drawShared(T, scene, camera, ctx, pxW, pxH);
+        const settled = !dragging && Math.abs(vYaw) < 1e-4 && Math.abs(pitch) < 1e-3 && (spin || turn || card || Math.abs(yaw) < 1e-3);
+        const moving = turn ? hoverAt >= 0 : card ? boost > 0.005 || Math.abs(base - Math.round(base / TAU) * TAU) > 1e-3 : !reduced;
         if (visible && (moving || !settled)) raf = requestAnimationFrame(frame);
       }
       raf = requestAnimationFrame(frame);
@@ -261,7 +310,6 @@ export function PackModel3D({
         host.removeEventListener("pointerenter", enter);
         host.removeEventListener("pointerleave", leave);
         dispose();
-        renderer.dispose();
       };
     })();
 

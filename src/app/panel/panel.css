@@ -790,3 +790,533 @@
     flex: 1;
   }
 }
+
+/* =========================================================
+   PANEL W STYLU STRONY (user 27.11): ciemne kafle z pikselowymi rogami zamiast ramek, zakładki jak na stronie,
+   pola z czerwonym obrysem przy wpisywaniu, kolorowe plakietki, płynne wejścia. Kształt rogów: lista w theme.css.
+   ========================================================= */
+.pnl {
+  padding: 40px 0 90px;
+}
+.pnl-app {
+  display: grid;
+  gap: 20px;
+}
+
+/* nagłówek z zakładkami */
+.pnl-head {
+  --s: 9px;
+  margin: 0;
+  padding: 18px 20px 18px 26px;
+  background: #170f12;
+  animation: rv-card 0.8s var(--ease-title) backwards;
+}
+.pnl h1 {
+  font-size: 2.1rem;
+  line-height: 0.95;
+}
+.pnl-tabs {
+  gap: 6px;
+}
+.pnl-tabs button {
+  --s: 4px;
+  padding: 11px 16px 13px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-h);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-transform: none;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25);
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.25s var(--ease);
+}
+.pnl-tabs button:hover {
+  color: #fff;
+  transform: translateY(-2px);
+}
+.pnl-tabs button.is-active {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+/* sekcje: wejście przy zmianie zakładki, karty po kolei */
+.pnl-section {
+  animation: rv-up 0.7s var(--ease-title) backwards;
+}
+.pnl-section > * {
+  animation: rv-up 0.7s var(--ease-title) backwards;
+}
+.pnl-section > :nth-child(2) {
+  animation-delay: 0.05s;
+}
+.pnl-section > :nth-child(3) {
+  animation-delay: 0.1s;
+}
+.pnl-section > :nth-child(n + 4) {
+  animation-delay: 0.15s;
+}
+
+/* kafle zamiast ramek */
+.pnl-card,
+.panel.pnl-card,
+.pnl-login,
+.pnl-login.panel {
+  --s: 9px;
+  border: 0 !important;
+  background: #170f12 !important;
+  box-shadow: none !important;
+}
+.pnl-card {
+  padding: 22px 24px;
+}
+.pnl-stat,
+.pnl-order,
+.pnl-product,
+.pnl-step,
+.pnl-snippet,
+.pnl-server,
+.pnl-checklist li,
+.pnl-variant {
+  --s: 5px;
+  border: 0 !important;
+  background: #1b1216;
+  transition: background 0.25s;
+}
+.pnl-order:hover,
+.pnl-product:hover {
+  background: #22171c;
+}
+.pnl-stat {
+  padding: 18px 18px 16px;
+}
+.pnl-stat b {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.pnl-step {
+  padding: 18px 20px;
+}
+.pnl-step h3 span,
+.pnl-checklist__mark {
+  --s: 3px;
+}
+.pnl-checklist li {
+  box-shadow: inset 3px 0 0 var(--red);
+}
+.pnl-checklist li.is-done {
+  box-shadow: inset 3px 0 0 var(--green);
+}
+.pnl-snippet__head {
+  border-bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
+}
+.pnl-preview {
+  --s: 4px;
+  border: 0;
+  background: #0f0a0c;
+}
+.pnl-image__empty,
+.pnl-gallery button {
+  --s: 4px;
+  border: 0;
+  background: #0f0a0c;
+}
+.pnl-gallery button:hover {
+  background: rgba(232, 36, 58, 0.16);
+}
+
+/* wybory (opcje, rodzaje) */
+.pnl-option,
+.pnl-kind {
+  --s: 4px;
+  border: 0 !important;
+  background: #140c0f;
+  transition:
+    background 0.2s,
+    transform 0.25s var(--ease);
+}
+.pnl-option:hover,
+.pnl-kind:hover {
+  background: #1d1317;
+  transform: translateY(-2px);
+}
+.pnl-option.is-on,
+.pnl-kind.is-on {
+  background: rgba(232, 36, 58, 0.16);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* pola */
+.pnl-field {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+.pnl-field input,
+.pnl-field select,
+.pnl-field textarea,
+.pnl-input,
+.pnl-cmd textarea {
+  --s: 3px;
+  border: 0 !important;
+  background: #0c0709;
+  font-weight: 500;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.pnl-field input:hover,
+.pnl-field select:hover,
+.pnl-field textarea:hover,
+.pnl-input:hover {
+  background: #120a0d;
+}
+.pnl-field input:focus,
+.pnl-field select:focus,
+.pnl-field textarea:focus,
+.pnl-input:focus,
+.pnl-cmd textarea:focus {
+  outline: none;
+  background: #0a0507;
+  /* kreska u dołu zamiast obrysu, bo obrys z cienia rogi by przecinały */
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+.pnl-check input {
+  accent-color: var(--accent);
+}
+
+/* plakietki i komunikaty */
+.pnl-tag {
+  --s: 2px;
+  padding: 4px 8px 5px;
+  border: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.pnl-tag--ok {
+  background: rgba(74, 222, 128, 0.16);
+}
+.pnl-tag--wait {
+  background: rgba(255, 255, 255, 0.08);
+}
+.pnl-tag--info {
+  background: rgba(232, 36, 58, 0.18);
+}
+.pnl-tag--bad {
+  background: rgba(255, 90, 90, 0.18);
+}
+.pnl-error,
+.pnl-note {
+  --s: 4px;
+  border-left: 0;
+  padding: 12px 14px;
+}
+.pnl-error {
+  background: rgba(255, 90, 90, 0.14);
+  box-shadow: inset 3px 0 0 var(--red);
+}
+.pnl-note {
+  background: rgba(74, 222, 128, 0.12);
+  box-shadow: inset 3px 0 0 var(--green);
+}
+.pnl-chips button {
+  --s: 2px;
+  border: 0;
+  background: rgba(232, 36, 58, 0.18);
+  transition: background 0.2s;
+}
+.pnl-chips button:hover {
+  background: var(--accent);
+}
+.pnl-progress {
+  --s: 2px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+.pnl-cmd__preview {
+  border-left: 0;
+  box-shadow: inset 3px 0 0 var(--green);
+}
+.pnl-commands + .pnl-commands {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pnl-editor footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* okno edytora */
+.pnl-modal {
+  background: rgba(8, 3, 5, 0.82);
+  animation: rv-fade 0.25s var(--ease) backwards;
+}
+.pnl-editor {
+  animation: rv-pop 0.45s var(--ease-title) backwards;
+}
+
+/* logowanie */
+.pnl-login {
+  padding: 30px 30px 28px;
+  animation: rv-card 0.8s var(--ease-title) backwards;
+}
+.pnl-login h1 {
+  font-size: 2.4rem;
+}
+
+@media (max-width: 700px) {
+  .pnl-head {
+    padding: 16px;
+  }
+  .pnl-tabs button {
+    padding: 9px 12px 11px;
+    font-size: 0.84rem;
+  }
+}
+.pnl-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 2px;
+}
+.pnl-card .pnl-toolbar h2 {
+  margin-right: 6px;
+}
+
+/* =========================================================
+   PANEL – NOWY UKŁAD (user 27.11: „o wiele lepszy i czytelniejszy”): boczne menu z ikonkami i opisami,
+   nagłówek zakładki, większy i jaśniejszy tekst, więcej powietrza
+   ========================================================= */
+.pnl-app {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.pnl-side {
+  position: sticky;
+  top: calc(var(--nav-h) + 20px);
+  display: grid;
+  gap: 18px;
+  padding: 22px 16px 18px;
+  isolation: isolate;
+  animation: rv-card 0.8s var(--ease-title) backwards;
+}
+.pnl-side__px {
+  --s: 9px;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #170f12;
+}
+.pnl-side__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 6px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.pnl-side__brand img {
+  width: 58px;
+  height: 44px;
+  object-fit: contain;
+}
+.pnl-side__brand b {
+  display: block;
+  font-family: var(--font-display), monospace;
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.pnl-side__brand small {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+.pnl-nav {
+  display: grid;
+  gap: 4px;
+}
+.pnl-nav__item {
+  --s: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 10px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.68);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.pnl-nav__item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.pnl-nav__item.is-active {
+  background: rgba(232, 36, 58, 0.16);
+  color: #fff;
+}
+.pnl-nav__icon {
+  --s: 3px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--accent-hi);
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.pnl-nav__item.is-active .pnl-nav__icon {
+  background: var(--accent);
+  color: #fff;
+}
+.pnl-nav__icon svg {
+  transition: transform 0.45s var(--icon-ease, ease);
+}
+.pnl-nav__item:hover .pnl-nav__icon svg {
+  transform: var(--icon-tilt, none);
+}
+.pnl-nav__text {
+  display: grid;
+  gap: 2px;
+  font-family: var(--font-h);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.pnl-nav__text small {
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+}
+.pnl-side__logout {
+  justify-self: start;
+  margin-left: 6px;
+}
+
+.pnl-main {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.pnl-page {
+  padding: 4px 2px 2px;
+  animation: rv-up 0.6s var(--ease-title) backwards;
+}
+.pnl-page h1 {
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  line-height: 0.95;
+  text-shadow: 0 0.06em 0 rgba(0, 0, 0, 0.45);
+}
+.pnl-page p {
+  margin: 8px 0 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* czytelność: jaśniejszy i większy tekst pomocniczy, wyraźne nagłówki kart, więcej odstępu */
+.pnl-main .pnl-muted,
+.pnl-main .pnl-hint {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.68);
+}
+.pnl-main .pnl-card {
+  display: grid;
+  gap: 14px;
+  padding: 26px 28px;
+}
+.pnl-main .pnl-card h2 {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+.pnl-main .pnl-field {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+.pnl-main .pnl-field input,
+.pnl-main .pnl-field select,
+.pnl-main .pnl-field textarea,
+.pnl-main .pnl-input {
+  padding: 12px 14px;
+  font-size: 0.98rem;
+}
+.pnl-main .pnl-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+}
+.pnl-main .pnl-checklist b,
+.pnl-main .pnl-order__top b {
+  font-size: 1rem;
+}
+.pnl-main .pnl-checklist p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+/* stary nagłówek z zakładkami – zastąpiony bocznym menu */
+.pnl-head,
+.pnl-tabs {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .pnl-app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pnl-side {
+    position: relative;
+    top: auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 16px 12px;
+  }
+  .pnl-side__brand {
+    padding: 0 4px;
+    border: 0;
+  }
+  .pnl-side__logout {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    margin: 0;
+  }
+  .pnl-nav {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .pnl-nav__item {
+    gap: 9px;
+    padding: 7px;
+  }
+  .pnl-nav__icon {
+    width: 30px;
+    height: 30px;
+  }
+  .pnl-nav__text {
+    font-size: 0.86rem;
+  }
+  .pnl-nav__text small {
+    display: none;
+  }
+  .pnl-main .pnl-card {
+    padding: 20px 18px;
+  }
+}

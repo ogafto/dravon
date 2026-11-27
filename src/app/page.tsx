@@ -1,169 +1,62 @@
-import Image from "next/image";
-import Link from "next/link";
-import { JoinCta } from "@/components/JoinCta";
 import { CountUp } from "@/components/fx/CountUp";
-import { Parallax } from "@/components/fx/Parallax";
-import { Particles } from "@/components/fx/Particles";
-import { RankShowcase, type ShowcaseRank } from "@/components/home/RankShowcase";
-import { RecentPurchases } from "@/components/home/RecentPurchases";
-import { ItemCard } from "@/components/ItemCard";
-import { ModeTile } from "@/components/ModeTile";
+import { Hero } from "@/components/home/Hero";
+import { ModePicker } from "@/components/home/ModePicker";
+import { RecentStrip } from "@/components/home/RecentStrip";
 import { PixelIcon } from "@/components/PixelIcon";
-import { PlayActions } from "@/components/PlayActions";
-import { RankCard } from "@/components/RankCard";
-import { PlayersProof } from "@/components/ServerStatus";
+import { Wumpus3D } from "@/components/three/Wumpus3D";
 import { getSiteInfo } from "@/lib/config";
 import { getDiscordStats } from "@/lib/discord";
-import { formatPrice } from "@/lib/format";
-import { toPublicProduct } from "@/lib/public-catalog";
+import { pickerModes } from "@/lib/mode-picker";
 import { getShopModes } from "@/lib/shop-data";
 
-// produkty i ceny z panelu – zawsze aktualne (statystyki Discorda mają własny cache)
+// tryby i ceny z panelu – zawsze aktualne (statystyki Discorda mają własny cache)
 export const dynamic = "force-dynamic";
 
-
-
+/**
+ * Strona główna (redesign 26–27.11 według wzorów usera): hero DRAVON.PL z renderem postaci, wybór trybu z produktami,
+ * ostatnie zakupy i Discord.
+ */
 export default async function HomePage() {
-  const discord = await getDiscordStats();
-  const [modes, site] = await Promise.all([getShopModes(), getSiteInfo()]);
-  const main = modes.find((m) => m.status === "active")!;
-  const ranks = main.products.filter((p) => p.category === "rangi");
-  const items = main.products.filter((p) => p.category === "kosy" || p.category === "klucze" || p.category === "pakiety").slice(0, 6);
-  const showcase: ShowcaseRank[] = ranks.map((p) => ({
-    slug: p.slug,
-    name: p.name,
-    tag: p.showcase?.tag ?? p.name,
-    color: p.showcase?.color ?? "#ffffff",
-    render: p.render,
-    priceFrom: formatPrice(Math.min(...p.variants.map((v) => v.price))),
-    href: `/sklep/${main.slug}/${p.slug}`,
-    perk: p.tagline,
-  }));
+  const [discord, modes, site] = await Promise.all([getDiscordStats(), getShopModes(), getSiteInfo()]);
 
   return (
     <>
-      <Parallax className="hero">
-        <div className="hero__bg" aria-hidden />
-        <Particles className="hero__particles" count={28} />
-        <div className="container hero__grid">
-          <div className="hero__copy">
-            <p className="hero__eyebrow">
-              <span className="hero__eyebrow-tag">Nowy sezon</span> Tryb {main.name} już działa
-            </p>
-            <h1 className="hero__title" aria-label="Dravon.pl">
-              {[..."Dravon"].map((ch, i) => (
-                <span key={i} className="drop" aria-hidden style={{ "--i": i } as React.CSSProperties}>
-                  {ch}
-                </span>
-              ))}
-              <span className="hero__tld" aria-hidden>
-                {[...".pl"].map((ch, i) => (
-                  <span key={i} className="drop" style={{ "--i": i + 6 } as React.CSSProperties}>
-                    {ch}
-                  </span>
-                ))}
-              </span>
-            </h1>
-            <p className="hero__lead">{site.description}</p>
+      <Hero shopHref="/#tryby" />
 
-            <PlayActions />
-
-            <div className="hero__proof">
-              <PlayersProof />
-              {discord && (
-                <div className="proof">
-                  <span className="proof__value">
-                    <CountUp value={discord.members} />
-                  </span>
-                  <span className="proof__label">
-                    <PixelIcon name="discord" size={12} /> osób na Discordzie
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <RankShowcase ranks={showcase} />
-        </div>
-      </Parallax>
-
-      <div className="modes-bar">
+      <section className="modes" id="tryby" aria-label="Tryby serwera">
         <div className="container">
-          <div className="modes-bar__inner">
-            {modes.map((m) => (
-              <ModeTile key={m.slug} mode={m} active={m.slug === main.slug} />
-            ))}
-          </div>
-          <RecentPurchases />
-        </div>
-      </div>
-
-      <section className="section" id="rangi">
-        <div className="container">
-          <h2 className="title" data-reveal>
-            Rangi
-          </h2>
-          <div className="ranks">
-            {ranks.map((p, i) => (
-              <RankCard
-                key={p.slug}
-                product={toPublicProduct(p)}
-                perks={p.perks}
-                href={`/sklep/${main.slug}/${p.slug}`}
-                top={i === ranks.length - 1}
-                index={i}
-              />
-            ))}
-          </div>
+          <ModePicker modes={pickerModes(modes)} />
         </div>
       </section>
 
-      <section className="section-tight">
-        <div className="container">
-          <h2 className="title" data-reveal>
-            Kosy i klucze
-          </h2>
-          <div className="items">
-            {items.map((p, i) => (
-              <ItemCard key={p.slug} mode={main} product={p} index={i} />
-            ))}
-          </div>
-          <div className="center-cta">
-            <Link href={`/sklep/${main.slug}`} className="btn btn-dark btn-lg">
-              Cały sklep <PixelIcon name="arrowRight" size={14} />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <RecentStrip />
 
-      <section className="section">
+      <section className="dc-wrap">
         <div className="container">
-          <div className="dc" data-reveal>
-            <span className="dc__icon">
-              <PixelIcon name="discord" size={110} />
+          <div className="dc" data-reveal data-wumpus-host>
+            <span className="dc__px" aria-hidden />
+            <span className="dc__icon dc__icon--wumpus">
+              <Wumpus3D className="dc__wumpus" />
             </span>
             <div className="dc__copy">
               <h2>Wbijaj na naszego Discorda</h2>
-              <p>Ogłoszenia, eventy, konkursy i pomoc administracji. Tam najszybciej dowiesz się, co nowego na serwerze.</p>
               {discord && (
                 <div className="dc__stats">
-                  <span>
-                    <CountUp value={discord.members} /> członków
+                  <span className="dc__chip">
+                    <PixelIcon name="user" size={12} /> <CountUp value={discord.members} /> członków
                   </span>
-                  <span>
+                  <span className="dc__chip">
                     <span className="dot dot-online dot-pulse" /> <CountUp value={discord.online} /> online
                   </span>
                 </div>
               )}
             </div>
-            <a href={site.discord} target="_blank" rel="noreferrer" className="btn btn-lg">
-              Dołącz
+            <a href={site.discord} target="_blank" rel="noreferrer" className="btn btn-lg btn-discord dc__btn">
+              <PixelIcon name="discord" size={20} /> Dołącz
             </a>
           </div>
         </div>
       </section>
-
-      <JoinCta />
     </>
   );
 }

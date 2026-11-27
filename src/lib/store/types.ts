@@ -1,6 +1,12 @@
 import type { Mode, Product } from "@/data/shop";
 
 export type OrderLine = {
+  /** tryb pozycji (wspólny koszyk dla wszystkich trybów, user 27.11); brak = order.mode */
+  mode?: string;
+  /** klucze gratis za większy koszyk */
+  bonus?: boolean;
+  /** ulepszenie rangi kupionej w sklepie (dopłata różnicy) */
+  upgrade?: { from: string; to: string; days: number; expiresAt: number };
   variantId: string;
   productSlug: string;
   name: string;
@@ -27,6 +33,16 @@ export type OrderLine = {
 /** psc_pending – kody paysafecard czekają na sprawdzenie przez Właściciela (Discord → „Nadaj”); rejected – odrzucone. */
 export type OrderStatus = "pending" | "paid" | "failed" | "amount_mismatch" | "psc_pending" | "rejected";
 
+export type StripePayment = {
+  kind: "blik" | "checkout";
+  /** PaymentIntent (BLIK) */
+  intent?: string;
+  /** sesja Checkout (karta, przelew i inne) */
+  session?: string;
+  /** komunikat dla gracza po nieudanej płatności */
+  error?: string;
+};
+
 /** Płatność kodami paysafecard (user 24.11): 1–3 kody, sprawdzane ręcznie na Discordzie. */
 export type PscPayment = {
   codes: string[];
@@ -49,8 +65,10 @@ export type Order = {
   transactionId?: string;
   simpayStatus?: string;
   /** sposób płatności (brak = SimPay) */
-  payment?: "simpay" | "paysafecard";
+  payment?: "simpay" | "paysafecard" | "stripe";
   psc?: PscPayment;
+  /** Stripe (user 27.11): BLIK na stronie albo przekierowanie do Stripe Checkout */
+  stripe?: StripePayment;
   /** Dostawy utworzone po opłaceniu (stan do strony „dziękujemy”). */
   deliveries?: DeliveryInfo[];
 };
@@ -132,7 +150,8 @@ export type PluginSettings = {
  */
 export type ShopSettings = {
   site?: Partial<SiteInfo>;
-  payments?: { apiKey?: string; serviceId?: string; ipnKey?: string; verifyIp?: boolean };
+  /** SimPay (stare) i Stripe (od 27.11): klucze zapisywane w panelu, nigdy nie odsyłane do przeglądarki */
+  payments?: { apiKey?: string; serviceId?: string; ipnKey?: string; verifyIp?: boolean; stripeSecretKey?: string; stripeWebhookSecret?: string };
   plugin?: PluginSettings;
   announce?: Partial<AnnounceSettings>;
   /** scrypt: sól:hash */

@@ -4,14 +4,26 @@ import Link from "next/link";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { PixelIcon } from "./PixelIcon";
 
-export type CartLine = { variantId: string; productSlug: string; quantity: number; isRank: boolean };
+export type CartLine = {
+  variantId: string;
+  productSlug: string;
+  quantity: number;
+  isRank: boolean;
+  /** ulepszenie rangi (user 27.11) – wycena z /api/rangi, serwer liczy ją jeszcze raz przy płatności */
+  upgrade?: { from: string; fromName: string; to: string; toName: string; price: number; days: number };
+};
 type Carts = Record<string, CartLine[]>;
-type Toast = { id: number; message: string; tone: "ok" | "error"; href?: string; action?: string };
+type Toast = { id: number; message: string; tone: "ok" | "error"; href?: string; action?: string; out?: boolean };
 
 type CartContext = {
   ready: boolean;
   lines: (mode: string) => CartLine[];
+  /** liczba pozycji w koszyku trybu (50 kluczy = 1 pozycja, user 27.11) */
   count: (mode: string) => number;
+  /** tryby, w których coś leży w koszyku (kolejność dodawania) */
+  modes: () => string[];
+  /** pozycje ze wszystkich trybów razem */
+  countAll: () => number;
   add: (mode: string, line: CartLine, max: number) => "added" | "replaced-rank";
   setQuantity: (mode: string, variantId: string, quantity: number) => void;
   remove: (mode: string, variantId: string) => void;
@@ -45,7 +57,23 @@ const write = (key: string, value: unknown) => {
   }
 };
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+/**
+ * Wyrzuca z koszyka pozycje, których już nie ma w sklepie (zmiany w panelu, stare warianty) – inaczej licznik
+ * w pasku pokazywał np. „5” przy pustym koszyku (user 27.11).
+ */
+function prune(carts: Carts, known?: Record<string, string[]>): Carts {
+  if (!known) return carts;
+  const out: Carts = {};
+  for (const [mode, list] of Object.entries(carts)) {
+    const ids = known[mode];
+    if (!ids || !Array.isArray(list)) continue;
+    const kept = list.filter((l) => l && (ids.includes(l.variantId) || (l.variantId.startsWith("upgrade_") && !!l.upgrade)));
+    if (kept.length) out[mode] = kept;
+  }
+  return out;
+}
+
+export function CartProvider({ children, known }: { children: React.ReactNode; known?: Record<string, string[]> }) {
   const [ready, setReady] = useState(false);
   const [carts, setCarts] = useState<Carts>({});
   const [nick, setNickState] = useState("");
@@ -54,7 +82,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const toastId = useRef(0);
 
   useEffect(() => {
-    setCarts(read<Carts>(CART_KEY, {}));
+    const stored = read<Carts>(CART_KEY, {});
+    const clean = prune(stored, known);
+    setCarts(clean);
+    if (JSON.stringify(clean) !== JSON.stringify(stored)) write(CART_KEY, clean);
     const storedNick = read<string>(NICK_KEY, "");
     setNickState(typeof storedNick === "string" ? storedNick : "");
     setEmailState(read<string>(EMAIL_KEY, ""));
@@ -79,14 +110,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const notify = useCallback<CartContext["notify"]>((message, opts) => {
     const id = ++toastId.current;
     setToasts((t) => [...t.slice(-2), { id, message, tone: opts?.tone ?? "ok", href: opts?.href, action: opts?.action }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 4200);
+    // user 27.11: dymek wysuwa się z prawej u góry, po chwili chowa się z powrotem
+    setTimeout(() => setToasts((t) => t.map((x) => (x.id === id ? { ...x, out: true } : x))), 3800);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 4300);
   }, []);
 
   const value = useMemo<CartContext>(
     () => ({
       ready,
       lines: (mode) => carts[mode] ?? [],
-      count: (mode) => (carts[mode] ?? []).reduce((n, l) => n + l.quantity, 0),
+      count: (mode) => (carts[mode] ?? []).length,
+      modes: () => Object.keys(carts).filter((m) => (carts[m] ?? []).length > 0),
+      countAll: () => Object.values(carts).reduce((n, list) => n + (list?.length ?? 0), 0),
       add: (mode, line, max) => {
         const current = carts[mode] ?? [];
         const replacedRank = line.isRank && current.some((l) => l.isRank && l.variantId !== line.variantId);
@@ -133,7 +168,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div className="toasts" role="status" aria-live="polite">
         {toasts.map((t) => (
-          <div key={t.id} className={`toast ${t.tone === "error" ? "error" : ""}`}>
+          <div key={t.id} className={`toast ${t.tone === "error" ? "error" : ""}`} data-out={t.out || undefined}>
             <span className="toast__icon">
               <PixelIcon name={t.tone === "error" ? "close" : "check"} size={14} />
             </span>

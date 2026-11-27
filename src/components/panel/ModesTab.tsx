@@ -116,7 +116,7 @@ export function ModesTab() {
                     W pluginie: <code>tryb: &quot;{m.slug}&quot;</code> · produktów: {m.productCount ?? 0}
                   </>
                 ) : (
-                  "Nowy – nazwa w pluginie powstanie po zapisaniu"
+                  "Nowy, nazwa w pluginie powstanie po zapisaniu"
                 )}
               </span>
             </div>
@@ -143,8 +143,8 @@ export function ModesTab() {
             </Field>
             <Field label="Stan">
               <select value={m.status} onChange={(e) => edit(i, { status: e.target.value as PanelMode["status"] })}>
-                <option value="active">Włączony – sprzedaje</option>
-                <option value="soon">„Wkrótce” – widoczny, bez sprzedaży</option>
+                <option value="active">Włączony, sprzedaje</option>
+                <option value="soon">„Wkrótce”, widoczny, bez sprzedaży</option>
               </select>
             </Field>
             <Field label="Wersja">

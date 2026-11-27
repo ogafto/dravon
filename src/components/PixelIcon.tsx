@@ -289,6 +289,11 @@ const icons = {
     colors: { X: C },
     grid: ["...XX...", "..XXXX..", ".XXXXXX.", "XXXXXXXX", ".X.XX.X.", ".X.XX.X.", ".X.XX.X.", "XXXXXXXX"],
   },
+  // paysafecard: karta z 16-cyfrowym kodem (jednokolorowa jak karta i telefon)
+  voucher: {
+    colors: { X: C },
+    grid: ["XXXXXXXX", "X......X", "X.X.X.XX", "X......X", "XXXXXXXX", "X......X", "X.XX.X.X", "XXXXXXXX"],
+  },
   phone: {
     colors: { X: C },
     grid: [".XXXXXX.", ".X....X.", ".X....X.", ".X....X.", ".X....X.", ".XXXXXX.", ".XXX.XX.", ".XXXXXX."],
@@ -313,6 +318,46 @@ const icons = {
   mail: {
     colors: { X: C },
     grid: ["XXXXXXXX", "XX....XX", "X.X..X.X", "X..XX..X", "X......X", "X......X", "XXXXXXXX", "........"],
+  },
+  home: {
+    colors: { X: C },
+    grid: ["...XX...", "..XXXX..", ".XXXXXX.", "XXXXXXXX", ".X....X.", ".X.XX.X.", ".X.XX.X.", ".XXXXXX."],
+  },
+  bell: {
+    colors: { X: C },
+    grid: ["...XX...", "..XXXX..", ".XX..XX.", ".X....X.", ".X....X.", "XX....XX", "XXXXXXXX", "...XX..."],
+  },
+  book: {
+    colors: { X: C },
+    grid: ["XXX..XXX", "X..XX..X", "X..XX..X", "X..XX..X", "X..XX..X", "X..XX..X", "XXXXXXXX", "...XX..."],
+  },
+  eye: {
+    colors: { X: C },
+    grid: ["........", "..XXXX..", ".X....X.", "X..XX..X", "X..XX..X", ".X....X.", "..XXXX..", "........"],
+  },
+  chevronLeft: {
+    colors: { X: C },
+    grid: ["....XX..", "...XX...", "..XX....", ".XX.....", ".XX.....", "..XX....", "...XX...", "....XX.."],
+  },
+  chevronRight: {
+    colors: { X: C },
+    grid: ["..XX....", "...XX...", "....XX..", ".....XX.", ".....XX.", "....XX..", "...XX...", "..XX...."],
+  },
+  tag: {
+    colors: { X: C },
+    grid: ["XXXX....", "X..XX...", "X.X.XX..", "X....XX.", "XX....XX", ".XX...X.", "..XX.X..", "...XX..."],
+  },
+  arrowUp: {
+    colors: { X: C },
+    grid: ["...XX...", "..XXXX..", ".XXXXXX.", "XXXXXXXX", "...XX...", "...XX...", "...XX...", "...XX..."],
+  },
+  crownLine: {
+    colors: { X: C },
+    grid: ["X..XX..X", "XX.XX.XX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "........", "XXXXXXXX", "XXXXXXXX"],
+  },
+  play: {
+    colors: { X: C },
+    grid: ["XX......", "XXXX....", "XXXXXX..", "XXXXXXXX", "XXXXXXXX", "XXXXXX..", "XXXX....", "XX......"],
   },
 } satisfies Record<string, IconDef>;
 
